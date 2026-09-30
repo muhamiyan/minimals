@@ -1,0 +1,365 @@
+# CLAUDE.md
+
+Guidance untuk Claude saat bekerja di project **minimals**.
+
+> **Project ini berbeda dari root repo `cells`.** `minimals` adalah Flask app
+> **single-service** mandiri: punya `app/` + `framework/` sendiri, tidak ada
+> `core/`, tidak ada `sdk/`, tidak ada entry-point discovery, tidak ada gateway.
+> CLAUDE.md di root `cells/` tidak berlaku di sini — dokumen ini yang governs.
+
+## Project Overview
+
+**Minimals** — production-ready Flask app untuk cPanel/VPS di belakang Caddy,
+dengan Vue 3 SPA (frappe-ui) yang di-serve oleh Flask sendiri.
+
+| Path | Role |
+|---|---|
+| `framework/` | Shared, service-agnostic: base classes, API utils, exceptions, extensions, infra, logging, RBAC helpers |
+| `app/` | Service ini: `auth` + `account` domain, `infra` cross-domain, migrations, config, entry point |
+| `frontend/` | Vue 3 + Vite + Pinia + frappe-ui SPA. Build output → `app/static/frontend/` |
+| `tests/` | pytest, 1 file per concern + `conftest.py` |
+| `frappe-ui/` | Checkout sibling dari upstream (git-ignored, `.git` sendiri). **Bukan** dependency yang di-resolve build — `frontend/` ambil `frappe-ui@1.0.0-rc.2` dari npm. Referensi baca saja. **Jangan diedit.** |
+
+Single service, so: tidak ada `cells.services` discovery, tidak ada cross-service
+SDK. Endpoint `/api/v1/app/*` adalah read API untuk service **luar** repo ini
+(gated internal token / admin) — bukan untuk `core`.
+
+## Commands
+
+```bash
+uv sync                        # install deps (single project)
+uv run pytest                  # test suite
+uv run ruff check .            # lint
+uv run python -m app.run       # serve (waitress, default :8000)
+uv run minimals                # sama — entry point script
+
+# Frontend
+cd frontend && yarn install && yarn dev     # Vite dev :5173, proxy /api → :8000
+cd frontend && yarn build                   # → app/static/frontend/
+cd frontend && yarn typecheck               # vue-tsc --noEmit
+
+# Shortcut dari root
+yarn serve / yarn dev / yarn build
+```
+
+Local HTTP dev wajib `FORCE_HTTPS=false`. Default **kode** `false`, tapi
+`.env.example` ship `true` → loop redirect tanpa TLS proxy. Migration on boot:
+`MIGRATE_ON_BOOT=true`.
+
+## Architecture
+
+### Domain-first layout
+
+Tiap domain di `app/<domain>/`:
+
+| File | Isi |
+|---|---|
+| `api.py` | HTTP saja: guard → validate DTO → delegate service → serialize presenter |
+| `dto.py` | Pydantic input validation |
+| `services.py` | Business logic + **transaction boundary** |
+| `repositories.py` | Query & persistence — **tanpa** commit |
+| `models.py` | SQLAlchemy model |
+| `presenters.py` | Output serialization (camelCase) |
+| `__init__.py` | Public surface — re-export `bp`, service, DTO, model, presenter |
+
+Domain boleh punya `api_*.py` tambahan kalau butuh blueprint kedua di prefix
+yang sama (`account/api_key_api.py` → `account_api_key_bp`). Semuanya tetap
+sebagai `api` di layering.
+
+`app/infra/` = cross-domain: health, CSRF, roles, audit, rate limit, security,
+setup wizard, read API, API-key auth, db bootstrap.
+
+Layered order — dependency hanya ke bawah:
+`api → dto → services → repositories → models → presenters`
+
+**Domain memanggil domain lain lewat repository yang di-inject ke service.**
+`account` butuh user/role → lewat `AccountRepository` + `RoleRepository` yang
+di-inject ke `AccountService`. Referensi: `app/account/services.py` constructor.
+
+> **Known deviation:** aturan "service, bukan model" **belum sepenuhnya dipatuhi**.
+> `app/account/services.py:7` masih `from app.auth.models import ... Role, User`
+> (repository & presenter juga, `repositories.py:5`, `presenters.py:5`). Jangan
+> tambah yang baru; kalau bisa, arahkan ke repository.
+
+### Base classes (dari `framework/base`)
+
+- **`DTOBase`** — `populate_by_name=True` (terima `fullName` **dan** `full_name`).
+  `DTOBase.field(..., alias="fullName", min_length=8)`. **Tidak ada inferensi
+  alias otomatis** — field snake_case tanpa `alias=` tetap snake_case di wire
+  dan `fullName` dari client akan diabaikan (jatuh ke default). Tulis alias
+  camelCase eksplisit di setiap field yang lewat API. `Cls.validate(
+  request.get_json() or {})` → instance, atau `ValidationFailed` dengan key
+  mis. `email_invalid_email`.
+- **`PresenterBase`** — `from_model(obj, **overrides)` baca atribut via alias,
+  coerce datetime → ISO-8601. `.to_dict()` default `by_alias=True` (camelCase).
+  Tambahkan field presenter = menambah kontrak API (lihat §Wire format).
+- **`ServiceBase[R]`** — wajib set `repository_class`. `_commit()` (catch
+  `IntegrityError` → `Conflict("integrity_error")` + rollback), `_flush()`,
+  `_rollback()`. **Semua commit terjadi di sini**, hanya di sini.
+- **`RepositoryBase[T]`** — wajib set `model`. `get/find_one/find/list/count/
+  add/delete/paginate`. **Transaction-agnostic — jangan pernah commit di sini.**
+
+### Request lifecycle
+
+```
+:8000 → waitress → Caddy (TLS) → Flask
+  /api/v1/*  → blueprint domain (CSRF dicek, kecuali yang di-exempt)
+  /static/frontend/* → build asset SPA (cache 1 jam, filename content-hashed)
+  /uploads/* → app/static/uploads (TANPA auth)
+  /*        → SPA: file nyata bila ada, else index.html
+  /health /ready → health check
+```
+
+`register_spa()` dipanggil **setelah** semua blueprint, sebelum
+`register_error_handlers()` — urutan ini wajib, catch-all tidak boleh shadow
+rute API.
+
+## Adding a Domain
+
+1. `app/<domain>/` dengan 7 file di atas (`__init__.py`, `api.py`, `dto.py`,
+   `models.py`, `presenters.py`, `repositories.py`, `services.py`).
+2. `bp = BlueprintFactory("<name>", __name__, url_prefix="/api/v1/<name>")` di `api.py`.
+3. **Import model di `app/create_app.py`** (blok `with app.app_context()`) —
+   tanpa ini tabel tidak ikut `db.create_all()` / autodetect.
+4. `app.register_blueprint(bp)` di `create_app.py`, **sebelum** `register_spa`.
+5. **Tambah baris endpoint di tabel `README.md`** — `tests/test_docs.py`
+   membandingkan tabel README dengan `app.url_map`. Kalau lupa, test gagal.
+6. Tambah test di `tests/test_<domain>.py`.
+
+Tidak ada CLI generator di project ini (berbeda dengan root `cells`).
+
+## Wire format (kontrak — diuji `tests/test_contract.py`)
+
+Tidak ada `{"data": ...}` envelope.
+
+| Kasus | Bentuk |
+|---|---|
+| Single / mutasi sukses | objek telanjang, `200`/`201` |
+| List | `{"items": [...]}` |
+| Paginated | `{"items", "total", "page", "perPage"}` (`perPage` camelCase) |
+| No content | `204`, body kosong |
+| Error | `{"message": "<snake_case_key>"}` |
+
+- Response **selalu camelCase**. DTO/presenter enforce lewat alias.
+- Error key **selalu snake_case** lowercase (`role_not_found`). Setup wizard
+  juga mengikuti aturan ini: `db_bootstrap.db_error_key()` memetakan exception
+  driver ke key (`invalid_db_credentials`, `db_unreachable`, `db_not_found`,
+  `db_timeout`, `unknown_db_host`, `db_connection_failed`). Detail host/port
+  tetap di log server, tidak bocor ke response.
+- FE humanisasi via `getErrorMessage()`: `not_found` → `Not found`.
+
+## Error contract
+
+`framework/exceptions` — semua membawa HTTP status, dipetakan otomatis oleh
+`register_domain_handlers()`:
+
+| Exception | Status | Pakai untuk |
+|---|---|---|
+| `NotFound` | 404 | resource tidak ada |
+| `Unauthorized` | 401 | butuh auth |
+| `Forbidden` | 403 | auth ok, akses ditolak |
+| `ValidationFailed` | 400 | input tidak valid |
+| `Conflict` | 409 | duplikat / race |
+| `InvalidOperation` | 422 | aturan bisnis dilanggar |
+
+`DomainException` base = 400. `ValueError` **tidak** di-handle → jadi 500
+(sengaja: itu programming error, bukan client error).
+
+Handler inherited (400/401/403/404/405/413/422/429/500 + `CSRFError`) punya key
+tetap. **Service raise exception, bukan return response.** Layer
+tanggung jawab: DTO (shape) → Service (business) → API (auth + HTTP status).
+
+## Auth & Authorization
+
+Dua mekanisme, keduanya menghasilkan `current_user`:
+
+1. **Session** — Flask-Login. `@login_required`.
+2. **API key** — header `X-API-Key: sk-...`, dicek di `before_request`
+   (`app/infra/api_key_auth.py`), lalu `login_user(..., force=True)`. Key
+   disimpan **bcrypt-hashed** + `prefix` 10 char untuk lookup; raw key hanya
+   muncul sekali di respons create.
+
+Dua konsep role, jangan dicampur:
+
+- **`User.app_role`** — kolom string, nilainya `"user"` atau `"admin"`. Ini yang
+  dicek `require_role("admin")`. Sangat sederhana, hard-coded.
+- **`Role` + `user_roles`** — tabel role relasional (seeded `Member`).
+  Untuk display/label dan FUTURE permission granularity.
+
+`require_role(*roles)` / `require_owner_or_role(owner_id, *roles)` dari
+`framework.auth` — return `None` kalau boleh, atau response tuple yang langsung
+di-`return` dari view:
+
+```python
+if denied := require_role("admin"):
+    return denied
+```
+
+## CSRF
+
+- Aktif `CSRF_ENABLED` (default true). Token dari `GET /api/v1/csrf`.
+- Blueprint **di-exempt**: `app_api`, `csrf`, `health`. Daftarkan di
+  `create_app._init_csrf()`.
+- Setelah login/register: `clear_session_keep_csrf()` — session di-clear tapi
+  token CSRF dipertahankan, supaya token tidak invalid setelah login.
+- FE: interceptor axios otomatis ambil + kirim `X-CSRFToken` untuk
+  POST/PUT/PATCH/DELETE, dengan retry sekali kalau ditolak.
+
+## Migrations
+
+- **Satu** direktori Alembic: `app/migrations/`. Single service — tidak pernah
+  `flask db` dari tempat lain.
+- `MIGRATE_ON_BOOT=true` → `upgrade()` jalan sebelum server start.
+- Command manual: `uv run flask --app app.create_app:create_app db upgrade`
+- **Alpha: fix di titik masalah, jangan numpuk history.** Schema salah →
+  edit `0001_initial.py` langsung, bukan tambah revision baru. Hanya tambah
+  revision kalau user minta.
+- Index di `0001_initial.py` harus **selaras dengan `index=True` di model** —
+  test path (`db.create_all()`) dan production path (`flask db upgrade`)
+  harus menghasilkan skema identik. Kalau model berubah, index di migrasi
+  ikut berubah.
+- Setup wizard menjalankan `migrate_to(url, MIGRATIONS_DIR)` dengan engine
+  sendiri (`target_metadata = None`, autogenerate tidak dipakai) —migration
+  harus eksplisit.
+
+## Config
+
+`.env` di root project. `BaseConfig` (`framework/infra/config.py`) membaca
+semua; `app/config.py` menambah path & static.
+
+| Var | Default | Notes |
+|---|---|---|
+| `SECRET_KEY` | — | **Wajib**, ≥32 chars, bukan placeholder (dicek, raise saat import) |
+| `DATABASE_URL` | `sqlite:///app.db` | Path relatif → `data/`. sqlite / mysql+pymysql / postgresql+psycopg |
+| `FLASK_DEBUG` | `false` | `true` → dev server, bukan waitress |
+| `PORT` | `8000` | |
+| `FORCE_HTTPS` | `false` | Cookie secure, HSTS, SameSite=None |
+| `TRUSTED_PROXY` | `false` | Lihat §Security |
+| `CSRF_ENABLED` | `true` | |
+| `CORS_ORIGINS` | — | CSV. Kosong = CORS mati, SameSite=Lax |
+| `RATE_LIMIT_DEFAULT` | `200/hour` | Route API saja |
+| `RATE_LIMIT_AUTH` | `10/minute` | Login & register |
+| `RATE_LIMIT_STORAGE_URL` | — | Kosong = in-memory (single worker) |
+| `TALISMAN_ENABLED` | ikut `FORCE_HTTPS` | CSP + HSTS + secure headers |
+| `TALISMAN_CSP` | `DEFAULT_CSP` di `framework/extensions/talisman.py:6` | Dikosongkan = pakai default. **Jangan** diisi string kosong agar CSP mati — `init_talisman` jatuh ke `DEFAULT_CSP` |
+| `LOG_LEVEL` / `LOG_FILE` | `INFO` / `data/app.log` | Default di `app/config.py:46`. `data/` = satu-satunya path writable di container. File handler = rotating 10MB × 5 |
+| `ALERT_WEBHOOK_URL` | — | Alert record → webhook (async, queue) |
+| `INTERNAL_API_TOKEN` | — | Gate `/api/v1/app/*` untuk non-browser client |
+| `MIGRATE_ON_BOOT` | `false` | |
+| `SQLALCHEMY_POOL_*` | 10/20/30/1800 | **Diabaikan untuk sqlite** |
+
+## Security model
+
+- **Proxy trust bersifat ganda.** `TRUSTED_PROXY=true` saja tidak cukup —
+  rewrite `X-Forwarded-*` hanya dipakai kalau socket peer juga
+  private/loopback. Header dari peer publik tidak pernah dipercaya, walau flag
+  aktif. `RAW_REMOTE_ADDR` disimpan sebelum ProxyFix untuk ini.
+- **Setup wizard hanya lokal/private.** `POST /api/v1/setup*` menolak kecuali
+  raw socket peer **dan** effective address **dan** `X-Forwarded-For` terakhir
+  semuanya private/loopback. SQL-injection ke cloud metadata juga dicek
+  (`_deny_metadata_host` menolak link-local).
+- **Rate limit** di-key per IP efektif; exempt: SPA asset/route, `/uploads/*`,
+  `/health`, `/ready`.
+- **Audit trail** — `audit_log(action, user_id=, resource=, details=)` pada
+  setiap write penting (register, login, logout, update user/role). Nunca
+  gagalkan operasi bisnis kalau audit gagal.
+- **Password** — `werkzeug.security.generate_password_hash`, default **scrypt**
+  (`scrypt:32768:8:1`). Policy: min 8, upper + lower + digit + special.
+- **API key** — **bcrypt** hash (`app/account/models.py`), prefix 10 char untuk
+  lookup, raw key hanya muncul sekali di respons create, `masked_name` di list.
+
+## Frontend
+
+Vue 3 + Vite + Pinia + frappe-ui (`1.0.0-rc.2`), TypeScript strict.
+
+```
+src/
+  app/       AppShell, useMediaQuery — shell & layout
+  features/  <feature>/{routes.ts, store.ts, views/*.vue} — auth, setup, dashboard
+  shared/    api/{client.ts, errors.ts, index.ts} — SATU-SATUNYA axios instance
+  router/    index.ts + guard.ts + meta.d.ts
+```
+
+- **Selalu** `import { api } from '@/shared/api'` dengan route tanpa prefix
+  (`baseURL: '/api/v1'` sudah handles). **Jangan** `axios.create()` baru,
+  **jangan** `fetch()`, **jangan** set header CSRF manual.
+- **Jangan pakai data-layer frappe-ui** — `useCall`, `useList`, `createResource`,
+  `useFetch` mengasumsikan backend Frappe. Repo ini Flask. Skill upstream
+  misleading di bagian itu.
+- **Error handling di store**: `error.value = getErrorMessage(e, fallback)` —
+  FE humanisasi snake_case jadi sentence. Return `null`/`false` agar view tahu
+  gagal; `toast` **setelah** await selesai.
+- **Router guard urutan**: setup dulu (`setupRequired` → semua nav ke `/setup`),
+  baru auth (`requiresAuth` / `guestOnly`). `setupRequired` = schema atau
+  user kosong.
+- **401 global**: interceptor fire event `auth:unauthorized` → router
+  redirect. **Jangan** tangani 401 per-request.
+- **Ikon**: `lucide-*` (string, via unplugin-icons). Shape:
+  `<span class="lucide-log-in size-6" aria-hidden="true" />` atau
+  `:icon-left="'lucide-log-in'"`.
+- **Styling**: Tailwind + token frappe-ui v1 (`text-2xl-semibold`,
+  `text-p-sm`, `rounded-6`, `bg-surface-elevation-2`, `text-ink-gray-8`).
+  Jangan pakai palet Tailwind mentah untuk surface/ink.
+
+> **Skills di `.claude/skills/`** — `wiring` (bridges frontend↔Flask: axios
+> client, Pinia, CSRF, auth flow), `polish` (cosmetics/presentasi), dan `review`
+> (review & fix workflow atas git working tree) semuanya memakai path yang
+> cocok dengan project ini. Kalau skill dan `frontend/src/`/`app/` bertentangan,
+> **kode yang menang**.
+
+## Tests
+
+```bash
+uv run pytest
+uv run pytest tests/test_auth.py -q
+```
+
+Fixture di `tests/conftest.py`: `app`, `client` (CSRF-ready), `member`, `admin`.
+`csrf_client(app)` ambil token dulu lalu set `HTTP_X_CSRFTOKEN`. Test DB = sqlite
+di temp dir, dibuat via `db.create_all()`.
+
+`tests/test_docs.py` menjaga agar **README dan `url_map` sinkron** — tambah
+endpoint wajib tambah baris di tabel README. Ini gotcha paling sering
+terlewat.
+
+## Pitfalls
+
+1. **Daftar endpoint baru = tambah baris README**, atau `test_docs.py` gagal.
+2. **Presenter baru = kontrak API berubah.** Menambah field ke presenter yang
+   sudah ada itu breaking — tambah endpoint baru atau presenter terpisah,
+   jangan ganggu yang lama.
+3. **Tambah kolom model = tambah kolom di `0001_initial.py`** (alpha, single
+   migration), bukan revision baru.
+4. **Model harus di-import di `create_app.py`** agar terdaftar di metadata.
+5. **Blueprint harus didaftarkan sebelum `register_spa`** — catch-all akan
+   menshadow.
+6. **Blueprint baru yang kena CSRF** — exempt di `_init_csrf()` kalau memang
+   non-browser (API key, health, read API).
+7. **`index.html` dirender lewat Jinja** (`_render_index_html`) untuk inject
+   `{% for key in boot %}`. Sintaks `{{ }}` / `{% %}` literal di `index.html`
+   akan ikut dieksekusi Jinja — jangan tulis raw.
+8. **Commit hanya di service.** `db.session.commit()` di repository atau
+   `api.py` = pelanggaran boundary; `IntegrityError` tidak akan caught.
+   Logout auth sudah lewat `AuthService.record_logout()`.
+9. **`FORCE_HTTPS=true` tanpa TLS proxy = loop redirect.** Set `false` untuk
+   local HTTP.
+10. **`data/` dan `app/static/frontend/` git-ignored** — hasil runtime/build,
+    jangan di-commit. `LOG_FILE` default mengarah ke `data/app.log` agar
+    container non-root tetap bisa menulis.
+11. **Relative sqlite path** di-resolve ke `data/` (volume-friendly di Docker).
+    Ganti engine lewat `DATABASE_URL`, bukan hardcode.
+12. **UUID = UUIDv7** (`framework.infra.uuid7`) — time-ordered, bukan `uuid4`.
+    Primary key selalu `String(36)` + `default=_uuid`.
+13. **Migrasi on boot jalan di dalam `create_app()`**, sebelum
+    `ensure_member_role()` — jangan panggil `run_migrations()` lagi di
+    `run.py`, dan jangan seed sebelum migrasi.
+
+## Deployment
+
+`Dockerfile` (python:3.11-slim, non-root `appuser`, `/app/data` volume) +
+`docker-compose.yml` (bind `127.0.0.1:8000`, `MIGRATE_ON_BOOT=true`) +
+`Caddyfile` (TLS + reverse proxy). Setup: build FE → `.env` dengan `SECRET_KEY`
+nyata → Caddy → `TRUSTED_PROXY=true` di belakang proxy.
+
+Known gaps ada di README § *Security notes* (`/uploads/*` tanpa auth,
+`/register` terbuka, status endpoint publik). Baca sebelum eksposur internet.

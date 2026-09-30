@@ -1,0 +1,56 @@
+[project]
+name = "minimals"
+version = "0.1.0"
+description = "Minimals — production-ready Flask app for cPanel/VPS with Caddy"
+requires-python = ">=3.11"
+dependencies = [
+    "flask>=3.0.0",
+    "flask-sqlalchemy>=3.1.0",
+    "flask-migrate>=4.0.0",
+    "flask-login>=0.6.0",
+    "flask-cors>=4.0.0",
+    "flask-wtf>=1.2.0",
+    "flask-talisman>=1.0.0",
+    "flask-limiter>=3.0.0",
+    "waitress>=3.0.0",
+    "werkzeug>=3.0.0",
+    "sqlalchemy>=2.0.0",
+    "alembic>=1.13.0",
+    "pydantic>=2.0",
+    "python-dotenv>=1.0.0",
+    "bcrypt>=4.0.0",
+    "jinja2>=3.0.0",
+    "pymysql>=1.1.0",
+    "psycopg[binary]>=3.1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3.3",
+    "ruff>=0.6.0",
+]
+
+[project.scripts]
+minimals = "app.run:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["app", "framework"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 88
+extend-exclude = ["frappe-ui"]
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "W", "I", "UP", "RUF"]
+ignore = ["RUF012"]
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+addopts = "-ra --strict-markers"
+pythonpath = ["."]
