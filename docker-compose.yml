@@ -1,0 +1,14 @@
+services:
+  app:
+    build: .
+    ports:
+      - "127.0.0.1:8000:8000"
+    env_file:
+      - .env
+    environment:
+      MIGRATE_ON_BOOT: "true"
+      TRUSTED_PROXY: "true"
+      FORCE_HTTPS: "true"
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped

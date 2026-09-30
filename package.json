@@ -1,0 +1,10 @@
+{
+  "name": "minimals",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "build": "cd frontend && yarn build",
+    "dev": "cd frontend && yarn dev",
+    "serve": "uv run python -m app.run"
+  }
+}
