@@ -5,6 +5,7 @@ from sqlalchemy import or_
 
 from app.auth.models import Role, User
 from framework.base import RepositoryBase
+from framework.extensions import db
 
 
 class UserRepository(RepositoryBase[User]):
@@ -20,14 +21,10 @@ class UserRepository(RepositoryBase[User]):
 
     def find_by_identifier(self, identifier: str) -> User | None:
         return (
-            self._session().query(User)
+            db.session.query(User)
             .filter(or_(User.email == identifier, User.username == identifier))
             .first()
         )
-
-    def _session(self):
-        from framework.extensions import db
-        return db.session
 
 
 class RoleRepository(RepositoryBase[Role]):

@@ -11,7 +11,6 @@ from framework.api import (
     BlueprintFactory,
     PageIn,
     created,
-    error,
     no_content,
     ok,
     paginate,
@@ -52,8 +51,6 @@ def get_user(user_id: str):
             return denied
 
     user = AccountService().get_user(user_id)
-    if user is None:
-        return error("user_not_found", 404)
     return ok(UserAdminOut.from_user(user).to_dict())
 
 
@@ -107,8 +104,5 @@ def delete_role(role_id: str):
     if denied := require_role("admin"):
         return denied
 
-    service = AccountService()
-    if service.get_role(role_id) is None:
-        return error("role_not_found", 404)
-    service.delete_role(role_id, actor_id=current_user.id)
+    AccountService().delete_role(role_id, actor_id=current_user.id)
     return no_content()

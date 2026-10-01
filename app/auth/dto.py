@@ -9,10 +9,10 @@ from framework.base import DTOBase
 class RegisterIn(DTOBase):
     """Validate a registration payload."""
 
-    email: str
+    email: str = DTOBase.field(..., max_length=255)
     username: str = DTOBase.field(..., min_length=3, max_length=150)
     password: str = DTOBase.field(..., min_length=8)
-    full_name: str = DTOBase.field(..., alias="fullName")
+    full_name: str = DTOBase.field(..., alias="fullName", max_length=255)
 
     @field_validator("email")
     @classmethod
@@ -54,7 +54,7 @@ class RegisterIn(DTOBase):
 class LoginIn(DTOBase):
     """Validate a login payload — ``identifier`` is email OR username."""
 
-    identifier: str = DTOBase.field(..., alias="identifier")
+    identifier: str = DTOBase.field(...)
     password: str
 
     @field_validator("identifier")

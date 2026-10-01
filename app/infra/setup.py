@@ -20,15 +20,17 @@ def _client_ip(value: str | None):
 
 
 def _is_local(addr) -> bool:
-    return addr is not None and (addr.is_private or addr.is_loopback)
+    return addr is not None and addr.is_loopback
 
 
 def _deny_public_client():
-    """Setup wizard is only reachable from the local/private network.
+    """Setup wizard is only reachable from the host itself.
 
-    Checks the raw socket peer (pre-ProxyFix) so a forged X-Forwarded-For
-    cannot spoof locality, and rejects forwarded requests whose real client
-    is public (e.g. a proxy is in front but TRUSTED_PROXY is off).
+    Every hop must be loopback: the raw socket peer (pre-ProxyFix)
+    so a forged X-Forwarded-For cannot spoof locality, the effective
+    address, and the last forwarded entry. A private-network client
+    (e.g. another VM in the same cloud VPC) is rejected — it could
+    otherwise create an admin and rewrite DATABASE_URL.
     """
     peer = _client_ip(request.environ.get("RAW_REMOTE_ADDR") or request.remote_addr)
     if not _is_local(peer):
