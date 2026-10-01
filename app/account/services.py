@@ -35,8 +35,11 @@ class AccountService(ServiceBase[AccountRepository]):
     def list_all_users(self) -> list[User]:
         return self._repo.list(order_by=User.id)
 
-    def get_user(self, user_id: str) -> User | None:
-        return self._repo.get_user(user_id)
+    def get_user(self, user_id: str) -> User:
+        user = self._repo.get_user(user_id)
+        if user is None:
+            raise NotFound("user_not_found")
+        return user
 
     def update_user(self, user_id: str, dto: UserUpdateIn, *, actor_id: str) -> User:
         user = self._repo.get_user(user_id)
@@ -77,9 +80,6 @@ class AccountService(ServiceBase[AccountRepository]):
     # --- roles --------------------------------------------------------
     def list_roles(self) -> list[Role]:
         return self._roles.list_all()
-
-    def get_role(self, role_id: str) -> Role | None:
-        return self._roles.get(role_id)
 
     def create_role(self, name: str, *, actor_id: str) -> Role:
         if self._roles.find_by_name(name) is not None:

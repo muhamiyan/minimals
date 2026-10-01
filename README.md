@@ -41,7 +41,7 @@ semua navigasi ke `/setup`: pilih database, tes koneksi, buat administrator.
 Wizard menulis `DATABASE_URL` ke `.env`, memigrasi target, dan membuat admin;
 kalau target beda dari engine yang jalan, responsnya `restartRequired`.
 
-Endpoint wizard hanya menerima klien private/loopback, jadi buka dari server
+Endpoint wizard hanya menerima klien loopback, jadi buka dari server
 sendiri atau lewat SSH tunnel (`ssh -L 8000:localhost:8000 server` →
 `http://127.0.0.1:8000/setup`).
 
@@ -108,8 +108,8 @@ Detail lengkap: [`CLAUDE.md`](CLAUDE.md), [`framework/README.md`](framework/READ
 | POST | /api/v1/auth/logout | Logout (session) |
 | GET | /api/v1/auth/me | Current user (session) |
 | GET | /api/v1/setup/status | First-run setup status (public) |
-| POST | /api/v1/setup/db-test | Test DB connection (private/loopback client only) |
-| POST | /api/v1/setup | Run first-run setup (private/loopback client only) |
+| POST | /api/v1/setup/db-test | Test DB connection (loopback client only) |
+| POST | /api/v1/setup | Run first-run setup (loopback client only) |
 | GET | /api/v1/csrf | Fetch CSRF token (public) |
 | GET | /api/v1/account/users | List users (admin) |
 | GET | /api/v1/account/users/:id | Fetch one user (owner or admin) |

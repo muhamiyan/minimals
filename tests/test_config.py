@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import pytest
+from flask import Flask
+
 from framework.infra.config import _engine_options
 
 
@@ -33,3 +36,22 @@ def test_dead_talisman_csp_config_is_gone():
     from app.config import Config
 
     assert not hasattr(Config, "TALISMAN_CONTENT_SECURITY_POLICY")
+
+
+def test_cors_wildcard_is_rejected_with_credentials():
+    from app.create_app import _init_cors
+
+    application = Flask(__name__)
+    application.config["CORS_ORIGINS"] = ["*"]
+    application.config["CORS_SUPPORTS_CREDENTIALS"] = True
+    with pytest.raises(ValueError):
+        _init_cors(application)
+
+
+def test_cors_explicit_origins_are_accepted():
+    from app.create_app import _init_cors
+
+    application = Flask(__name__)
+    application.config["CORS_ORIGINS"] = ["https://example.com"]
+    application.config["CORS_SUPPORTS_CREDENTIALS"] = True
+    _init_cors(application)

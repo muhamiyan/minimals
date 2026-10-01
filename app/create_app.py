@@ -21,6 +21,12 @@ def _init_cors(app: Flask) -> None:
     if not origins:
         return
 
+    if "*" in origins:
+        raise ValueError(
+            "CORS_ORIGINS='*' is not allowed: with credentials enabled "
+            "flask-cors would echo any Origin. List explicit origins."
+        )
+
     cors.init_app(
         app,
         resources={r"/api/*": {"origins": origins}},

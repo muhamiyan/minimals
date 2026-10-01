@@ -254,9 +254,10 @@ semua; `app/config.py` menambah path & static.
   rewrite `X-Forwarded-*` hanya dipakai kalau socket peer juga
   private/loopback. Header dari peer publik tidak pernah dipercaya, walau flag
   aktif. `RAW_REMOTE_ADDR` disimpan sebelum ProxyFix untuk ini.
-- **Setup wizard hanya lokal/private.** `POST /api/v1/setup*` menolak kecuali
+- **Setup wizard hanya loopback.** `POST /api/v1/setup*` menolak kecuali
   raw socket peer **dan** effective address **dan** `X-Forwarded-For` terakhir
-  semuanya private/loopback. SQL-injection ke cloud metadata juga dicek
+  semuanya loopback — klien private network (sesama VM di VPC) ditolak.
+  SQL-injection ke cloud metadata juga dicek
   (`_deny_metadata_host` menolak link-local).
 - **Rate limit** di-key per IP efektif; exempt: SPA asset/route, `/uploads/*`,
   `/health`, `/ready`.

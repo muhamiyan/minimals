@@ -52,6 +52,20 @@ def test_register_rejects_short_password(client):
     }
 
 
+def test_register_rejects_overlong_email(client):
+    response = register(client, email="a" * 250 + "@example.com")
+    assert response.status_code == 400
+    assert response.get_json() == {"message": "email_too_long"}
+
+
+def test_register_rejects_overlong_full_name(client):
+    response = register(client, fullName="N" * 256)
+    assert response.status_code == 400
+    body = response.get_json()
+    assert set(body) == {"message"}
+    assert body["message"].endswith("_too_long")
+
+
 def test_register_rejects_password_without_digit(client):
     response = register(client, password="Strng!Pass")
     assert response.status_code == 400

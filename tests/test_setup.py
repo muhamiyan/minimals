@@ -29,7 +29,7 @@ def test_db_error_key_returns_snake_case(exc, expected):
     assert db_error_key(exc) == expected
 
 
-def test_db_test_allowed_from_local_network(client, tmp_path):
+def test_db_test_allowed_from_loopback(client, tmp_path):
     target = tmp_path / "probe.db"
     response = client.post(
         "/api/v1/setup/db-test",
@@ -45,6 +45,13 @@ def test_db_test_allowed_from_local_network(client, tmp_path):
 
 def test_db_test_blocked_from_public_client(client):
     client.environ_base["REMOTE_ADDR"] = "8.8.8.8"
+    response = client.post("/api/v1/setup/db-test", json={"engine": "sqlite"})
+    assert response.status_code == 403
+    assert response.get_json() == {"message": "forbidden"}
+
+
+def test_db_test_blocked_from_private_network(client):
+    client.environ_base["REMOTE_ADDR"] = "192.168.1.10"
     response = client.post("/api/v1/setup/db-test", json={"engine": "sqlite"})
     assert response.status_code == 403
     assert response.get_json() == {"message": "forbidden"}
