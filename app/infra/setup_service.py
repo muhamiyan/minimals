@@ -169,11 +169,24 @@ class SetupService:
                 logger.exception("setup seeding/admin failed")
                 raise DomainException("setup_admin_failed", status_code=500) from None
 
-            restart = _requires_restart(active_url, url)
+            # The wizard already migrated and seeded through its own engine, so
+            # the new database is complete. Point the live engine at it instead
+            # of asking the operator to restart. If this fails the application
+            # keeps serving the previous database and the .env write above means
+            # a restart still lands on the new one.
+            if _requires_restart(active_url, url):
+                try:
+                    db_bootstrap.repoint_engine(url)
+                except Exception:
+                    logger.exception("setup engine re-point failed")
+                    raise DomainException(
+                        "setup_repoint_failed", status_code=500
+                    ) from None
+
             return {
                 "adminId": admin_id,
                 "email": dto.admin.email,
-                "restartRequired": restart,
+                "restartRequired": False,
             }
 
 
