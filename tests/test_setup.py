@@ -103,3 +103,174 @@ def test_db_test_blocks_link_local_target(client):
     )
     assert response.status_code == 400
     assert response.get_json() == {"message": "unsupported_host"}
+
+
+def test_db_test_rejects_relative_sqlite_path(client):
+    response = client.post(
+        "/api/v1/setup/db-test", json={"engine": "sqlite", "path": "app.db"}
+    )
+    assert response.status_code == 400
+    assert response.get_json() == {"message": "invalid_db_path"}
+
+
+def test_db_test_rejects_sqlite_path_traversal(client):
+    response = client.post(
+        "/api/v1/setup/db-test",
+        json={"engine": "sqlite", "path": "/var/lib/../../etc/passwd"},
+    )
+    assert response.status_code == 400
+    assert response.get_json() == {"message": "invalid_db_path"}
+
+
+def test_db_test_rejects_host_injection(client):
+    response = client.post(
+        "/api/v1/setup/db-test",
+        json={
+            "engine": "postgresql",
+            "host": "db.internal@evil.example",
+            "database": "app",
+            "username": "u",
+            "password": "p",
+        },
+    )
+    assert response.status_code == 400
+    assert response.get_json() == {"message": "invalid_db_host"}
+
+
+def test_db_test_rejects_database_path_injection(client):
+    response = client.post(
+        "/api/v1/setup/db-test",
+        json={
+            "engine": "postgresql",
+            "host": "localhost",
+            "database": "app/../other",
+            "username": "u",
+            "password": "p",
+        },
+    )
+    assert response.status_code == 400
+    assert response.get_json() == {"message": "invalid_db_name"}
+
+
+def test_setup_rejects_weak_admin_password(client):
+    response = client.post(
+        "/api/v1/setup",
+        json={
+            "db": {"engine": "sqlite", "path": "/tmp/minimals-rejected.db"},
+            "admin": {
+                "email": "boss@example.com",
+                "password": "aaaaaaaa",
+                "fullName": "Boss User",
+            },
+        },
+    )
+    assert response.status_code == 400
+    assert response.get_json()["message"].endswith(
+        "password_must_contain_uppercase"
+    )
+
+
+def test_setup_rejects_blank_admin_username(client):
+    response = client.post(
+        "/api/v1/setup",
+        json={
+            "db": {"engine": "sqlite", "path": "/tmp/minimals-rejected.db"},
+            "admin": {
+                "email": "boss@example.com",
+                "username": "   ",
+                "password": "Str0ng!Pass",
+                "fullName": "Boss User",
+            },
+        },
+    )
+    assert response.status_code == 400
+    assert response.get_json()["message"].endswith(
+        "username_must_be_at_least_3_characters"
+    )
+
+
+@pytest.fixture()
+def restore_engine(app):
+    """Put the original engine back.
+
+    The ``app`` fixture drops every table and disposes the engine on teardown.
+    A test that re-points the engine at another database would otherwise make
+    that teardown wipe the wrong file.
+    """
+    from framework.extensions import db
+
+    with app.app_context():
+        original = db._app_engines[app].get(None)
+        original_url = app.config["SQLALCHEMY_DATABASE_URI"]
+        yield
+        db.session.remove()
+        db._app_engines[app][None] = original
+        app.config["SQLALCHEMY_DATABASE_URI"] = original_url
+
+
+def test_setup_repoints_engine_without_restart(client, app, tmp_path, restore_engine):
+    """The wizard switches the live engine, so no restart is needed.
+
+    This is the whole point of the change: the seeded admin must be readable
+    through the *application* engine on the very next query, in the same
+    process that was started against the old database.
+    """
+    from app.auth.models import User
+    from framework.extensions import db
+
+    target = tmp_path / "switched.db"
+    target_url = f"sqlite:///{str(target).replace(chr(92), '/')}"
+
+    response = client.post(
+        "/api/v1/setup",
+        json={
+            "db": {"engine": "sqlite", "path": str(target)},
+            "admin": {
+                "email": "boss@example.com",
+                "username": "boss",
+                "password": "Str0ng!Pass",
+                "fullName": "Boss User",
+            },
+        },
+    )
+    assert response.status_code == 201, response.get_json()
+    assert response.get_json()["restartRequired"] is False
+
+    # The application engine now points at the new file...
+    with app.app_context():
+        assert db.engine.url.database == target.as_posix()
+        # ...and the admin the wizard seeded is immediately readable through it.
+        seeded = db.session.scalar(
+            db.select(User).where(User.email == "boss@example.com")
+        )
+        assert seeded is not None
+        assert seeded.app_role == "admin"
+
+    # The wizard rewrote DATABASE_URL, so a later restart agrees with the swap.
+    assert app.config["SQLALCHEMY_DATABASE_URI"].endswith("switched.db")
+
+
+def test_setup_after_repoint_reports_complete(client, app, tmp_path, restore_engine):
+    """Once re-pointed, status flips to complete without a restart.
+
+    Before the swap this needed a restart; that is what let the wizard be
+    re-run against a fresh database.
+    """
+    target = tmp_path / "complete.db"
+    response = client.post(
+        "/api/v1/setup",
+        json={
+            "db": {"engine": "sqlite", "path": str(target)},
+            "admin": {
+                "email": "boss@example.com",
+                "username": "boss",
+                "password": "Str0ng!Pass",
+                "fullName": "Boss User",
+            },
+        },
+    )
+    assert response.status_code == 201, response.get_json()
+
+    status = client.get("/api/v1/setup/status").get_json()
+    assert status["setupRequired"] is False
+    assert status["reason"] is None

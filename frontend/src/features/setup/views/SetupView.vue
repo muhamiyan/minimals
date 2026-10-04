@@ -122,21 +122,15 @@ async function onSubmit() {
   })
   submitting.value = false
   if (!result) return
-  if (result.restartRequired) {
-    done.value = result
-    return
-  }
   setup.markComplete()
-  toast.success(`Setup complete — ${result.email} can now sign in`)
-  router.replace('/')
+  // The backend hot-swaps the engine, so there is nothing to restart and
+  // nothing left to wait for. Land on the confirmation card either way.
+  done.value = result
 }
 
-async function goToLogin() {
-  await setup.fetchStatus()
-  if (setup.status?.setupRequired) {
-    toast.warning('Restart the server to apply the new database, then sign in')
-    return
-  }
+function goToLogin() {
+  // The engine is hot-swapped by the time this card renders, so login works
+  // immediately — no status round-trip, and no restart to wait for.
   router.replace('/login')
 }
 
@@ -156,8 +150,7 @@ onMounted(async () => {
         </div>
         <h1 class="text-2xl-semibold text-ink-gray-8">Setup complete</h1>
         <p class="text-p-sm text-ink-gray-5 [overflow-wrap:anywhere]">
-          The database URL changed. Restart the server to apply it, then sign in
-          as {{ done.email }}.
+          Sign in as {{ done.email }} to continue.
         </p>
         <Button
           variant="solid"
