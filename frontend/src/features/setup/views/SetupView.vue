@@ -155,7 +155,7 @@ onMounted(async () => {
           </div>
         </div>
         <h1 class="text-2xl-semibold text-ink-gray-8">Setup complete</h1>
-        <p class="text-p-sm text-ink-gray-5">
+        <p class="text-p-sm text-ink-gray-5 [overflow-wrap:anywhere]">
           The database URL changed. Restart the server to apply it, then sign in
           as {{ done.email }}.
         </p>
@@ -181,7 +181,7 @@ onMounted(async () => {
 
         <Alert
           v-if="step === 1 && setup.status"
-          class="mt-4"
+          class="mt-4 [overflow-wrap:anywhere]"
           :title="`Active: ${activeEngineLabel}`"
           :description="alertDescription || undefined"
         />
@@ -227,7 +227,7 @@ onMounted(async () => {
             />
           </template>
 
-          <p v-if="testedUrl" class="text-p-sm text-ink-green-6">
+          <p v-if="testedUrl" class="text-p-sm text-ink-green-6 [overflow-wrap:anywhere]">
             Connected: {{ prettyUrl(testedUrl) }}
           </p>
 
