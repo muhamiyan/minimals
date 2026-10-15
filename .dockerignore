@@ -7,13 +7,14 @@ data/
 instance/
 app/logs/
 app/static/uploads/
+# Built in the node stage, never copied from the host working tree.
+app/static/frontend/
 .venv/
 venv/
 __pycache__/
 *.py[cod]
 node_modules/
 frappe-ui/
-frontend/
 tests/
 .pytest_cache/
 .ruff_cache/

@@ -87,6 +87,14 @@ class BaseConfig:
     RATE_LIMIT_STORAGE_URL = os.environ.get("RATE_LIMIT_STORAGE_URL", "")
     RATE_LIMIT_AUTH = os.environ.get("RATE_LIMIT_AUTH", "10/minute")
 
+    # --- Request size -------------------------------------------------------
+    # Rejects oversized bodies before they are parsed. The auth endpoints take
+    # a token anonymously, so without a cap a single request can force the
+    # server to materialise an arbitrarily large JSON document.
+    MAX_CONTENT_LENGTH = int(
+        os.environ.get("MAX_CONTENT_LENGTH", str(1024 * 1024))
+    )
+
     # --- Cookie security -----------------------------------------------------
     # SameSite=None only for a cross-site API (CORS_ORIGINS set) that can
     # actually carry it — the browser rejects None without Secure.
