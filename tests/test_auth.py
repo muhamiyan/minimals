@@ -83,6 +83,60 @@ def test_register_requires_full_name(client):
     assert response.get_json()["message"].endswith("_required")
 
 
+def test_register_rejects_blank_username(client):
+    response = register(client, username="   ")
+
+    assert response.status_code == 400
+    assert response.get_json() == {
+        "message": "username_must_be_at_least_3_characters"
+    }
+
+
+def test_register_rejects_username_shorter_than_minimum_after_trim(client):
+    response = register(client, username="  ab  ")
+
+    assert response.status_code == 400
+    assert response.get_json() == {
+        "message": "username_must_be_at_least_3_characters"
+    }
+
+
+def test_register_trims_username_before_length_check(client):
+    response = register(client, username="  bob  ")
+
+    assert response.status_code == 201
+    assert response.get_json()["username"] == "bob"
+
+
+def test_register_rejects_email_without_local_part(client):
+    response = register(client, email="@example.com")
+
+    assert response.status_code == 400
+    assert response.get_json() == {"message": "email_invalid_email"}
+
+
+def test_register_rejects_email_without_domain_suffix(client):
+    response = register(client, email="alice@localhost")
+
+    assert response.status_code == 400
+    assert response.get_json() == {"message": "email_invalid_email"}
+
+
+def test_register_accepts_subdomain_and_tagged_email(client):
+    response = register(client, email="alice+billing@mail.example.co.id")
+
+    assert response.status_code == 201
+
+
+def test_login_rejects_blank_identifier(client):
+    response = client.post(
+        "/api/v1/auth/login",
+        json={"identifier": "   ", "password": "Str0ng!Pass"},
+    )
+
+    assert response.status_code == 400
+
+
 def test_login_returns_the_user(client):
     register(client)
     client.get("/api/v1/auth/logout")

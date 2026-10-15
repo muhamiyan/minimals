@@ -1,9 +1,8 @@
 """Blueprint factory — standardized Flask Blueprint creation.
 
-Reduces boilerplate in domain ``api.py`` modules by:
-- Auto-naming blueprints from the module path
-- Providing a decorated ``route()`` that auto-wraps with common middleware
-- Supporting automatic domain exception handling at the view level
+Reduces boilerplate in domain ``api.py`` modules by holding one consistent
+blueprint construction, and forwarding every unknown attribute to the
+underlying ``flask.Blueprint``.
 
 Example::
 

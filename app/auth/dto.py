@@ -3,64 +3,34 @@ from __future__ import annotations
 
 from pydantic import field_validator
 
+from app.infra.validation import CredentialPolicy
 from framework.base import DTOBase
 
 
-class RegisterIn(DTOBase):
+class RegisterIn(DTOBase, CredentialPolicy):
     """Validate a registration payload."""
 
     email: str = DTOBase.field(..., max_length=255)
     username: str = DTOBase.field(..., min_length=3, max_length=150)
-    password: str = DTOBase.field(..., min_length=8)
+    password: str = DTOBase.field(..., min_length=8, max_length=255)
     full_name: str = DTOBase.field(..., alias="fullName", max_length=255)
-
-    @field_validator("email")
-    @classmethod
-    def validate_email(cls, v: str) -> str:
-        v = v.strip().lower()
-        if "@" not in v or "." not in v.split("@")[-1]:
-            raise ValueError("invalid_email")
-        return v
-
-    @field_validator("username")
-    @classmethod
-    def validate_username(cls, v: str) -> str:
-        v = v.strip().lower()
-        if not all(ch.isalnum() or ch in "_.-" for ch in v):
-            raise ValueError("invalid_username")
-        return v
-
-    @field_validator("full_name")
-    @classmethod
-    def validate_full_name(cls, v: str) -> str:
-        if not v.strip():
-            raise ValueError("required")
-        return v
-
-    @field_validator("password")
-    @classmethod
-    def validate_password_strength(cls, v: str) -> str:
-        if not any(c.isupper() for c in v):
-            raise ValueError("password_must_contain_uppercase")
-        if not any(c.islower() for c in v):
-            raise ValueError("password_must_contain_lowercase")
-        if not any(c.isdigit() for c in v):
-            raise ValueError("password_must_contain_digit")
-        if not any(c in "!@#$%^&*()_+-=[]{}|;:,.<>?" for c in v):
-            raise ValueError("password_must_contain_special_character")
-        return v
 
 
 class LoginIn(DTOBase):
-    """Validate a login payload — ``identifier`` is email OR username."""
+    """Validate a login payload — ``identifier`` is email OR username.
 
-    identifier: str = DTOBase.field(...)
+    ``password`` is intentionally unbounded: the hash cost is independent of
+    input length, and a bound here would lock out accounts that registered
+    before the limit existed. Request size is capped at the transport layer.
+    """
+
+    identifier: str = DTOBase.field(..., min_length=1, max_length=255)
     password: str
 
-    @field_validator("identifier")
+    @field_validator("identifier", mode="before")
     @classmethod
     def clean_identifier(cls, v: str) -> str:
-        return v.strip().lower()
+        return v.strip().lower() if isinstance(v, str) else v
 
 
 __all__ = ["LoginIn", "RegisterIn"]
