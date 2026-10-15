@@ -35,3 +35,6 @@ app/static/uploads/*
 
 # --- Vendored reference checkout ---
 frappe-ui/
+
+# --- IDE ---
+.idea/

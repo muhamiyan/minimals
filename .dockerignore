@@ -25,3 +25,4 @@ docker-compose*.yml
 Dockerfile
 .dockerignore
 README.md
+.idea/

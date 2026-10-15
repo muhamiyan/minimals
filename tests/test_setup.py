@@ -219,7 +219,6 @@ def test_setup_repoints_engine_without_restart(client, app, tmp_path, restore_en
     from framework.extensions import db
 
     target = tmp_path / "switched.db"
-    target_url = f"sqlite:///{str(target).replace(chr(92), '/')}"
 
     response = client.post(
         "/api/v1/setup",
