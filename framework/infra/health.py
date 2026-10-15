@@ -20,11 +20,10 @@ limiter.exempt(bp)
 def _pool_stats() -> dict | None:
     engine: Engine = db.engine
     pool = engine.pool
-    pool_class = pool.__class__.__name__
-    if pool_class == "StaticPool":
+    if not hasattr(pool, "size"):
         return None
     return {
-        "poolClass": pool_class,
+        "poolClass": pool.__class__.__name__,
         "size": pool.size(),
         "checkedOut": pool.checkedout(),
         "overflow": pool.overflow(),
@@ -47,7 +46,7 @@ def health():
 def ready():
     try:
         db.session.execute(db.text("SELECT 1"))
+        return ok(_payload())
     except Exception:
         logger.exception("readiness check failed")
         return error("not_ready", 503)
-    return ok(_payload())

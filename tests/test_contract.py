@@ -1,5 +1,7 @@
 import re
 
+import pytest
+
 SNAKE_KEY = re.compile(r"[a-z0-9]+_[a-z0-9]+")
 ERROR_KEY = re.compile(r"^[a-z0-9_]+$")
 
@@ -26,6 +28,31 @@ def all_keys(node, found=None):
 
 def test_unknown_route_uses_error_shape(client):
     assert_error(client.get("/api/v1/does-not-exist"), 404)
+
+
+def test_delete_returns_204_with_no_body(admin):
+    role_id = admin.post(
+        "/api/v1/account/roles", json={"name": "Temporary"}
+    ).get_json()["id"]
+
+    response = admin.delete(f"/api/v1/account/roles/{role_id}")
+
+    assert response.status_code == 204
+    assert response.get_data() == b""
+
+
+def test_unmapped_pydantic_errors_keep_the_snake_case_contract():
+    from framework.base import DTOBase
+    from framework.exceptions import ValidationFailed
+
+    class Probe(DTOBase):
+        tags: list[str] = DTOBase.field(default_factory=list, min_length=3)
+
+    with pytest.raises(ValidationFailed) as excinfo:
+        Probe.validate({"tags": []})
+
+    key = excinfo.value.message
+    assert ERROR_KEY.match(key), key
 
 
 def test_validation_failure_uses_error_shape(client):

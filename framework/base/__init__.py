@@ -1,7 +1,7 @@
 """Framework base — foundation classes for domain-driven Flask services.
 
 Provides base classes for the layered architecture:
-- ``DTOBase`` — Pydantic input validation with auto camelCase aliasing
+- ``DTOBase`` — Pydantic input validation with explicit camelCase aliases
 - ``PresenterBase`` — output serialization with ``from_model()`` pattern
 - ``ServiceBase`` — business logic with DI-ready repository injection
 - ``RepositoryBase`` — generic CRUD data access layer

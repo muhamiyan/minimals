@@ -2,8 +2,7 @@
 
 Provides:
 - DI-ready constructor pattern (inject repo or auto-create)
-- ``_commit()`` / ``_rollback()`` helpers for transaction management
-- ``_validate()`` helper for cross-domain DTO validation
+- ``_commit()`` / ``_rollback()`` / ``_flush()`` transaction helpers
 
 Example::
 

@@ -42,18 +42,21 @@ def require_role(*roles: str):
     return None
 
 
-def require_owner_or_role(owner_id: int, *roles: str):
+def require_owner_or_role(owner_id: str | None, *roles: str):
     """Return a 401/403 response unless the user owns the resource or has a privileged role.
 
     Returns ``None`` when:
     - The user is authenticated, **and**
     - Either ``current_user.id == owner_id`` or ``app_role in roles``.
 
+    A resource with no owner (``owner_id is None``) is never owned by anyone;
+    only ``roles`` can admit the caller.
+
     Otherwise returns a Flask response tuple.
     """
     if not current_user.is_authenticated:
         return _deny(401, "unauthorized")
-    if current_user.id == owner_id:
+    if owner_id is not None and current_user.id == owner_id:
         return None
 
     user_role = getattr(current_user, "app_role", None) or "user"

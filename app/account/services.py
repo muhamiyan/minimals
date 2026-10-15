@@ -162,6 +162,13 @@ class ApiKeyService(ServiceBase[ApiKeyRepository]):
             user_id=user_id,
         )
         self._repo.add(api_key)
+        self._flush()
+        audit_log(
+            "api_key_created",
+            user_id=user_id,
+            resource=f"api_keys/{api_key.id}",
+            details={"name": api_key.name},
+        )
         self._commit()
         return raw_key, api_key.masked_name
 
@@ -170,6 +177,12 @@ class ApiKeyService(ServiceBase[ApiKeyRepository]):
         if api_key is None or api_key.user_id != user_id:
             raise NotFound("api_key_not_found")
         self._repo.delete(api_key)
+        audit_log(
+            "api_key_revoked",
+            user_id=user_id,
+            resource=f"api_keys/{key_id}",
+            details={"name": api_key.name},
+        )
         self._commit()
 
     def list(self, user_id: str) -> list[ApiKey]:

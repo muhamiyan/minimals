@@ -17,6 +17,7 @@ Example::
 """
 from __future__ import annotations
 
+import re
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -134,13 +135,22 @@ _PYDANTIC_MSG_MAP: dict[str, str] = {
 }
 
 
+def _normalize_key(value: str) -> str:
+    """Collapse arbitrary text into the snake_case wire-key format.
+
+    Every error key crosses the API boundary, so it must be lowercase
+    alphanumeric with single underscores. Mapped Pydantic messages below
+    carry ``{placeholder}`` tokens and are exempt — they are applied
+    verbatim.
+    """
+    return re.sub(r"[^a-z0-9]+", "_", value.strip().lower()).strip("_") or "invalid"
+
+
 def _format_value_error_msg(msg: str) -> str:
     prefix = "Value error, "
-    if not msg:
-        return "invalid"
     if msg.startswith(prefix):
         msg = msg[len(prefix):]
-    return msg.strip().replace(" ", "_").lower()
+    return _normalize_key(msg)
 
 
 def _format_validation_error(err) -> str:
@@ -158,7 +168,7 @@ def _format_validation_error(err) -> str:
     if error_type == "value_error":
         mapped = _format_value_error_msg(msg)
     else:
-        mapped = _PYDANTIC_MSG_MAP.get(error_type, msg.replace(" ", "_"))
+        mapped = _PYDANTIC_MSG_MAP.get(error_type) or _normalize_key(msg)
 
     ctx = first.get("ctx", {})
     for key, value in ctx.items():

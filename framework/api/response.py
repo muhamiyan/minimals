@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from flask import jsonify
+from flask import Response, jsonify
 
 from framework.api.pagination import PageOut
 from framework.types import JsonBody, ResponseTuple
@@ -27,8 +27,8 @@ def created(data: Any = None) -> ResponseTuple:
 
 
 def no_content() -> ResponseTuple:
-    """Standard 204 no content response."""
-    return jsonify({}), 204
+    """Standard 204 no content response — empty body by protocol definition."""
+    return Response(status=204), 204
 
 
 def error(message: str, status: int = 400) -> ResponseTuple:

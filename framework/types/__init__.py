@@ -6,12 +6,12 @@ from typing import Any
 from flask import Response as FlaskResponse
 from werkzeug import Response as WerkzeugResponse
 
-# Standard Flask response tuple: (body_dict, status_code)
+# Response helpers return (flask Response, status code) tuples; the body is
+# already rendered, so JsonBody only types the hand-built dict bodies below.
 JsonBody = dict[str, Any]
 Status = int
 
-# Headers is optional but we rarely need it — keep it simple.
-ResponseTuple = tuple[JsonBody, Status]
+ResponseTuple = tuple[FlaskResponse, Status]
 
 # Full response type: Flask Response OR our ResponseTuple
 FlaskResponseValue = FlaskResponse | WerkzeugResponse

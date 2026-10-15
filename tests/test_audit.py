@@ -100,3 +100,23 @@ def test_rejected_delete_records_no_audit(app):
 
         db.session.rollback()
         assert count("role_deleted") == 0
+
+
+def test_api_key_lifecycle_records_audit(app, client):
+    client.post("/api/v1/auth/register", json=REGISTER)
+
+    created = client.post("/api/v1/account/api-keys", json={"name": "ci-runner"})
+    assert created.status_code == 201
+
+    key_id = client.get("/api/v1/account/api-keys").get_json()["items"][0]["id"]
+    assert client.delete(f"/api/v1/account/api-keys/{key_id}").status_code == 200
+
+    with app.app_context():
+        assert count("api_key_created") == 1
+        assert count("api_key_revoked") == 1
+
+        stmt = select(AuditLog).where(AuditLog.action == "api_key_created")
+        row = db.session.execute(stmt).one()[0]
+        assert row.resource == f"api_keys/{key_id}"
+        assert "ci-runner" in row.details["name"]
+        assert "key" not in row.details

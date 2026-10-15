@@ -201,8 +201,7 @@ def _configure_root(log_level: str = "INFO",
         logging.getLogger(logger_name).setLevel(logging.WARNING)
 
 
-def get_logger(name: str, service: str = "app",
-               log_file: str | None = None,
+def get_logger(name: str, log_file: str | None = None,
                log_level: str = "INFO") -> logging.Logger:
     """Return a logger whose ``StreamHandler`` uses the JSON formatter.
 
@@ -248,8 +247,7 @@ def request_middleware(app: flask.Flask, service: str = "app") -> None:
 
         metrics.record(method, path, status_code, duration)
 
-        logger = get_logger(name="request", service=service,
-                            log_file=log_file)
+        logger = get_logger(name="request", log_file=log_file)
         extra: dict[str, Any] = {
             "request_id": getattr(request, "request_id", ""),
             "method": method,
