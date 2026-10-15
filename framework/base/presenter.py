@@ -18,10 +18,19 @@ Example::
 """
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import date, datetime
+from decimal import Decimal
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
+
+
+def money_str(value: Decimal) -> str:
+    """Render a Decimal without trailing zeros (``1000.00`` → ``1000``)."""
+    text = format(value, "f")
+    if "." in text:
+        text = text.rstrip("0").rstrip(".")
+    return text
 
 
 class PresenterBase(BaseModel):
@@ -71,8 +80,10 @@ class PresenterBase(BaseModel):
             value = getattr(model, attr_name, None)
             if value is None and field_info.alias:
                 value = getattr(model, field_name, None)
-            if isinstance(value, datetime):
+            if isinstance(value, datetime | date):
                 value = value.isoformat()
+            elif isinstance(value, Decimal):
+                value = money_str(value)
             data[field_name] = value
 
         return cls(**data)

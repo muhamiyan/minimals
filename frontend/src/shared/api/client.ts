@@ -1,3 +1,4 @@
+import { emitApiStatus } from './status'
 import axios from 'axios'
 
 export const api = axios.create({
@@ -37,8 +38,8 @@ api.interceptors.response.use(
       csrfToken = null
       return api(config)
     }
-    if (error.response?.status === 401) {
-      window.dispatchEvent(new Event('auth:unauthorized'))
+    if (error.response?.status === 401 || error.response?.status === 403) {
+      emitApiStatus(error.response.status)
     }
     return Promise.reject(error)
   },

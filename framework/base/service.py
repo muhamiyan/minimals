@@ -75,5 +75,14 @@ class ServiceBase(Generic[R]):
         db.session.rollback()
 
     def _flush(self) -> None:
-        """Flush pending changes without committing."""
-        db.session.flush()
+        """Flush pending changes without committing.
+
+        Raises:
+            Conflict: On ``IntegrityError`` (rolled back automatically),
+                with message "integrity_error".
+        """
+        try:
+            db.session.flush()
+        except IntegrityError as exc:
+            db.session.rollback()
+            raise Conflict("integrity_error") from exc

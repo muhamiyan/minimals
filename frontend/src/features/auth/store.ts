@@ -64,6 +64,8 @@ export const useAuthStore = defineStore('auth', () => {
   async function logout() {
     try {
       await api.post('/auth/logout')
+    } catch {
+      // Local session is cleared in finally even if the server call fails.
     } finally {
       user.value = null
       error.value = ''

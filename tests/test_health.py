@@ -11,8 +11,8 @@ def test_health_metrics_are_camel_case(client):
         "totalErrors",
         "errorRate",
         "avgResponseMs",
-        "endpoints",
     } <= metrics.keys()
+    assert "endpoints" not in metrics
     assert not [key for key in metrics if key.startswith("total_")]
     assert "avg_ms" not in metrics
 
@@ -28,14 +28,24 @@ def test_ready_reports_healthy(client):
     assert response.get_json()["status"] == "ok"
 
 
-def test_metrics_track_requests(client):
-    client.get("/health")
-    endpoints = client.get("/health").get_json()["metrics"]["endpoints"]
+def test_metrics_track_requests():
+    from framework.logging.logger import RequestMetrics
 
-    assert "GET /health" in endpoints
-    assert endpoints["GET /health"]["count"] >= 2
-    assert "avgMs" in endpoints["GET /health"]
-    assert "avg_ms" not in endpoints["GET /health"]
+    metrics = RequestMetrics()
+    metrics.record("GET", "/health", 200, 10.0)
+    metrics.record("GET", "/health", 500, 30.0)
+
+    summary = metrics.snapshot()
+    assert summary["totalRequests"] == 2
+    assert summary["totalErrors"] == 1
+    assert summary["avgResponseMs"] == 20.0
+    assert "endpoints" not in summary
+
+    detail = metrics.snapshot(endpoints=True)["endpoints"]
+    assert "GET /health" in detail
+    assert detail["GET /health"]["count"] == 2
+    assert detail["GET /health"]["errors"] == 1
+    assert "avg_ms" not in detail["GET /health"]
 
 
 class _UnavailableSession:

@@ -18,7 +18,7 @@ Example::
 from __future__ import annotations
 
 import re
-from typing import Any
+from typing import Any, get_args
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -75,6 +75,9 @@ class DTOBase(BaseModel):
 
         Args:
             data: Raw dict (typically from ``request.get_json()``).
+                A Werkzeug ``MultiDict`` (e.g. ``request.args``) is
+                flattened via ``to_dict()`` first — pydantic cannot
+                coerce its list-backed values.
 
         Returns:
             A validated instance of the DTO.
@@ -85,10 +88,15 @@ class DTOBase(BaseModel):
         """
         from pydantic import ValidationError
 
+        if data is not None and type(data) is not dict and hasattr(data, "to_dict"):
+            data = data.to_dict()
+
         try:
             return cls.model_validate(data or {})
         except ValidationError as exc:
-            raise ValidationFailed(_format_validation_error(exc)) from exc
+            raise ValidationFailed(
+                _format_validation_error(exc, cls)
+            ) from exc
 
     def to_data(self, *, by_alias: bool = True, exclude_none: bool = True) -> dict[str, Any]:
         """Serialize to a dict, defaulting to camelCase keys.
@@ -153,7 +161,7 @@ def _format_value_error_msg(msg: str) -> str:
     return _normalize_key(msg)
 
 
-def _format_validation_error(err) -> str:
+def _format_validation_error(err, model: Any = None) -> str:
     errors = err.errors()
     if not errors:
         return "validation_error"
@@ -163,7 +171,7 @@ def _format_validation_error(err) -> str:
     msg = first.get("msg", "validation_error")
     error_type = first.get("type", "")
 
-    field = ".".join(str(x) for x in loc) if loc else "value"
+    field = _loc_field_names(model, loc) if loc else "value"
 
     if error_type == "value_error":
         mapped = _format_value_error_msg(msg)
@@ -177,3 +185,44 @@ def _format_validation_error(err) -> str:
             mapped = mapped.replace(placeholder, str(value))
 
     return f"{field}_{mapped}"
+
+
+def _nested_model(annotation: Any) -> Any:
+    """Unwrap a field annotation to its nested DTO class, if any."""
+    if isinstance(annotation, type) and issubclass(annotation, BaseModel):
+        return annotation
+    for arg in get_args(annotation):
+        nested = _nested_model(arg)
+        if nested is not None:
+            return nested
+    return None
+
+
+def _loc_field_names(model: Any, loc: tuple) -> str:
+    """Translate pydantic ``loc`` parts back to snake_case field names.
+
+    Pydantic reports the camelCase ``alias`` in ``loc`` for aliased
+    fields (e.g. ``fullName``); error keys must stay snake_case per
+    the API contract, so map every part back through the field
+    definitions of the model — including nested models and list
+    indices.
+    """
+    parts: list[str] = []
+    current = model
+    for part in loc:
+        if isinstance(part, int):
+            parts.append(str(part))
+            continue
+        text = str(part)
+        fields = getattr(current, "model_fields", None)
+        name = text
+        nested: Any = None
+        if fields:
+            for field_name, field_info in fields.items():
+                if field_info.alias == text or field_name == text:
+                    name = field_name
+                    nested = _nested_model(field_info.annotation)
+                    break
+        parts.append(name)
+        current = nested
+    return ".".join(parts)

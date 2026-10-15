@@ -24,8 +24,11 @@ async function onSubmit() {
   if (ok) {
     toast.success(`Welcome back, ${auth.user?.fullName ?? auth.user?.email}`)
     const next = (route.query.redirect as string) || '/'
-    if (!next.startsWith('/') || next.startsWith('//')) return router.replace('/')
-    router.replace(next)
+    if (!next.startsWith('/') || next.startsWith('//')) {
+      await router.replace('/')
+      return
+    }
+    await router.replace(next)
   }
 }
 </script>

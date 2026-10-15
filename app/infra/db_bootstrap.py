@@ -157,7 +157,11 @@ def db_error_key(exc: Exception) -> str:
     """
     text = str(exc).lower()
     code = getattr(exc, "orig", None)
-    code = getattr(code, "args", [None])[0] if code is not None else None
+    code = (
+        next(iter(getattr(code, "args", [])), None)
+        if code is not None
+        else None
+    )
 
     if (
         code in (1045, 1698, "28P01")
