@@ -11,7 +11,11 @@ services:
       FORCE_HTTPS: "true"
     # The bind mount below is owned by the host user, so the container has to
     # run as that uid or ./data is unwritable and boot fails on data/app.log.
-    # Override APP_UID/APP_GID if the deploying user is not 1000.
+    # APP_UID feeds both the image owner (uploads/) and the runtime user.
+    build:
+      context: .
+      args:
+        APP_UID: ${APP_UID:-1000}
     user: "${APP_UID:-1000}:${APP_GID:-1000}"
     volumes:
       - ./data:/app/data
