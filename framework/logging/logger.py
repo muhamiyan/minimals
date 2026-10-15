@@ -121,25 +121,29 @@ class RequestMetrics:
                 stat.errors += 1
                 self._total_errors += 1
 
-    def snapshot(self) -> dict[str, Any]:
+    def snapshot(self, *, endpoints: bool = False) -> dict[str, Any]:
         with self._lock:
             total = sum(s.count for s in self._stats.values())
             total_ms = sum(s.total_ms for s in self._stats.values())
             errors = self._total_errors
-        return {
-            "totalRequests": total,
-            "totalErrors": errors,
-            "errorRate": round(errors / total, 4) if total else 0.0,
-            "avgResponseMs": round(total_ms / total, 2) if total else 0.0,
-            "endpoints": {
-                k: {
-                    "count": s.count,
-                    "avgMs": round(s.total_ms / s.count, 2) if s.count else 0,
-                    "errors": s.errors,
+            payload = {
+                "totalRequests": total,
+                "totalErrors": errors,
+                "errorRate": round(errors / total, 4) if total else 0.0,
+                "avgResponseMs": round(total_ms / total, 2) if total else 0.0,
+            }
+            if endpoints:
+                payload["endpoints"] = {
+                    k: {
+                        "count": s.count,
+                        "avgMs": round(s.total_ms / s.count, 2)
+                        if s.count
+                        else 0,
+                        "errors": s.errors,
+                    }
+                    for k, s in sorted(self._stats.items())
                 }
-                for k, s in sorted(self._stats.items())
-            },
-        }
+            return payload
 
     def reset(self) -> None:
         with self._lock:
@@ -374,7 +378,10 @@ class AlertHandler(logging.Handler):
 
     def stop(self) -> None:
         """Signal the worker thread to exit."""
-        self._queue.put_nowait(None)
+        try:
+            self._queue.put(None, block=True, timeout=self._timeout)
+        except queue.Full:
+            pass
         self._worker.join(timeout=self._timeout + 5)
 
 

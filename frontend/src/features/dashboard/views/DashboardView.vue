@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { Badge, PageHeader, PageHeaderTitle } from 'frappe-ui'
+import { Badge, PageHeader } from 'frappe-ui'
+import PageBreadcrumbs from '@/shared/components/PageBreadcrumbs.vue'
 
 import { useAuthStore } from '@/features/auth/store'
 
@@ -8,10 +9,10 @@ const auth = useAuthStore()
 
 <template>
   <PageHeader>
-    <PageHeaderTitle title="Dashboard" />
+    <PageBreadcrumbs />
   </PageHeader>
 
-  <div class="mx-auto w-full max-w-2xl space-y-4 px-5 py-6">
+  <div class="mx-auto w-full max-w-6xl space-y-4 px-5 py-6">
     <div class="space-y-1 rounded-6 border border-outline-gray-1 bg-surface-elevation-2 p-5">
       <p class="text-p-sm text-ink-gray-5">Welcome back</p>
       <div class="text-xl-semibold text-ink-gray-8">

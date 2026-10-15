@@ -41,7 +41,7 @@ async function onSubmit() {
   submitting.value = false
   if (ok) {
     toast.success(`Account created — welcome, ${auth.user?.fullName ?? auth.user?.email}`)
-    router.replace('/')
+    await router.replace('/')
   }
 }
 </script>

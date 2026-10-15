@@ -124,6 +124,8 @@ Detail lengkap: [`CLAUDE.md`](CLAUDE.md), [`framework/README.md`](framework/READ
 | GET | /api/v1/app/ping | Liveness of the read API (public) |
 | GET | /api/v1/app/users | Cross-service read API (internal token or admin) |
 | GET | /api/v1/app/roles | Cross-service read API (internal token or admin) |
+| POST | /api/v1/uploads | Upload image (admin, max 5 MiB, png/jpg/jpeg/webp/gif) |
+| DELETE | /api/v1/uploads/:name | Delete uploaded image (admin, idempotent 204) |
 | GET | /health | Health check (public) |
 | GET | /ready | Readiness check (public) |
 
@@ -133,6 +135,9 @@ Known gaps — baca sebelum eksposur internet:
 
 - `/uploads/*` diserve **tanpa autentikasi**. Jangan taruh file sensitif di
   `app/static/uploads/`
+- `POST /api/v1/uploads` butuh `MAX_CONTENT_LENGTH` ≥ 5 MiB; cap global
+  default 1 MiB menolak request lebih awal dengan 413 sebelum limit
+  per-file (5 MiB) di view sempat dicek
 - `POST /api/v1/auth/register` terbuka untuk siapa saja dan langsung login.
   Gate atau disable kalau deployment invite-only
 - `/api/v1/setup/status` dan `/health` publik, dan mengekspos engine aktif,

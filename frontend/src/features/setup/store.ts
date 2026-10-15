@@ -36,13 +36,17 @@ export interface SetupResult {
 export const useSetupStore = defineStore('setup', () => {
   const status = ref<SetupStatus | null>(null)
   const error = ref('')
+  const statusFailed = ref(false)
 
   async function fetchStatus(): Promise<void> {
     try {
       const { data } = await api.get('/setup/status')
       status.value = data
+      statusFailed.value = false
     } catch {
-      // Fail-open: keep null so the guard retries on the next navigation.
+      // Fail-open: keep null so the guard treats setup as
+      // satisfied, but stop refetching on every navigation.
+      statusFailed.value = true
     }
   }
 
@@ -74,5 +78,5 @@ export const useSetupStore = defineStore('setup', () => {
       : { setupRequired: false, reason: null, activeEngine: '', activeUrl: '' }
   }
 
-  return { status, error, fetchStatus, testDb, run, markComplete }
+  return { status, error, statusFailed, fetchStatus, testDb, run, markComplete }
 })

@@ -123,6 +123,8 @@ class RepositoryBase(Generic[T]):
         stmt = select(self.model).filter_by(**filters)
         if order_by is not None:
             stmt = stmt.order_by(order_by)
+        page = max(page, 1)
+        per_page = max(per_page, 1)
         stmt = stmt.offset((page - 1) * per_page).limit(per_page)
         items = _execute(stmt)
         return items, total

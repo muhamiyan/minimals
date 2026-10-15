@@ -109,6 +109,7 @@ def create_app() -> Flask:
         from app.infra.csrf import bp as csrf_bp
         from app.infra.health import bp as health_bp
         from app.infra.setup import bp as setup_bp
+        from app.infra.uploads import bp as uploads_bp
 
         app.register_blueprint(health_bp)
         app.register_blueprint(csrf_bp)
@@ -117,6 +118,7 @@ def create_app() -> Flask:
         app.register_blueprint(account_bp)
         app.register_blueprint(account_api_key_bp)
         app.register_blueprint(app_api_bp)
+        app.register_blueprint(uploads_bp)
 
         register_spa(app, Config.SPA_STATIC_ROOT, Config.SPA_URL_PREFIX)
 

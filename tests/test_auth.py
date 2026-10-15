@@ -80,7 +80,7 @@ def test_register_requires_full_name(client):
         json={"email": "a@example.com", "username": "abcd", "password": "Str0ng!Pass"},
     )
     assert response.status_code == 400
-    assert response.get_json()["message"].endswith("_required")
+    assert response.get_json() == {"message": "full_name_required"}
 
 
 def test_register_rejects_blank_username(client):

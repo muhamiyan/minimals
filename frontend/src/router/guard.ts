@@ -3,7 +3,7 @@ import { useSetupStore } from '@/features/setup/store'
 
 export async function authGuard(to: any) {
   const setup = useSetupStore()
-  if (setup.status === null) {
+  if (setup.status === null && !setup.statusFailed) {
     await setup.fetchStatus()
   }
   if (setup.status?.setupRequired) {

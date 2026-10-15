@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { computed, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import {
   DesktopShell,
   MobileNav,
@@ -15,12 +15,20 @@ import {
 } from 'frappe-ui'
 
 import { useAuthStore } from '@/features/auth/store'
+import ForbiddenDialog from '@/shared/components/ForbiddenDialog.vue'
 import { useMediaQuery } from './useMediaQuery'
 
 const router = useRouter()
+const route = useRoute()
 const auth = useAuthStore()
 
+const isFullscreen = computed(
+  () => route.meta.fullscreen === true || route.query.fullscreen === '1',
+)
+
 const isDesktop = useMediaQuery('(min-width: 640px)')
+
+const sidebarCollapsed = ref(false)
 
 const { colorScheme, resolvedColorScheme, setColorScheme, toggleColorScheme } =
   useColorScheme()
@@ -61,14 +69,19 @@ const themeIcon = computed(() =>
 
 async function onLogout() {
   await auth.logout()
-  router.replace('/login')
+  await router.replace('/login')
 }
 </script>
 
 <template>
-  <DesktopShell v-if="isDesktop">
+  <router-view v-if="isFullscreen" />
+
+  <DesktopShell
+    v-else-if="isDesktop"
+    :scroll="route.meta.scroll !== false"
+  >
     <template #sidebar>
-      <Sidebar class="border-r">
+      <Sidebar v-model:collapsed="sidebarCollapsed" class="border-r">
         <SidebarHeader
           title="Minimals"
           :subtitle="auth.user?.fullName || auth.user?.email || ''"
@@ -107,4 +120,6 @@ async function onLogout() {
       </MobileNav>
     </template>
   </MobileShell>
+
+  <ForbiddenDialog />
 </template>

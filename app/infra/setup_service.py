@@ -144,7 +144,11 @@ class SetupService:
             try:
                 db_bootstrap.test_connection(url)
             except Exception as exc:
-                logger.info("setup db unreachable for %s: %s", url, exc)
+                logger.info(
+                    "setup db unreachable for %s: %s",
+                    _mask_password(url),
+                    exc,
+                )
                 raise ValidationFailed(db_bootstrap.db_error_key(exc)) from exc
 
             active_url = _active_engine_url()

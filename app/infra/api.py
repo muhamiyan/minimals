@@ -21,7 +21,9 @@ def _check_read_access():
     header_token = request.headers.get("X-Internal-Token", "")
 
     if header_token:
-        if token and secrets.compare_digest(header_token, token):
+        if token and secrets.compare_digest(
+            header_token.encode("utf-8"), token.encode("utf-8")
+        ):
             return None
         return error("forbidden", 403)
 
