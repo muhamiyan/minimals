@@ -4,14 +4,16 @@ import AppShell from '@/app/AppShell.vue'
 import { authRoutes } from '@/features/auth/routes'
 import { useAuthStore } from '@/features/auth/store'
 import { dashboardRoutes } from '@/features/dashboard/routes'
+import { landingRoutes } from '@/features/landing/routes'
 import { setupRoutes } from '@/features/setup/routes'
 import { authGuard } from './guard'
 
 const routes: RouteRecordRaw[] = [
   ...authRoutes,
   ...setupRoutes,
+  ...landingRoutes,
   {
-    path: '/',
+    path: '/dashboard',
     component: AppShell,
     children: [...dashboardRoutes],
   },

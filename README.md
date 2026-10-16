@@ -88,7 +88,7 @@ app/
   infra/     CSRF, rate limit, roles, security, audit, setup, read API, health
   migrations/  Alembic — alpha: edit 0001_initial.py langsung
 frontend/src/
-  features/  auth, setup, dashboard
+  features/  auth, setup, dashboard, landing
   shared/    satu axios instance untuk semua API call
 tests/       pytest; test_docs.py menjaga README ↔ url_map sinkron
 ```

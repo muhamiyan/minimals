@@ -21,7 +21,7 @@ export async function authGuard(to: any) {
     return { path: '/login', query: { redirect: to.fullPath } }
   }
   if (to.meta.guestOnly && auth.user) {
-    return '/'
+    return '/dashboard'
   }
   return true
 }

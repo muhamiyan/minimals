@@ -23,9 +23,9 @@ async function onSubmit() {
   submitting.value = false
   if (ok) {
     toast.success(`Welcome back, ${auth.user?.fullName ?? auth.user?.email}`)
-    const next = (route.query.redirect as string) || '/'
+    const next = (route.query.redirect as string) || '/dashboard'
     if (!next.startsWith('/') || next.startsWith('//')) {
-      await router.replace('/')
+      await router.replace('/dashboard')
       return
     }
     await router.replace(next)
