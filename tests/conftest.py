@@ -41,6 +41,13 @@ def register(client, **overrides):
     return client.post("/api/v1/auth/register", json=payload)
 
 
+@pytest.fixture(autouse=True)
+def _isolate_env_file(tmp_path, monkeypatch):
+    from app.infra import db_bootstrap
+
+    monkeypatch.setattr(db_bootstrap, "env_file_path", lambda: tmp_path / ".env")
+
+
 @pytest.fixture()
 def app():
     from app.auth.models import Role
