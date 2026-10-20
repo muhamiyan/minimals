@@ -1,6 +1,8 @@
 """Auth input DTOs — request-body validation for auth endpoints."""
 from __future__ import annotations
 
+from typing import Literal
+
 from pydantic import field_validator
 
 from app.infra.validation import CredentialPolicy
@@ -33,4 +35,10 @@ class LoginIn(DTOBase):
         return v.strip().lower() if isinstance(v, str) else v
 
 
-__all__ = ["LoginIn", "RegisterIn"]
+class RegistrationModeIn(DTOBase):
+    """Validate a registration-mode update."""
+
+    mode: Literal["open", "closed"]
+
+
+__all__ = ["LoginIn", "RegisterIn", "RegistrationModeIn"]

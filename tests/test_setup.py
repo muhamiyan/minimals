@@ -273,3 +273,79 @@ def test_setup_after_repoint_reports_complete(client, app, tmp_path, restore_eng
     status = client.get("/api/v1/setup/status").get_json()
     assert status["setupRequired"] is False
     assert status["reason"] is None
+
+
+def _setup_payload(target, brand=None):
+    payload = {
+        "db": {"engine": "sqlite", "path": str(target)},
+        "admin": {
+            "email": "boss@example.com",
+            "username": "boss",
+            "password": "Str0ng!Pass",
+            "fullName": "Boss User",
+        },
+    }
+    if brand is not None:
+        payload["brand"] = brand
+    return payload
+
+
+def test_setup_seeds_brand(client, app, tmp_path, restore_engine):
+    from app.infra.seo import get_brand
+
+    target = tmp_path / "branded.db"
+    response = client.post(
+        "/api/v1/setup",
+        json=_setup_payload(
+            target,
+            {
+                "name": "Acme Corp",
+                "tagline": "Work less",
+                "description": "Acme helps you work less.",
+                "siteUrl": "https://acme.test",
+            },
+        ),
+    )
+    assert response.status_code == 201, response.get_json()
+
+    with app.app_context():
+        assert get_brand() == {
+            "name": "Acme Corp",
+            "tagline": "Work less",
+            "description": "Acme helps you work less.",
+            "siteUrl": "https://acme.test",
+        }
+
+
+def test_setup_defaults_brand_when_omitted(client, app, tmp_path, restore_engine):
+    from app.infra.seo import get_brand
+
+    target = tmp_path / "plain.db"
+    response = client.post("/api/v1/setup", json=_setup_payload(target))
+    assert response.status_code == 201, response.get_json()
+
+    with app.app_context():
+        assert get_brand()["name"] == "Minimals"
+
+
+@pytest.mark.parametrize(
+    "site_url",
+    [
+        "javascript:alert(1)",
+        "https:// ",
+        "https://exam ple",
+        "https://[bad",
+        "ftp://acme.test",
+        "//acme.test",
+    ],
+)
+def test_setup_rejects_invalid_site_url(client, site_url):
+    response = client.post(
+        "/api/v1/setup",
+        json=_setup_payload(
+            "/tmp/minimals-rejected.db",
+            {"name": "Acme", "siteUrl": site_url},
+        ),
+    )
+    assert response.status_code == 400
+    assert response.get_json() == {"message": "site_url_invalid"}

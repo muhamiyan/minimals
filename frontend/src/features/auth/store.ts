@@ -18,6 +18,7 @@ export const useAuthStore = defineStore('auth', () => {
   const user = ref<AuthUser | null>(null)
   const checked = ref(false)
   const error = ref('')
+  const registrationMode = ref<'open' | 'closed' | null>(null)
 
   async function login(identifier: string, password: string): Promise<boolean> {
     error.value = ''
@@ -61,6 +62,17 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  async function fetchRegistrationMode() {
+    if (registrationMode.value !== null) return
+    try {
+      const { data } = await api.get('/auth/registration')
+      registrationMode.value = data.mode === 'closed' ? 'closed' : 'open'
+    } catch {
+      // Fail open — matches the backend default; a blocked attempt still 403s.
+      registrationMode.value = 'open'
+    }
+  }
+
   async function logout() {
     try {
       await api.post('/auth/logout')
@@ -72,5 +84,15 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  return { user, checked, error, login, register, fetchMe, logout }
+  return {
+    user,
+    checked,
+    error,
+    registrationMode,
+    login,
+    register,
+    fetchMe,
+    fetchRegistrationMode,
+    logout,
+  }
 })

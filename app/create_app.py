@@ -98,6 +98,7 @@ def create_app() -> Flask:
         from app.account.models import ApiKey  # noqa: F401
         from app.auth.models import Role, User, user_roles  # noqa: F401
         from app.infra.audit import AuditLog  # noqa: F401
+        from app.infra.models import AppSetting  # noqa: F401
         from app.infra.roles import ensure_member_role
 
         ensure_member_role()
@@ -108,19 +109,27 @@ def create_app() -> Flask:
         from app.infra.api import bp as app_api_bp
         from app.infra.csrf import bp as csrf_bp
         from app.infra.health import bp as health_bp
+        from app.infra.seo import bp as seo_bp
+        from app.infra.seo import index_context
         from app.infra.setup import bp as setup_bp
         from app.infra.uploads import bp as uploads_bp
 
         app.register_blueprint(health_bp)
         app.register_blueprint(csrf_bp)
         app.register_blueprint(setup_bp)
+        app.register_blueprint(seo_bp)
         app.register_blueprint(auth_bp)
         app.register_blueprint(account_bp)
         app.register_blueprint(account_api_key_bp)
         app.register_blueprint(app_api_bp)
         app.register_blueprint(uploads_bp)
 
-        register_spa(app, Config.SPA_STATIC_ROOT, Config.SPA_URL_PREFIX)
+        register_spa(
+            app,
+            Config.SPA_STATIC_ROOT,
+            Config.SPA_URL_PREFIX,
+            index_context=index_context,
+        )
 
         register_error_handlers(app)
 

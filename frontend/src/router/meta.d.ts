@@ -6,5 +6,6 @@ declare module 'vue-router' {
     guestOnly?: boolean
     scroll?: boolean
     fullscreen?: boolean
+    title?: string
   }
 }

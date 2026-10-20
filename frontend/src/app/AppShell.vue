@@ -16,6 +16,7 @@ import {
 
 import { useAuthStore } from '@/features/auth/store'
 import ForbiddenDialog from '@/shared/components/ForbiddenDialog.vue'
+import { brand } from '@/shared/brand'
 import { useMediaQuery } from './useMediaQuery'
 
 const router = useRouter()
@@ -83,7 +84,7 @@ async function onLogout() {
     <template #sidebar>
       <Sidebar v-model:collapsed="sidebarCollapsed" class="border-r">
         <SidebarHeader
-          title="Minimals"
+          :title="brand.name"
           :subtitle="auth.user?.fullName || auth.user?.email || ''"
           :menu-items="headerMenu"
         />

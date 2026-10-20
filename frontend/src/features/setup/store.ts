@@ -27,6 +27,13 @@ export interface SetupAdmin {
   username?: string
 }
 
+export interface SetupBrand {
+  name: string
+  tagline: string
+  description: string
+  siteUrl?: string
+}
+
 export interface SetupResult {
   adminId: string
   email: string
@@ -61,10 +68,14 @@ export const useSetupStore = defineStore('setup', () => {
     }
   }
 
-  async function run(cfg: DbConfig, admin: SetupAdmin): Promise<SetupResult | null> {
+  async function run(
+    cfg: DbConfig,
+    brand: SetupBrand,
+    admin: SetupAdmin,
+  ): Promise<SetupResult | null> {
     error.value = ''
     try {
-      const { data } = await api.post('/setup', { db: cfg, admin })
+      const { data } = await api.post('/setup', { db: cfg, brand, admin })
       return data
     } catch (e: any) {
       error.value = getErrorMessage(e, 'Setup failed')

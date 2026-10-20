@@ -25,7 +25,16 @@ class AdminCreateIn(DTOBase, CredentialPolicy):
     email: str = Field(..., max_length=255)
     username: str | None = Field(default=None, min_length=3, max_length=150)
     password: str = Field(..., min_length=8, max_length=255)
-    full_name: str = Field(alias="fullName", min_length=1, max_length=255)
+    full_name: str = Field(..., alias="fullName", min_length=1, max_length=255)
+
+
+class BrandIn(DTOBase):
+    """Validate the white-label brand payload."""
+
+    name: str = Field(default="Minimals", min_length=1, max_length=64)
+    tagline: str = Field(default="", max_length=120)
+    description: str = Field(default="", max_length=300)
+    site_url: str | None = Field(default=None, alias="siteUrl", max_length=512)
 
 
 class SetupIn(DTOBase):
@@ -33,6 +42,7 @@ class SetupIn(DTOBase):
 
     db: DbConfigIn = Field(default_factory=DbConfigIn)
     admin: AdminCreateIn
+    brand: BrandIn | None = Field(default=None)
 
 
-__all__ = ["AdminCreateIn", "DbConfigIn", "SetupIn"]
+__all__ = ["AdminCreateIn", "BrandIn", "DbConfigIn", "SetupIn"]

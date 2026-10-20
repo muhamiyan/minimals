@@ -5,6 +5,7 @@ import { Button, ErrorMessage, FormControl, toast } from 'frappe-ui'
 
 import { useAuthStore } from '../store'
 import { checkPassword, isPasswordValid, passwordRules } from '../validation'
+import { brand } from '@/shared/brand'
 
 const router = useRouter()
 const auth = useAuthStore()
@@ -57,7 +58,7 @@ async function onSubmit() {
             <span class="lucide-package size-6" aria-hidden="true" />
           </div>
           <h1 class="text-2xl-semibold text-ink-gray-8">Create account</h1>
-          <p class="text-p-sm text-ink-gray-5">Minimals</p>
+          <p class="text-p-sm text-ink-gray-5">{{ brand.name }}</p>
         </div>
 
         <ErrorMessage v-if="errorMessage" :message="errorMessage" />

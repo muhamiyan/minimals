@@ -20,8 +20,12 @@ export async function authGuard(to: any) {
   if (to.meta.requiresAuth && !auth.user) {
     return { path: '/login', query: { redirect: to.fullPath } }
   }
-  if (to.meta.guestOnly && auth.user) {
-    return '/'
+  if (to.meta.guestOnly) {
+    if (auth.user) return '/'
+    await auth.fetchRegistrationMode()
+    if (to.name === 'Register' && auth.registrationMode === 'closed') {
+      return { path: '/login' }
+    }
   }
   return true
 }
