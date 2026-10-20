@@ -7,5 +7,6 @@ declare module 'vue-router' {
     adminOnly?: boolean
     scroll?: boolean
     fullscreen?: boolean
+    title?: string
   }
 }

@@ -7,6 +7,7 @@ import { blogAdminRoutes, blogRoutes } from '@/features/blog/routes'
 import { dashboardRoutes } from '@/features/dashboard/routes'
 import { landingRoutes } from '@/features/landing/routes'
 import { setupRoutes } from '@/features/setup/routes'
+import { brand } from '@/shared/brand'
 import { authGuard } from './guard'
 
 const routes: RouteRecordRaw[] = [
@@ -33,6 +34,10 @@ const router = createRouter({
 })
 
 router.beforeEach(authGuard)
+
+router.afterEach((to) => {
+  document.title = to.meta.title ? `${to.meta.title} · ${brand.name}` : brand.name
+})
 
 window.addEventListener('auth:unauthorized', () => {
   const auth = useAuthStore()

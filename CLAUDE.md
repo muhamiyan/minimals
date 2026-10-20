@@ -107,6 +107,8 @@ di-inject ke `AccountService`. Referensi: `app/account/services.py` constructor.
   /static/frontend/* → build asset SPA (cache 1 jam, filename content-hashed)
   /uploads/* → app/static/uploads (TANPA auth)
   /*        → SPA: file nyata bila ada, else index.html
+              (brand + meta SEO di-inject server-side, lihat app/infra/seo.py)
+  /robots.txt /sitemap.xml → crawler files (brand-driven, rate-limit exempt)
   /health /ready → health check
 ```
 
@@ -179,6 +181,14 @@ Dua mekanisme, keduanya menghasilkan `current_user`:
    disimpan **bcrypt-hashed** + `prefix` 10 char untuk lookup; raw key hanya
    muncul sekali di respons create.
 
+**Registration gate** — `POST /api/v1/auth/register` bisa ditutup lewat
+`PUT /api/v1/auth/registration` (admin, `require_role("admin")`). Mode
+`open`/`closed` disimpan di tabel `settings` (`registrationMode`, default
+`open`, fail-safe di `app/infra/registration.py`); saat `closed` register
+ditolak 403 `registration_disabled` + audit `register_failure`. `GET
+/api/v1/auth/registration` publik — dipakai FE untuk menyembunyikan link
+"Create one" dan me-redirect `/register` ke `/login`.
+
 Dua konsep role, jangan dicampur:
 
 - **`User.app_role`** — kolom string, nilainya `"user"` atau `"admin"`. Ini yang
@@ -246,6 +256,8 @@ semua; `app/config.py` menambah path & static.
 | `ALERT_WEBHOOK_URL` | — | Alert record → webhook (async, queue) |
 | `INTERNAL_API_TOKEN` | — | Gate `/api/v1/app/*` untuk non-browser client |
 | `MIGRATE_ON_BOOT` | `false` | |
+| `SEO_INDEXABLE` | `true` | `false` → `noindex, nofollow` + `robots.txt` disallow |
+| `APP_LANG` | `en` | `lang` + tag SEO di `index.html` |
 | `SQLALCHEMY_POOL_*` | 10/20/30/1800 | **Diabaikan untuk sqlite** |
 
 ## Security model
@@ -354,6 +366,11 @@ terlewat.
 13. **Migrasi on boot jalan di dalam `create_app()`**, sebelum
     `ensure_member_role()` — jangan panggil `run_migrations()` lagi di
     `run.py`, dan jangan seed sebelum migrasi.
+14. **Brand/SEO** — `<title>`, meta description, robots, canonical, OG di
+    `index.html` di-inject server-side (`app/infra/seo.py` →
+    `_apply_seo`); sumber kebenaran = tabel `settings`. `<title>` di
+    `frontend/index.html` hanya fallback dev. SPA membaca
+    `window.brand`; `seo` tidak pernah jadi window global.
 
 ## Deployment
 

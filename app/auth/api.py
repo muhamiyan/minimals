@@ -1,14 +1,16 @@
-"""Auth HTTP endpoints — register, login, logout, me."""
+"""Auth HTTP endpoints — register, login, logout, me, registration gate."""
 from __future__ import annotations
 
 from flask import current_app, request
 from flask_login import current_user, login_required, login_user, logout_user
 
-from app.auth.dto import LoginIn, RegisterIn
+from app.auth.dto import LoginIn, RegisterIn, RegistrationModeIn
 from app.auth.presenters import UserOut
 from app.auth.services import AuthService
 from app.infra.csrf import clear_session_keep_csrf
+from app.infra.registration import get_registration_mode
 from framework.api import BlueprintFactory, created, error, ok
+from framework.auth import require_role
 from framework.extensions.rate_limit import limiter
 
 bp = BlueprintFactory("auth", __name__, url_prefix="/api/v1/auth")
@@ -33,6 +35,23 @@ def register():
     clear_session_keep_csrf()
     login_user(user, remember=True)
     return created(_serialize_user(user))
+
+
+@bp.get("/registration")
+def registration_mode():
+    return ok({"mode": get_registration_mode()})
+
+
+@bp.put("/registration")
+@login_required
+def set_registration_mode():
+    if denied := require_role("admin"):
+        return denied
+    dto = RegistrationModeIn.validate(request.get_json(silent=True) or {})
+    mode = AuthService().set_registration_mode(
+        dto.mode, changed_by=current_user.id
+    )
+    return ok({"mode": mode})
 
 
 @bp.post("/login")

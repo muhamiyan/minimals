@@ -193,3 +193,99 @@ def test_logout_ends_the_session(client):
 
     assert client.post("/api/v1/auth/logout").status_code == 200
     assert client.get("/api/v1/auth/me").status_code == 401
+
+
+def test_registration_mode_defaults_to_open(client):
+    response = client.get("/api/v1/auth/registration")
+
+    assert response.status_code == 200
+    assert response.get_json() == {"mode": "open"}
+
+
+def test_registration_gate_fails_open_without_settings_table(client, app):
+    from app.infra.models import AppSetting
+    from framework.extensions import db
+
+    with app.app_context():
+        AppSetting.__table__.drop(db.engine)
+
+    assert client.get("/api/v1/auth/registration").get_json() == {"mode": "open"}
+    assert register(client).status_code == 201
+
+
+def test_admin_closes_registration_and_register_is_blocked(admin, client):
+    response = admin.put("/api/v1/auth/registration", json={"mode": "closed"})
+    assert response.status_code == 200
+    assert response.get_json() == {"mode": "closed"}
+
+    assert client.get("/api/v1/auth/registration").get_json() == {"mode": "closed"}
+
+    blocked = register(client)
+    assert blocked.status_code == 403
+    assert blocked.get_json() == {"message": "registration_disabled"}
+
+
+def test_admin_reopens_registration(admin, client):
+    admin.put("/api/v1/auth/registration", json={"mode": "closed"})
+
+    response = admin.put("/api/v1/auth/registration", json={"mode": "open"})
+    assert response.status_code == 200
+    assert response.get_json() == {"mode": "open"}
+
+    assert register(client).status_code == 201
+
+
+def test_registration_mode_change_is_audited(admin, app):
+    from app.infra.audit import AuditLog
+    from framework.extensions import db
+
+    admin.put("/api/v1/auth/registration", json={"mode": "closed"})
+
+    with app.app_context():
+        row = db.session.scalar(
+            db.select(AuditLog).where(
+                AuditLog.action == "registration_mode_changed"
+            )
+        )
+    assert row is not None
+    assert row.user_id is not None
+    assert row.details == {"mode": "closed"}
+
+
+def test_set_registration_mode_requires_admin(member):
+    response = member.put("/api/v1/auth/registration", json={"mode": "closed"})
+
+    assert response.status_code == 403
+    assert response.get_json() == {"message": "forbidden"}
+
+
+def test_set_registration_mode_requires_login(client):
+    response = client.put("/api/v1/auth/registration", json={"mode": "closed"})
+
+    assert response.status_code == 401
+    assert response.get_json() == {"message": "unauthorized"}
+
+
+def test_set_registration_mode_rejects_invalid_mode(admin):
+    response = admin.put("/api/v1/auth/registration", json={"mode": "maybe"})
+
+    assert response.status_code == 400
+    assert response.get_json() == {"message": "mode_invalid"}
+
+
+def test_set_registration_mode_requires_mode(admin):
+    response = admin.put("/api/v1/auth/registration", json={})
+
+    assert response.status_code == 400
+    assert response.get_json() == {"message": "mode_required"}
+
+
+def test_login_works_while_registration_closed(admin, client):
+    admin.put("/api/v1/auth/registration", json={"mode": "closed"})
+
+    response = client.post(
+        "/api/v1/auth/login",
+        json={"identifier": "admin@example.com", "password": "Str0ng!Pass"},
+    )
+    assert response.status_code == 200
+    assert response.get_json()["username"] == "admin"

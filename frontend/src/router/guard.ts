@@ -23,8 +23,12 @@ export async function authGuard(to: any) {
   if (to.meta.adminOnly && auth.user?.appRole !== 'admin') {
     return '/dashboard'
   }
-  if (to.meta.guestOnly && auth.user) {
-    return '/dashboard'
+  if (to.meta.guestOnly) {
+    if (auth.user) return '/dashboard'
+    await auth.fetchRegistrationMode()
+    if (to.name === 'Register' && auth.registrationMode === 'closed') {
+      return { path: '/login' }
+    }
   }
   return true
 }
