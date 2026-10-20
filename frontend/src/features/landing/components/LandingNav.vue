@@ -40,17 +40,23 @@ function goTop() {
 
       <nav class="hidden items-center gap-1 sm:flex">
         <a
-          href="#features"
+          href="/#features"
           class="rounded-4 px-3 py-1.5 text-base-medium text-ink-gray-6 transition-colors hover:text-ink-gray-9"
         >
           Features
         </a>
         <a
-          href="#about"
+          href="/#about"
           class="rounded-4 px-3 py-1.5 text-base-medium text-ink-gray-6 transition-colors hover:text-ink-gray-9"
         >
           About
         </a>
+        <router-link
+          :to="{ name: 'BlogList' }"
+          class="rounded-4 px-3 py-1.5 text-base-medium text-ink-gray-6 transition-colors hover:text-ink-gray-9"
+        >
+          Blog
+        </router-link>
       </nav>
 
       <div class="flex items-center gap-2">

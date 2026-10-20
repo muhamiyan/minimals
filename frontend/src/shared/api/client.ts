@@ -1,6 +1,12 @@
 import { emitApiStatus } from './status'
 import axios from 'axios'
 
+declare global {
+  interface Window {
+    csrf_token?: string
+  }
+}
+
 export const api = axios.create({
   baseURL: '/api/v1',
   withCredentials: true,
@@ -8,10 +14,11 @@ export const api = axios.create({
 
 let csrfToken: string | null = null
 
-async function fetchCsrfToken(): Promise<string> {
+export async function fetchCsrfToken(): Promise<string> {
   if (csrfToken) return csrfToken
   const { data } = await axios.get('/api/v1/csrf', { withCredentials: true })
   csrfToken = data.csrfToken
+  window.csrf_token = data.csrfToken ?? undefined
   return csrfToken!
 }
 

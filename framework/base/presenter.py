@@ -18,7 +18,7 @@ Example::
 """
 from __future__ import annotations
 
-from datetime import date, datetime
+from datetime import UTC, date, datetime
 from decimal import Decimal
 from typing import Any
 
@@ -66,9 +66,9 @@ class PresenterBase(BaseModel):
         """Build a presenter from a model attribute lookup.
 
         Each declared field is read from the model by alias first, then by
-        field name; datetimes are coerced to ISO-8601 strings. Pass
-        ``overrides`` for values that need mapping (relationships, masked
-        fields)::
+        field name; datetimes are coerced to ISO-8601 strings, with naive
+        datetimes treated as UTC. Pass ``overrides`` for values that need
+        mapping (relationships, masked fields)::
         """
         data: dict[str, Any] = {}
         for field_name, field_info in cls.model_fields.items():
@@ -81,6 +81,8 @@ class PresenterBase(BaseModel):
             if value is None and field_info.alias:
                 value = getattr(model, field_name, None)
             if isinstance(value, datetime | date):
+                if isinstance(value, datetime) and value.tzinfo is None:
+                    value = value.replace(tzinfo=UTC)
                 value = value.isoformat()
             elif isinstance(value, Decimal):
                 value = money_str(value)

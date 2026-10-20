@@ -62,21 +62,37 @@ def upgrade() -> None:
         sa.Column("ip_address", sa.String(length=45), nullable=True),
         sa.Column("user_agent", sa.Text(), nullable=True),
     )
+    op.create_table(
+        "blog_posts",
+        sa.Column("id", sa.String(length=36), primary_key=True),
+        sa.Column("title", sa.String(length=200), nullable=False),
+        sa.Column("slug", sa.String(length=200), unique=True, nullable=False),
+        sa.Column("body", sa.Text(), nullable=False),
+        sa.Column("status", sa.String(length=20), nullable=False, server_default="draft"),
+        sa.Column("cover_image", sa.String(length=500), nullable=True),
+        sa.Column("author_id", sa.String(length=36), sa.ForeignKey("users.id", ondelete="SET NULL"), nullable=True),
+        sa.Column("published_on", sa.DateTime(timezone=True), nullable=True),
+        sa.Column("created_on", sa.DateTime(timezone=True), nullable=False, server_default=sa.func.now()),
+        sa.Column("changed_on", sa.DateTime(timezone=True), nullable=False, server_default=sa.func.now()),
+    )
     op.create_index("ix_users_email", "users", ["email"])
     op.create_index("ix_users_username", "users", ["username"])
     op.create_index("ix_api_keys_prefix", "api_keys", ["prefix"])
     op.create_index("ix_audit_logs_timestamp", "audit_logs", ["timestamp"])
     op.create_index("ix_audit_logs_user_id", "audit_logs", ["user_id"])
     op.create_index("ix_audit_logs_action", "audit_logs", ["action"])
+    op.create_index("ix_blog_posts_status", "blog_posts", ["status"])
 
 
 def downgrade() -> None:
+    op.drop_index("ix_blog_posts_status", table_name="blog_posts")
     op.drop_index("ix_audit_logs_action", table_name="audit_logs")
     op.drop_index("ix_audit_logs_user_id", table_name="audit_logs")
     op.drop_index("ix_audit_logs_timestamp", table_name="audit_logs")
     op.drop_index("ix_api_keys_prefix", table_name="api_keys")
     op.drop_index("ix_users_username", table_name="users")
     op.drop_index("ix_users_email", table_name="users")
+    op.drop_table("blog_posts")
     op.drop_table("audit_logs")
     op.drop_table("api_keys")
     op.drop_table("user_roles")

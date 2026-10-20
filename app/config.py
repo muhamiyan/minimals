@@ -37,6 +37,8 @@ def _database_url() -> str:
 class Config(BaseConfig):
     SQLALCHEMY_DATABASE_URI = _database_url()
 
+    WTF_CSRF_HEADERS = ["X-CSRFToken", "X-Frappe-CSRF-Token"]
+
     STATIC_FOLDER = str(BASE_DIR / "static")
     UPLOAD_FOLDER = str(BASE_DIR / "static" / "uploads")
 

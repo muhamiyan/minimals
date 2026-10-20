@@ -126,6 +126,12 @@ Detail lengkap: [`CLAUDE.md`](CLAUDE.md), [`framework/README.md`](framework/READ
 | GET | /api/v1/app/roles | Cross-service read API (internal token or admin) |
 | POST | /api/v1/uploads | Upload image (admin, max 5 MiB, png/jpg/jpeg/webp/gif) |
 | DELETE | /api/v1/uploads/:name | Delete uploaded image (admin, idempotent 204) |
+| GET | /api/v1/blog/posts | List published posts (public, paginated) |
+| GET | /api/v1/blog/posts/:slug | Fetch one post (public; drafts admin-only) |
+| GET | /api/v1/blog/admin/posts | List all posts incl. drafts (admin, paginated) |
+| POST | /api/v1/blog/posts | Create post (admin) |
+| PATCH | /api/v1/blog/posts/:slug | Update post (admin) |
+| DELETE | /api/v1/blog/posts/:slug | Delete post (admin) |
 | GET | /health | Health check (public) |
 | GET | /ready | Readiness check (public) |
 
@@ -151,3 +157,7 @@ Known gaps — baca sebelum eksposur internet:
   kalau socket peer juga private/loopback. Kalau app diekspos langsung biarkan
   `false` — dengan `true` dan tanpa proxy, siapa pun bisa memalsukan address
   yang jadi key rate limiting
+- Body blog disanitasi saat ditulis (allowlist tag/attribut via `nh3`), tapi
+  surface admin-terpercaya sengaja dipertahankan: atribut `style`/`class` di
+  semua tag dan embed `iframe` https. Admin tetap bisa memasukkan HTML yang
+  tampil ke semua pembaca — jangan beri `app_role=admin` sembarangan

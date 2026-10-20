@@ -97,6 +97,7 @@ def create_app() -> Flask:
 
         from app.account.models import ApiKey  # noqa: F401
         from app.auth.models import Role, User, user_roles  # noqa: F401
+        from app.blog.models import BlogPost  # noqa: F401
         from app.infra.audit import AuditLog  # noqa: F401
         from app.infra.roles import ensure_member_role
 
@@ -105,6 +106,7 @@ def create_app() -> Flask:
         from app.account import bp as account_bp
         from app.account.api_key_api import bp as account_api_key_bp
         from app.auth import bp as auth_bp
+        from app.blog import bp as blog_bp
         from app.infra.api import bp as app_api_bp
         from app.infra.csrf import bp as csrf_bp
         from app.infra.health import bp as health_bp
@@ -117,6 +119,7 @@ def create_app() -> Flask:
         app.register_blueprint(auth_bp)
         app.register_blueprint(account_bp)
         app.register_blueprint(account_api_key_bp)
+        app.register_blueprint(blog_bp)
         app.register_blueprint(app_api_bp)
         app.register_blueprint(uploads_bp)
 

@@ -13,17 +13,23 @@
 
       <nav class="flex flex-wrap items-center justify-center gap-4">
         <a
-          href="#features"
+          href="/#features"
           class="text-p-sm text-ink-gray-5 transition-colors hover:text-ink-gray-8"
         >
           Features
         </a>
         <a
-          href="#about"
+          href="/#about"
           class="text-p-sm text-ink-gray-5 transition-colors hover:text-ink-gray-8"
         >
           About
         </a>
+        <router-link
+          :to="{ name: 'BlogList' }"
+          class="text-p-sm text-ink-gray-5 transition-colors hover:text-ink-gray-8"
+        >
+          Blog
+        </router-link>
         <router-link
           :to="{ name: 'Login' }"
           class="text-p-sm text-ink-gray-5 transition-colors hover:text-ink-gray-8"

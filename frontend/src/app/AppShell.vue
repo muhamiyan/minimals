@@ -95,6 +95,13 @@ async function onLogout() {
               :route="{ name: 'Dashboard' }"
             />
           </SidebarSection>
+          <SidebarSection v-if="auth.user?.appRole === 'admin'" label="Admin">
+            <SidebarItem
+              label="Blog"
+              icon="lucide-newspaper"
+              :route="{ name: 'BlogAdminList' }"
+            />
+          </SidebarSection>
         </div>
         <div class="px-2 pb-2">
           <SidebarCollapseToggle />
@@ -114,6 +121,12 @@ async function onLogout() {
           label="Home"
           icon="lucide-house"
           :route="{ name: 'Dashboard' }"
+        />
+        <MobileNavItem
+          v-if="auth.user?.appRole === 'admin'"
+          label="Blog"
+          icon="lucide-newspaper"
+          :route="{ name: 'BlogAdminList' }"
         />
         <MobileNavItem :label="themeLabel" :icon="themeIcon" @click="toggleColorScheme" />
         <MobileNavItem label="Log out" icon="lucide-log-out" @click="onLogout" />
