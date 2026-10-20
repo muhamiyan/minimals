@@ -5,5 +5,6 @@ export const setupRoutes: RouteRecordRaw[] = [
     path: '/setup',
     name: 'Setup',
     component: () => import('./views/SetupView.vue'),
+    meta: { title: 'Setup' },
   },
 ]

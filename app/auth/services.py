@@ -7,8 +7,9 @@ from app.auth.dto import RegisterIn
 from app.auth.models import MEMBER_ROLE, User
 from app.auth.repositories import RoleRepository, UserRepository
 from app.infra.audit import log as audit_log
+from app.infra.registration import get_registration_mode, save_registration_mode
 from framework.base import ServiceBase
-from framework.exceptions import Conflict, DomainException
+from framework.exceptions import Conflict, DomainException, Forbidden
 
 
 class AuthService(ServiceBase[UserRepository]):
@@ -25,6 +26,15 @@ class AuthService(ServiceBase[UserRepository]):
         self._roles = roles or RoleRepository()
 
     def register(self, dto: RegisterIn) -> User:
+        if get_registration_mode() == "closed":
+            audit_log(
+                "register_failure",
+                resource="auth/register",
+                details={"email": dto.email, "reason": "registration_disabled"},
+            )
+            self._commit()
+            raise Forbidden("registration_disabled")
+
         try:
             if self._repo.find_by_email(dto.email):
                 raise Conflict("email_already_registered")
@@ -59,6 +69,20 @@ class AuthService(ServiceBase[UserRepository]):
         )
         self._commit()
         return user
+
+    def set_registration_mode(self, mode: str, *, changed_by: str) -> str:
+        """Flip the registration gate; audits who changed it and to what."""
+        if get_registration_mode() == mode:
+            return mode
+        save_registration_mode(mode)
+        audit_log(
+            "registration_mode_changed",
+            user_id=changed_by,
+            resource="auth/registration",
+            details={"mode": mode},
+        )
+        self._commit()
+        return mode
 
     @staticmethod
     def build_user(

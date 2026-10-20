@@ -62,6 +62,12 @@ def upgrade() -> None:
         sa.Column("ip_address", sa.String(length=45), nullable=True),
         sa.Column("user_agent", sa.Text(), nullable=True),
     )
+    op.create_table(
+        "settings",
+        sa.Column("id", sa.String(length=36), primary_key=True),
+        sa.Column("key", sa.String(length=64), unique=True, nullable=False),
+        sa.Column("value", sa.Text(), nullable=False, server_default=""),
+    )
     op.create_index("ix_users_email", "users", ["email"])
     op.create_index("ix_users_username", "users", ["username"])
     op.create_index("ix_api_keys_prefix", "api_keys", ["prefix"])
@@ -78,6 +84,7 @@ def downgrade() -> None:
     op.drop_index("ix_users_username", table_name="users")
     op.drop_index("ix_users_email", table_name="users")
     op.drop_table("audit_logs")
+    op.drop_table("settings")
     op.drop_table("api_keys")
     op.drop_table("user_roles")
     op.drop_table("users")

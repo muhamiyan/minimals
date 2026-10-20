@@ -43,6 +43,17 @@ class Config(BaseConfig):
     SPA_STATIC_ROOT = str(BASE_DIR / "static" / "frontend")
     SPA_URL_PREFIX = ""
 
+    # --- SEO / white-label ----------------------------------------------------
+    # index.html is the only HTML crawlers see: the brand name, tagline,
+    # description and siteUrl live in the settings table (set during setup)
+    # and are injected server-side. These two knobs only come from the env.
+    SEO_INDEXABLE = os.environ.get("SEO_INDEXABLE", "true").lower() in (
+        "true",
+        "1",
+        "yes",
+    )
+    APP_LANG = os.environ.get("APP_LANG", "en")
+
     # data/ is the only writable path in the container (and is git-ignored),
     # so the default log has to live there — app/logs/ is not created by the
     # image and would raise PermissionError for the non-root user.

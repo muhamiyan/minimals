@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { Button, ErrorMessage, FormControl, toast } from 'frappe-ui'
 
 import { useAuthStore } from '../store'
+import { brand } from '@/shared/brand'
 
 const router = useRouter()
 const route = useRoute()
@@ -44,7 +45,7 @@ async function onSubmit() {
             <span class="lucide-package size-6" aria-hidden="true" />
           </div>
           <h1 class="text-2xl-semibold text-ink-gray-8">Sign in</h1>
-          <p class="text-p-sm text-ink-gray-5">Minimals</p>
+          <p class="text-p-sm text-ink-gray-5">{{ brand.name }}</p>
         </div>
 
         <ErrorMessage v-if="errorMessage" :message="errorMessage" />
@@ -75,7 +76,10 @@ async function onSubmit() {
           :disabled="disabled"
         />
 
-        <p class="text-center text-p-sm text-ink-gray-5">
+        <p
+          v-if="auth.registrationMode !== 'closed'"
+          class="text-center text-p-sm text-ink-gray-5"
+        >
           No account?
           <router-link :to="{ name: 'Register' }" class="text-ink-blue-link">
             Create one

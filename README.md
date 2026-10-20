@@ -37,13 +37,34 @@ Untuk dev lokal via HTTP biasa, set `FORCE_HTTPS=false` di `.env` — default
 ## First-run Setup
 
 Selama `GET /api/v1/setup/status` melaporkan `setupRequired`, SPA mengarahkan
-semua navigasi ke `/setup`: pilih database, tes koneksi, buat administrator.
-Wizard menulis `DATABASE_URL` ke `.env`, memigrasi target, dan membuat admin;
-kalau target beda dari engine yang jalan, responsnya `restartRequired`.
+semua navigasi ke `/setup`: pilih database, tes koneksi, tentukan brand
+(nama, tagline, deskripsi SEO, site URL), lalu buat administrator.
+Wizard menulis `DATABASE_URL` ke `.env`, memigrasi target, membuat admin dan
+menyimpan brand; kalau target beda dari engine yang jalan, responsnya
+`restartRequired`.
 
 Endpoint wizard hanya menerima klien loopback, jadi buka dari server
 sendiri atau lewat SSH tunnel (`ssh -L 8000:localhost:8000 server` →
 `http://127.0.0.1:8000/setup`).
+
+## White-label & SEO
+
+Brand disimpan di tabel `settings` (key/value) dan di-inject **server-side**
+ke `index.html` tiap request: `<title>`, meta description, robots, canonical,
+Open Graph, dan Twitter card selalu mencerminkan brand saat ini — crawler
+tidak perlu menjalankan JS. `GET /robots.txt` dan `GET /sitemap.xml`
+di-serve sesuai brand; canonical, `og:url`, dan baris Sitemap hanya muncul
+setelah **Site URL** diisi — tidak pernah diambil dari header `Host`
+(anti spoofing).
+
+- SPA juga membaca `window.brand` — label sidebar/login dan judul per-route
+  (`document.title`) ikut brand.
+- Env: `SEO_INDEXABLE=true` (`false` → `noindex` + robots disallow) dan
+  `APP_LANG=en` ( atribut `lang` + tag SEO ).
+- Upgrade DB yang dibuat **sebelum** fitur ini: `settings` tidak otomatis
+  muncul (wizard tak bisa diulang setelah setup complete). Recreate DB, atau
+  buat manual — `id CHAR(36) PRIMARY KEY, key VARCHAR(64) UNIQUE NOT NULL,
+  value TEXT NOT NULL DEFAULT ''` — brand berikutnya tetap "Minimals".
 
 ## Development
 
@@ -85,7 +106,7 @@ framework/   base classes, API utils, exceptions, extensions, infra, logging
 app/
   auth/      User, Role, session auth
   account/   user & role management, API key
-  infra/     CSRF, rate limit, roles, security, audit, setup, read API, health
+  infra/     CSRF, rate limit, roles, security, audit, setup, read API, health, SEO
   migrations/  Alembic — alpha: edit 0001_initial.py langsung
 frontend/src/
   features/  auth, setup, dashboard
@@ -107,6 +128,8 @@ Detail lengkap: [`CLAUDE.md`](CLAUDE.md), [`framework/README.md`](framework/READ
 | POST | /api/v1/auth/login | Login (public, rate-limited) |
 | POST | /api/v1/auth/logout | Logout (session) |
 | GET | /api/v1/auth/me | Current user (session) |
+| GET | /api/v1/auth/registration | Registration mode open/closed (public) |
+| PUT | /api/v1/auth/registration | Set registration mode (admin) |
 | GET | /api/v1/setup/status | First-run setup status (public) |
 | POST | /api/v1/setup/db-test | Test DB connection (loopback client only) |
 | POST | /api/v1/setup | Run first-run setup (loopback client only) |
@@ -126,6 +149,8 @@ Detail lengkap: [`CLAUDE.md`](CLAUDE.md), [`framework/README.md`](framework/READ
 | GET | /api/v1/app/roles | Cross-service read API (internal token or admin) |
 | POST | /api/v1/uploads | Upload image (admin, max 5 MiB, png/jpg/jpeg/webp/gif) |
 | DELETE | /api/v1/uploads/:name | Delete uploaded image (admin, idempotent 204) |
+| GET | /robots.txt | Crawler instructions, brand-driven (public) |
+| GET | /sitemap.xml | Canonical site URL for crawlers (public) |
 | GET | /health | Health check (public) |
 | GET | /ready | Readiness check (public) |
 
@@ -138,7 +163,10 @@ Known gaps — baca sebelum eksposur internet:
 - `POST /api/v1/uploads` butuh `MAX_CONTENT_LENGTH` ≥ 5 MiB; cap global
   default 1 MiB menolak request lebih awal dengan 413 sebelum limit
   per-file (5 MiB) di view sempat dicek
-- `POST /api/v1/auth/register` terbuka untuk siapa saja dan langsung login.
+- `POST /api/v1/auth/register` terbuka untuk siapa saja (mode default
+  `open`) dan langsung login. Tutup lewat `PUT /api/v1/auth/registration`
+  (admin) — mode `registrationMode` disimpan di tabel `settings`, efektif
+  tanpa restart; saat `closed` register ditolak 403 `registration_disabled`.
   Gate atau disable kalau deployment invite-only
 - `/api/v1/setup/status` dan `/health` publik, dan mengekspos engine aktif,
   database URL yang sebagian dimasking, plus metrik per-route

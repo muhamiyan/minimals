@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
 import { Alert, Button, ErrorMessage, FormControl, Select, toast } from 'frappe-ui'
 
 import {
@@ -8,10 +7,10 @@ import {
   isPasswordValid,
   passwordRules,
 } from '@/features/auth/validation'
+import { brand } from '@/shared/brand'
 
 import { useSetupStore, type SetupResult } from '../store'
 
-const router = useRouter()
 const setup = useSetupStore()
 
 const step = ref(1)
@@ -27,6 +26,11 @@ const dbPassword = ref('')
 const testing = ref(false)
 const testedUrl = ref<string | null>(null)
 
+const brandName = ref(brand.name)
+const brandTagline = ref(brand.tagline)
+const brandDescription = ref(brand.description)
+const brandSiteUrl = ref(brand.siteUrl)
+
 const email = ref('')
 const fullName = ref('')
 const username = ref('')
@@ -39,10 +43,20 @@ const engineOptions = [
   { label: 'PostgreSQL', value: 'postgresql' },
 ]
 
+const stepLabels = ['Database', 'Brand', 'Administrator']
+const stepLabel = computed(() => stepLabels[step.value - 1] ?? '')
+
 const isSqlite = computed(() => engine.value === 'sqlite')
 
 const passwordChecks = computed(() => checkPassword(adminPassword.value))
 const passwordValid = computed(() => isPasswordValid(adminPassword.value))
+
+const brandDisabled = computed(() => !brandName.value.trim())
+
+const dbSlug = computed(
+  () =>
+    brandName.value.trim().toLowerCase().replace(/[^a-z0-9]+/g, '') || 'app',
+)
 
 const adminDisabled = computed(
   () =>
@@ -111,15 +125,29 @@ function goStep(next: number) {
   step.value = next
 }
 
+function goStepFromBrand() {
+  // Enter submits the form even when the Continue button is disabled.
+  if (!brandDisabled.value) goStep(3)
+}
+
 async function onSubmit() {
   if (adminDisabled.value) return
   submitting.value = true
-  const result = await setup.run(dbConfig(), {
-    email: email.value.trim(),
-    password: adminPassword.value,
-    fullName: fullName.value.trim(),
-    username: username.value.trim() || undefined,
-  })
+  const result = await setup.run(
+    dbConfig(),
+    {
+      name: brandName.value.trim(),
+      tagline: brandTagline.value.trim(),
+      description: brandDescription.value.trim(),
+      siteUrl: brandSiteUrl.value.trim() || undefined,
+    },
+    {
+      email: email.value.trim(),
+      password: adminPassword.value,
+      fullName: fullName.value.trim(),
+      username: username.value.trim() || undefined,
+    },
+  )
   submitting.value = false
   if (!result) return
   setup.markComplete()
@@ -129,9 +157,9 @@ async function onSubmit() {
 }
 
 function goToLogin() {
-  // The engine is hot-swapped by the time this card renders, so login works
-  // immediately — no status round-trip, and no restart to wait for.
-  router.replace('/login')
+  // Full reload: the server renders index.html with the freshly created
+  // brand, so window.brand (and every title/label) updates in one shot.
+  window.location.replace('/login')
 }
 
 onMounted(async () => {
@@ -168,7 +196,7 @@ onMounted(async () => {
           </div>
           <h1 class="text-2xl-semibold text-ink-gray-8">Setup</h1>
           <p class="text-p-sm text-ink-gray-5">
-            Step {{ step }} of 2 · {{ step === 1 ? 'Database' : 'Administrator' }}
+            Step {{ step }} of 3 · {{ stepLabel }}
           </p>
         </div>
 
@@ -207,10 +235,10 @@ onMounted(async () => {
             <FormControl
               v-model="database"
               label="Database"
-              placeholder="minimals"
+              :placeholder="dbSlug"
               required
             />
-            <FormControl v-model="dbUsername" label="Username" placeholder="minimals" />
+            <FormControl v-model="dbUsername" label="Username" :placeholder="dbSlug" />
             <FormControl
               v-model="dbPassword"
               type="password"
@@ -240,6 +268,55 @@ onMounted(async () => {
               class="flex-1"
               :disabled="testing"
               @click="goStep(2)"
+            />
+          </div>
+        </form>
+
+        <form
+          v-else-if="step === 2"
+          class="mt-4 space-y-4"
+          @submit.prevent="goStepFromBrand"
+        >
+          <FormControl
+            v-model="brandName"
+            label="Brand name"
+            placeholder="Acme Inc."
+            maxlength="64"
+            required
+          />
+          <FormControl
+            v-model="brandTagline"
+            label="Tagline"
+            placeholder="Work less, achieve more (optional)"
+            maxlength="120"
+          />
+          <FormControl
+            v-model="brandDescription"
+            label="Description"
+            placeholder="Shown to search engines (optional)"
+            maxlength="300"
+          />
+          <FormControl
+            v-model="brandSiteUrl"
+            label="Site URL"
+            placeholder="https://acme.com (optional)"
+            maxlength="512"
+          />
+
+          <div class="flex gap-2">
+            <Button
+              type="button"
+              variant="subtle"
+              label="Back"
+              @click="goStep(1)"
+            />
+            <Button
+              type="submit"
+              variant="solid"
+              theme="gray"
+              label="Continue"
+              class="flex-1"
+              :disabled="brandDisabled"
             />
           </div>
         </form>
@@ -296,7 +373,7 @@ onMounted(async () => {
               type="button"
               variant="subtle"
               label="Back"
-              @click="goStep(1)"
+              @click="goStep(2)"
             />
             <Button
               type="submit"
