@@ -5,6 +5,10 @@ export const dashboardRoutes: RouteRecordRaw[] = [
     path: '',
     name: 'Dashboard',
     component: () => import('./views/DashboardView.vue'),
-    meta: { requiresAuth: true, title: 'Dashboard' },
+    meta: {
+      requiresAuth: true,
+      title: 'Dashboard',
+      description: 'Your account overview: profile and roles.',
+    },
   },
 ]
