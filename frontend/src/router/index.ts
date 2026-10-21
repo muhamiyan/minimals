@@ -26,8 +26,25 @@ const router = createRouter({
 
 router.beforeEach(authGuard)
 
+// Per-page <head>: title and meta description follow the matched route.
+// Pages without meta.description fall back to the brand description that
+// the server injected; when both are empty the tag is removed so a
+// previous page's copy never lingers.
 router.afterEach((to) => {
   document.title = to.meta.title ? `${to.meta.title} · ${brand.name}` : brand.name
+
+  const description = to.meta.description || brand.description
+  let meta = document.querySelector<HTMLMetaElement>('meta[name="description"]')
+  if (description) {
+    if (!meta) {
+      meta = document.createElement('meta')
+      meta.name = 'description'
+      document.head.appendChild(meta)
+    }
+    meta.content = description
+  } else {
+    meta?.remove()
+  }
 })
 
 window.addEventListener('auth:unauthorized', () => {
