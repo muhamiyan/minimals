@@ -329,10 +329,11 @@ src/
   Jangan pakai palet Tailwind mentah untuk surface/ink.
 
 > **Skills di `.claude/skills/`** — `wiring` (bridges frontend↔Flask: axios
-> client, Pinia, CSRF, auth flow), `polish` (cosmetics/presentasi), dan `review`
-> (review & fix workflow atas git working tree) semuanya memakai path yang
-> cocok dengan project ini. Kalau skill dan `frontend/src/`/`app/` bertentangan,
-> **kode yang menang**.
+> client, Pinia, CSRF, auth flow), `polish` (cosmetics/presentasi), `review`
+> (review & fix workflow atas git working tree), dan `translate` (kanon i18n
+> EN/ID: locale key, error dictionary, bahasa setup/boot) semuanya memakai
+> path yang cocok dengan project ini. Kalau skill dan `frontend/src/`/`app/`
+> bertentangan, **kode yang menang**.
 
 ## Tests
 
