@@ -257,7 +257,7 @@ semua; `app/config.py` menambah path & static.
 | `INTERNAL_API_TOKEN` | — | Gate `/api/v1/app/*` untuk non-browser client |
 | `MIGRATE_ON_BOOT` | `false` | |
 | `SEO_INDEXABLE` | `true` | `false` → `noindex, nofollow` + `robots.txt` disallow |
-| `APP_LANG` | `en` | `lang` + tag SEO di `index.html` |
+| `APP_LANG` | `en` | Fallback `appLang` (pilihan bahasa setup → `settings.appLang`); atribut `lang` + tag SEO. Preferensi pengunjung = cookie `minimals-lang` |
 | `SQLALCHEMY_POOL_*` | 10/20/30/1800 | **Diabaikan untuk sqlite** |
 
 ## Security model
@@ -287,7 +287,7 @@ Vue 3 + Vite + Pinia + frappe-ui (`1.0.0-rc.2`), TypeScript strict.
 
 ```
 src/
-  app/       AppShell, useMediaQuery — shell & layout
+  app/       AppShell, i18n.ts + locales/{en,id}.json, useMediaQuery — shell, i18n & layout
   features/  <feature>/{routes.ts, store.ts, views/*.vue} — auth, setup, dashboard
   shared/    api/{client.ts, errors.ts, index.ts} — SATU-SATUNYA axios instance
   router/    index.ts + guard.ts + meta.d.ts
@@ -301,14 +301,24 @@ src/
   misleading di bagian itu.
 - **Error handling di store**: `error.value = getErrorMessage(e, fallback)` —
   FE humanisasi snake_case jadi sentence. Return `null`/`false` agar view tahu
-  gagal; `toast` **setelah** await selesai.
+  gagal; `toast` **setelah** await selesai. `error.<key>` ada di locale →
+  pesan backend ikut bahasa; fallback store pakai `i18n.global.t(...)`.
+- **i18n**: `vue-i18n` legacy:false — `app/i18n.ts` + `app/locales/{en,id}.json`
+  (key **wajib identik** antar locale). Resolusi locale: localStorage
+  `minimals-lang` → cookie → `window.appLang` (hasil setup wizard) → `en`.
+  Ganti teks view = ubah `t('key')` + **kedua** locale; label password rule =
+  key (`auth.passwordRules.*`) di `validation.ts`, crumb = key (`crumb.*`).
+  Switcher: grup bahasa di menu AppShell + item mobile nav; wizard setup punya
+  select bahasa di langkah Brand (disimpan ke `settings.appLang`).
 - **Router guard urutan**: setup dulu (`setupRequired` → semua nav ke `/setup`),
   baru auth (`requiresAuth` / `guestOnly`). `setupRequired` = schema atau
   user kosong.
 - **Per-page `<head>`**: `router.afterEach` (`router/index.ts`) mengisi
-  `document.title` dari `meta.title` dan `<meta name="description">` dari
-  `meta.description` (fallback ke brand description; tag dihapus kalau
-  keduanya kosong). Halaman baru = isi kedua field itu di `routes.ts`.
+  `document.title`/`meta description` dari kunci i18n `route.<Name>.title`
+  dan `route.<Name>.description` (fallback `meta.title`/`meta.description`
+  di `routes.ts`, lalu brand description; tag dihapus kalau keduanya kosong).
+  Di-resolve ulang saat locale berganti. Halaman baru = tambah kunci
+  `route.<Name>.*` di **kedua** locale.
 - **401 global**: interceptor fire event `auth:unauthorized` → router
   redirect. **Jangan** tangani 401 per-request.
 - **Ikon**: `lucide-*` (string, via unplugin-icons). Shape:

@@ -2,7 +2,13 @@ from __future__ import annotations
 
 import pytest
 
-from app.infra.seo import get_brand, index_context, save_brand
+from app.infra.seo import (
+    get_app_lang,
+    get_brand,
+    index_context,
+    save_app_lang,
+    save_brand,
+)
 from framework.extensions import db
 from framework.infra.frontend import _render_index_html
 
@@ -98,6 +104,84 @@ def test_index_context_noindex_when_disabled(app):
 
     with app.app_context():
         assert index_context()["seo"]["robots"] == "noindex, nofollow"
+
+
+def test_get_app_lang_defaults_to_en(app):
+    with app.app_context():
+        assert get_app_lang() == "en"
+
+
+def test_get_app_lang_falls_back_to_config(app):
+    app.config["APP_LANG"] = "id"
+
+    with app.app_context():
+        assert get_app_lang() == "id"
+
+
+def test_get_app_lang_ignores_unsupported_config(app):
+    app.config["APP_LANG"] = "fr"
+
+    with app.app_context():
+        assert get_app_lang() == "en"
+
+
+def test_get_app_lang_falls_back_when_settings_table_missing(app):
+    from app.infra.models import AppSetting
+
+    with app.app_context():
+        AppSetting.__table__.drop(db.engine)
+
+        assert get_app_lang() == "en"
+
+
+def test_save_app_lang_upserts_single_row(app):
+    from app.infra.models import AppSetting
+
+    with app.app_context():
+        save_app_lang(db.session, "id")
+        db.session.commit()
+
+        rows = db.session.scalars(
+            db.select(AppSetting).where(AppSetting.key == "appLang")
+        ).all()
+        assert len(rows) == 1
+        assert rows[0].value == "id"
+
+        save_app_lang(db.session, "en")
+        db.session.commit()
+
+        rows = db.session.scalars(
+            db.select(AppSetting).where(AppSetting.key == "appLang")
+        ).all()
+        assert len(rows) == 1
+        assert rows[0].value == "en"
+
+
+def test_index_context_exposes_app_lang(app):
+    with app.app_context():
+        assert index_context()["appLang"] == "en"
+        assert index_context()["seo"]["lang"] == "en"
+
+
+def test_request_lang_prefers_cookie_over_app_default(app):
+    with app.app_context():
+        with app.test_request_context("/", headers={"Cookie": "minimals-lang=id"}):
+            ctx = index_context()
+
+    assert ctx["seo"]["lang"] == "id"
+    assert ctx["appLang"] == "en"
+
+
+def test_index_context_seo_lang_follows_saved_app_lang(app):
+    with app.app_context():
+        save_app_lang(db.session, "id")
+        db.session.commit()
+
+        with app.test_request_context("/"):
+            ctx = index_context()
+
+    assert ctx["seo"]["lang"] == "id"
+    assert ctx["appLang"] == "id"
 
 
 def test_render_injects_seo_tags_and_boot(app, tmp_path):

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { Button, ErrorMessage, FormControl, toast } from 'frappe-ui'
 
 import { useAuthStore } from '../store'
@@ -9,6 +10,7 @@ import { brand } from '@/shared/brand'
 const router = useRouter()
 const route = useRoute()
 const auth = useAuthStore()
+const { t } = useI18n()
 
 const identifier = ref('')
 const password = ref('')
@@ -23,7 +25,11 @@ async function onSubmit() {
   const ok = await auth.login(identifier.value.trim(), password.value)
   submitting.value = false
   if (ok) {
-    toast.success(`Welcome back, ${auth.user?.fullName ?? auth.user?.email}`)
+    toast.success(
+      t('auth.login.welcome', {
+        name: auth.user?.fullName ?? auth.user?.email ?? '',
+      }),
+    )
     const next = (route.query.redirect as string) || '/'
     if (!next.startsWith('/') || next.startsWith('//')) {
       await router.replace('/')
@@ -44,7 +50,7 @@ async function onSubmit() {
           <div class="rounded-full bg-surface-gray-2 p-3 text-ink-gray-5">
             <span class="lucide-package size-6" aria-hidden="true" />
           </div>
-          <h1 class="text-2xl-semibold text-ink-gray-8">Sign in</h1>
+          <h1 class="text-2xl-semibold text-ink-gray-8">{{ t('auth.signIn') }}</h1>
           <p class="text-p-sm text-ink-gray-5">{{ brand.name }}</p>
         </div>
 
@@ -52,7 +58,7 @@ async function onSubmit() {
 
         <FormControl
           v-model="identifier"
-          label="Email or username"
+          :label="t('auth.login.identifier')"
           placeholder="abdulah@example.com"
           autocomplete="username"
           required
@@ -60,7 +66,7 @@ async function onSubmit() {
         <FormControl
           v-model="password"
           type="password"
-          label="Password"
+          :label="t('field.password')"
           placeholder="••••••••"
           autocomplete="current-password"
           required
@@ -71,7 +77,7 @@ async function onSubmit() {
           variant="solid"
           theme="gray"
           icon-left="lucide-log-in"
-          label="Sign in"
+          :label="t('auth.signIn')"
           :loading="submitting"
           :disabled="disabled"
         />
@@ -80,9 +86,9 @@ async function onSubmit() {
           v-if="auth.registrationMode !== 'closed'"
           class="text-center text-p-sm text-ink-gray-5"
         >
-          No account?
+          {{ t('auth.login.noAccount') }}
           <router-link :to="{ name: 'Register' }" class="text-ink-blue-link">
-            Create one
+            {{ t('auth.login.createOne') }}
           </router-link>
         </p>
       </form>

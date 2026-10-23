@@ -43,6 +43,7 @@ class SetupIn(DTOBase):
     db: DbConfigIn = Field(default_factory=DbConfigIn)
     admin: AdminCreateIn
     brand: BrandIn | None = Field(default=None)
+    lang: str = Field(default="en", min_length=2, max_length=8)
 
 
 __all__ = ["AdminCreateIn", "BrandIn", "DbConfigIn", "SetupIn"]

@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { Dialog, type DialogAction } from 'frappe-ui'
 
 const props = withDefaults(
@@ -10,15 +11,16 @@ const props = withDefaults(
     redirectTo?: string
   }>(),
   {
-    title: 'Access denied',
-    message:
-      'This page requires administrator privileges. Your account is registered as a regular user. Contact an administrator to get access.',
     redirectTo: '/',
   },
 )
 
 const router = useRouter()
+const { t } = useI18n()
 const open = ref(false)
+
+const resolvedTitle = computed(() => props.title || t('shared.forbiddenTitle'))
+const resolvedMessage = computed(() => props.message || t('shared.forbiddenMessage'))
 
 let pendingTimer: ReturnType<typeof setTimeout> | null = null
 let shownAt = 0
@@ -47,16 +49,16 @@ onBeforeUnmount(() => {
   if (pendingTimer) clearTimeout(pendingTimer)
 })
 
-const actions: DialogAction[] = [
-  { label: 'OK', variant: 'solid', onClick: close },
-]
+const actions = computed<DialogAction[]>(() => [
+  { label: t('shared.ok'), variant: 'solid', onClick: close },
+])
 </script>
 
 <template>
   <Dialog
     :open="open"
-    :title="title"
-    :message="message"
+    :title="resolvedTitle"
+    :message="resolvedMessage"
     icon="lucide-shield-x"
     theme="red"
     :actions="actions"

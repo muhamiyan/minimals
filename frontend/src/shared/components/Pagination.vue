@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { Button } from 'frappe-ui'
+
+const { t } = useI18n()
 
 const props = defineProps<{
   total: number
@@ -48,13 +51,13 @@ function go(page: number) {
       'flex items-center gap-1',
       align === 'end' ? 'justify-end' : 'justify-center',
     ]"
-    aria-label="Pagination"
+    :aria-label="t('shared.pagination')"
   >
     <Button
       variant="ghost"
       theme="gray"
       icon="lucide-chevron-left"
-      label="Previous page"
+      :label="t('shared.prevPage')"
       :disabled="page <= 1"
       @click="go(page - 1)"
     />
@@ -72,7 +75,7 @@ function go(page: number) {
       variant="ghost"
       theme="gray"
       icon="lucide-chevron-right"
-      label="Next page"
+      :label="t('shared.nextPage')"
       :disabled="page >= pageCount"
       @click="go(page + 1)"
     />

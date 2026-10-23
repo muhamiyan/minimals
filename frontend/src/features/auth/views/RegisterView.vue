@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { Button, ErrorMessage, FormControl, toast } from 'frappe-ui'
 
 import { useAuthStore } from '../store'
@@ -9,6 +10,7 @@ import { brand } from '@/shared/brand'
 
 const router = useRouter()
 const auth = useAuthStore()
+const { t } = useI18n()
 
 const fullName = ref('')
 const username = ref('')
@@ -41,7 +43,11 @@ async function onSubmit() {
   })
   submitting.value = false
   if (ok) {
-    toast.success(`Account created — welcome, ${auth.user?.fullName ?? auth.user?.email}`)
+    toast.success(
+      t('auth.register.created', {
+        name: auth.user?.fullName ?? auth.user?.email ?? '',
+      }),
+    )
     await router.replace('/')
   }
 }
@@ -57,7 +63,9 @@ async function onSubmit() {
           <div class="rounded-full bg-surface-gray-2 p-3 text-ink-gray-5">
             <span class="lucide-package size-6" aria-hidden="true" />
           </div>
-          <h1 class="text-2xl-semibold text-ink-gray-8">Create account</h1>
+          <h1 class="text-2xl-semibold text-ink-gray-8">
+            {{ t('auth.createAccount') }}
+          </h1>
           <p class="text-p-sm text-ink-gray-5">{{ brand.name }}</p>
         </div>
 
@@ -65,14 +73,14 @@ async function onSubmit() {
 
         <FormControl
           v-model="fullName"
-          label="Full name"
+          :label="t('field.fullName')"
           placeholder="Abdullah"
           autocomplete="name"
           required
         />
         <FormControl
           v-model="username"
-          label="Username"
+          :label="t('field.username')"
           placeholder="abdulah"
           autocomplete="username"
           required
@@ -80,7 +88,7 @@ async function onSubmit() {
         <FormControl
           v-model="email"
           type="email"
-          label="Email"
+          :label="t('field.email')"
           placeholder="abdulah@example.com"
           autocomplete="email"
           required
@@ -88,7 +96,7 @@ async function onSubmit() {
         <FormControl
           v-model="password"
           type="password"
-          label="Password"
+          :label="t('field.password')"
           placeholder="••••••••"
           autocomplete="new-password"
           required
@@ -106,7 +114,7 @@ async function onSubmit() {
               class="size-3"
               aria-hidden="true"
             />
-            {{ rule.label }}
+            {{ t(rule.label) }}
           </li>
         </ul>
 
@@ -115,15 +123,15 @@ async function onSubmit() {
           variant="solid"
           theme="gray"
           icon-left="lucide-user-plus"
-          label="Create account"
+          :label="t('auth.createAccount')"
           :loading="submitting"
           :disabled="disabled"
         />
 
         <p class="text-center text-p-sm text-ink-gray-5">
-          Already have an account?
+          {{ t('auth.haveAccount') }}
           <router-link :to="{ name: 'Login' }" class="text-ink-blue-link">
-            Sign in
+            {{ t('auth.signIn') }}
           </router-link>
         </p>
       </form>
