@@ -124,11 +124,46 @@ rute API.
 3. **Import model di `app/create_app.py`** (blok `with app.app_context()`) —
    tanpa ini tabel tidak ikut `db.create_all()` / autodetect.
 4. `app.register_blueprint(bp)` di `create_app.py`, **sebelum** `register_spa`.
-5. **Tambah baris endpoint di tabel `README.md`** — `tests/test_docs.py`
-   membandingkan tabel README dengan `app.url_map`. Kalau lupa, test gagal.
+5. **Tambah baris endpoint di tabel `## API Endpoints` dokumen ini** —
+   `tests/test_docs.py` membandingkan tabel itu dengan `app.url_map`.
+   Kalau lupa, test gagal.
 6. Tambah test di `tests/test_<domain>.py`.
 
 Tidak ada CLI generator di project ini (berbeda dengan root `cells`).
+
+## API Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | /api/v1/auth/register | Register new user (public, rate-limited) |
+| POST | /api/v1/auth/login | Login (public, rate-limited) |
+| POST | /api/v1/auth/logout | Logout (session) |
+| GET | /api/v1/auth/me | Current user (session) |
+| GET | /api/v1/auth/registration | Registration mode open/closed (public) |
+| PUT | /api/v1/auth/registration | Set registration mode (admin) |
+| GET | /api/v1/setup/status | First-run setup status (public) |
+| POST | /api/v1/setup/db-test | Test DB connection (loopback client only) |
+| POST | /api/v1/setup | Run first-run setup (loopback client only) |
+| GET | /api/v1/csrf | Fetch CSRF token (public) |
+| GET | /api/v1/account/users | List users (admin) |
+| GET | /api/v1/account/users/:id | Fetch one user (owner or admin) |
+| PATCH | /api/v1/account/users/:id | Update user (admin) |
+| GET | /api/v1/account/roles | List roles (admin) |
+| POST | /api/v1/account/roles | Create role (admin) |
+| PATCH | /api/v1/account/roles/:id | Update role (admin) |
+| DELETE | /api/v1/account/roles/:id | Delete role (admin) |
+| POST | /api/v1/account/api-keys | Create API key (session) |
+| GET | /api/v1/account/api-keys | List API keys (session) |
+| DELETE | /api/v1/account/api-keys/:id | Revoke API key (session) |
+| GET | /api/v1/app/ping | Liveness of the read API (public) |
+| GET | /api/v1/app/users | Cross-service read API (internal token or admin) |
+| GET | /api/v1/app/roles | Cross-service read API (internal token or admin) |
+| POST | /api/v1/uploads | Upload image (admin, max 5 MiB, png/jpg/jpeg/webp/gif) |
+| DELETE | /api/v1/uploads/:name | Delete uploaded image (admin, idempotent 204) |
+| GET | /robots.txt | Crawler instructions, brand-driven (public) |
+| GET | /sitemap.xml | Canonical site URL for crawlers (public) |
+| GET | /health | Health check (public) |
+| GET | /ready | Readiness check (public) |
 
 ## Wire format (kontrak — diuji `tests/test_contract.py`)
 
@@ -346,13 +381,14 @@ Fixture di `tests/conftest.py`: `app`, `client` (CSRF-ready), `member`, `admin`.
 `csrf_client(app)` ambil token dulu lalu set `HTTP_X_CSRFTOKEN`. Test DB = sqlite
 di temp dir, dibuat via `db.create_all()`.
 
-`tests/test_docs.py` menjaga agar **README dan `url_map` sinkron** — tambah
-endpoint wajib tambah baris di tabel README. Ini gotcha paling sering
-terlewat.
+`tests/test_docs.py` menjaga agar **tabel endpoint dan `url_map` sinkron** —
+tambah endpoint wajib tambah baris di tabel `## API Endpoints` dokumen ini.
+Ini gotcha paling sering terlewat.
 
 ## Pitfalls
 
-1. **Daftar endpoint baru = tambah baris README**, atau `test_docs.py` gagal.
+1. **Daftar endpoint baru = tambah baris di tabel `## API Endpoints`**,
+   atau `test_docs.py` gagal.
 2. **Presenter baru = kontrak API berubah.** Menambah field ke presenter yang
    sudah ada itu breaking — tambah endpoint baru atau presenter terpisah,
    jangan ganggu yang lama.
