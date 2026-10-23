@@ -5,6 +5,9 @@ container di belakang Caddy. Tanpa gateway, tanpa microservice, tanpa platform
 tambahan — clone, isi `SECRET_KEY`, jalankan wizard, selesai. "Minimals"
 hanyalah default; di production, brand-nya milikmu.
 
+**Status: open alpha** — dipakai sungguhan, tapi skema & kontrak masih bisa
+berubah; kompatibilitas antar versi belum dijanjikan.
+
 | | |
 |---|---|
 | **Backend** | Flask 3 · SQLAlchemy 2 · Pydantic 2 · Flask-Login · Alembic · waitress |
@@ -125,3 +128,12 @@ Baca sebelum eksposur internet:
   (mis. `redis://…`) untuk multi-worker
 - `TRUSTED_PROXY=true` hanya di belakang proxy: rewrite `X-Forwarded-*` cuma
   dipercaya dari peer private/loopback
+
+## Contributing
+
+Selama open alpha, kontribusi hanya untuk **perbaikan bug** — issue maupun PR
+fix diterima. Fitur baru tidak diterima.
+
+## License
+
+[MIT](LICENSE) — © 2026 Apriliansyah Idris.
