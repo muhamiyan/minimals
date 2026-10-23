@@ -8,5 +8,6 @@ declare module 'vue-router' {
     scroll?: boolean
     fullscreen?: boolean
     title?: string
+    description?: string
   }
 }

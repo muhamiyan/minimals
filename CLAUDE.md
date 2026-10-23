@@ -305,6 +305,10 @@ src/
 - **Router guard urutan**: setup dulu (`setupRequired` → semua nav ke `/setup`),
   baru auth (`requiresAuth` / `guestOnly`). `setupRequired` = schema atau
   user kosong.
+- **Per-page `<head>`**: `router.afterEach` (`router/index.ts`) mengisi
+  `document.title` dari `meta.title` dan `<meta name="description">` dari
+  `meta.description` (fallback ke brand description; tag dihapus kalau
+  keduanya kosong). Halaman baru = isi kedua field itu di `routes.ts`.
 - **401 global**: interceptor fire event `auth:unauthorized` → router
   redirect. **Jangan** tangani 401 per-request.
 - **Ikon**: `lucide-*` (string, via unplugin-icons). Shape:
