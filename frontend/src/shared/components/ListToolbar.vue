@@ -1,25 +1,29 @@
 <script setup lang="ts">
+import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { Select, TextInput, type SelectOptionValue } from 'frappe-ui'
+
+const { t } = useI18n()
 
 const search = defineModel<string>('search', { default: '' })
 const perPage = defineModel<number>('perPage', { default: 20 })
 
-withDefaults(
+const props = withDefaults(
   defineProps<{
     placeholder?: string
     perPageOptions?: { label: string; value: number }[]
     showPerPage?: boolean
   }>(),
   {
-    placeholder: 'Search…',
     showPerPage: true,
-    perPageOptions: () => [
-      { label: '10 / page', value: 10 },
-      { label: '20 / page', value: 20 },
-      { label: '50 / page', value: 50 },
-    ],
   },
 )
+
+const defaultPerPageOptions = computed(() => [
+  { label: t('shared.perPage', { n: 10 }), value: 10 },
+  { label: t('shared.perPage', { n: 20 }), value: 20 },
+  { label: t('shared.perPage', { n: 50 }), value: 50 },
+])
 
 function onPerPage(value: SelectOptionValue | null | undefined) {
   if (typeof value === 'number') perPage.value = value
@@ -31,14 +35,14 @@ function onPerPage(value: SelectOptionValue | null | undefined) {
     <TextInput
       v-model="search"
       type="search"
-      :placeholder="placeholder"
+      :placeholder="props.placeholder ?? t('shared.search')"
       class="w-64"
     />
     <slot />
     <Select
       v-if="showPerPage"
       :model-value="perPage"
-      :options="perPageOptions"
+      :options="props.perPageOptions ?? defaultPerPageOptions"
       class="ml-auto w-36"
       @update:model-value="onPerPage"
     />

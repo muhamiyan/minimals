@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { Breadcrumbs, Button } from 'frappe-ui'
 
 import { breadcrumbMap, type BreadcrumbItem, HOME } from '@/app/breadcrumbs'
@@ -10,14 +11,15 @@ const props = defineProps<{
 }>()
 
 const route = useRoute()
+const { t } = useI18n()
 
 const crumbs = computed<BreadcrumbItem[]>(() => {
   const entry = breadcrumbMap[route.name as string]
   if (!entry) return []
   if (route.name === 'Dashboard') return []
   return [
-    ...(entry.parent ? [entry.parent] : []),
-    { label: props.title || entry.label },
+    ...(entry.parent ? [{ ...entry.parent, label: t(entry.parent.label) }] : []),
+    { label: props.title || t(entry.label) },
   ]
 })
 </script>
@@ -28,9 +30,9 @@ const crumbs = computed<BreadcrumbItem[]>(() => {
       <Button
         variant="ghost"
         icon="lucide-home"
-        label="Dashboard"
+        :label="t('crumb.dashboard')"
         :route="HOME.route"
-        tooltip="Dashboard"
+        :tooltip="t('crumb.dashboard')"
       />
       <span
         v-if="crumbs.length"

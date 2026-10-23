@@ -1,0 +1,188 @@
+{
+  "nav": {
+    "home": "Home",
+    "dashboard": "Dashboard"
+  },
+  "menu": {
+    "theme": "Theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System",
+    "language": "Language",
+    "logout": "Log out",
+    "section": "Menu"
+  },
+  "crumb": {
+    "dashboard": "Dashboard"
+  },
+  "route": {
+    "Login": {
+      "title": "Sign in",
+      "description": "Sign in to your account."
+    },
+    "Register": {
+      "title": "Create account",
+      "description": "Create an account to get started."
+    },
+    "Setup": {
+      "title": "Setup",
+      "description": "First-run setup: connect a database, set your brand, and create the administrator."
+    },
+    "Dashboard": {
+      "title": "Dashboard",
+      "description": "Your account overview: profile and roles."
+    }
+  },
+  "field": {
+    "fullName": "Full name",
+    "username": "Username",
+    "email": "Email",
+    "password": "Password",
+    "description": "Description"
+  },
+  "auth": {
+    "signIn": "Sign in",
+    "createAccount": "Create account",
+    "haveAccount": "Already have an account?",
+    "errors": {
+      "loginFailed": "Login failed",
+      "registrationFailed": "Registration failed"
+    },
+    "login": {
+      "identifier": "Email or username",
+      "noAccount": "No account?",
+      "createOne": "Create one",
+      "welcome": "Welcome back, {name}"
+    },
+    "register": {
+      "created": "Account created — welcome, {name}"
+    },
+    "passwordRules": {
+      "uppercase": "One uppercase letter",
+      "lowercase": "One lowercase letter",
+      "digit": "One number",
+      "special": "One special character",
+      "length": "At least 8 characters"
+    }
+  },
+  "shared": {
+    "search": "Search…",
+    "perPage": "{n} / page",
+    "pagination": "Pagination",
+    "prevPage": "Previous page",
+    "nextPage": "Next page",
+    "ok": "OK",
+    "forbiddenTitle": "Access denied",
+    "forbiddenMessage": "This page requires administrator privileges. Your account is registered as a regular user. Contact an administrator to get access."
+  },
+  "dash": {
+    "welcomeBack": "Welcome back",
+    "roles": "Roles",
+    "noRoles": "No roles assigned"
+  },
+  "setup": {
+    "title": "Setup",
+    "completeTitle": "Setup complete",
+    "signInAs": "Sign in as {email} to continue.",
+    "stepOf": "Step {step} of 3",
+    "steps": {
+      "database": "Database",
+      "brand": "Brand",
+      "administrator": "Administrator"
+    },
+    "activeAlert": "Active: {engine}",
+    "reasonNoUsers": "No administrator exists yet.",
+    "reasonNoSchema": "No database schema found.",
+    "dbEngine": "Database engine",
+    "dbPath": "Database file path",
+    "dbPathPlaceholder": "data/app.db (optional)",
+    "host": "Host",
+    "port": "Port",
+    "database": "Database",
+    "connected": "Connected: {url}",
+    "testConnection": "Test connection",
+    "testSuccess": "Connection successful",
+    "continue": "Continue",
+    "back": "Back",
+    "brandName": "Brand name",
+    "tagline": "Tagline",
+    "taglinePlaceholder": "Work less, achieve more (optional)",
+    "descPlaceholder": "Shown to search engines (optional)",
+    "siteUrl": "Site URL",
+    "siteUrlPlaceholder": "https://acme.com (optional)",
+    "language": "Language",
+    "usernamePlaceholder": "abdulah (optional)",
+    "complete": "Complete setup",
+    "connectionFailed": "Connection test failed",
+    "setupFailed": "Setup failed"
+  },
+  "error": {
+    "generic": "An error occurred",
+    "invalid_credentials": "Invalid credentials",
+    "registration_disabled": "Registration is disabled",
+    "email_already_registered": "Email already registered",
+    "username_taken": "Username already taken",
+    "api_key_not_found": "Api key not found",
+    "bad_request": "Bad request",
+    "conflict": "Conflicting data",
+    "cannot_delete_builtin_role": "Cannot delete builtin role",
+    "could_not_generate_unique_name": "Could not generate unique name",
+    "csrf_token_invalid": "Csrf token invalid",
+    "database_required": "Database required",
+    "db_connection_failed": "Db connection failed",
+    "db_not_found": "Db not found",
+    "db_timeout": "Db timeout",
+    "db_unreachable": "Db unreachable",
+    "domain_error": "Domain error",
+    "file_invalid_name": "File invalid name",
+    "file_required": "File required",
+    "file_too_large": "File too large",
+    "file_type_not_allowed": "File type not allowed",
+    "forbidden": "Forbidden",
+    "idx_invalid": "Idx invalid",
+    "integrity_error": "Integrity error",
+    "internal_server_error": "Internal server error",
+    "invalid_api_key": "Invalid API key",
+    "invalid_app_role": "Invalid app role",
+    "invalid_date": "Invalid date",
+    "invalid_db_credentials": "Invalid db credentials",
+    "invalid_db_host": "Invalid db host",
+    "invalid_db_name": "Invalid db name",
+    "invalid_db_path": "Invalid db path",
+    "invalid_db_port": "Invalid db port",
+    "invalid_email": "Invalid email",
+    "invalid_operation": "Invalid operation",
+    "invalid_username": "Invalid username",
+    "malformed": "Malformed",
+    "method_not_allowed": "Method not allowed",
+    "name_required": "Name required",
+    "no_fields_to_update": "No fields to update",
+    "not_found": "Not found",
+    "password_must_contain_digit": "Password must contain digit",
+    "password_must_contain_lowercase": "Password must contain lowercase",
+    "password_must_contain_special_character": "Password must contain special character",
+    "password_must_contain_uppercase": "Password must contain uppercase",
+    "payload_too_large": "Payload too large",
+    "rate_limit_exceeded": "Rate limit exceeded",
+    "required": "Required",
+    "role_already_exists": "Role already exists",
+    "role_not_found": "Role not found",
+    "setup_admin_failed": "Setup admin failed",
+    "setup_already_complete": "Setup already complete",
+    "setup_env_write_failed": "Setup env write failed",
+    "setup_migration_failed": "Setup migration failed",
+    "setup_repoint_failed": "Setup engine repoint failed",
+    "site_url_invalid": "Site url invalid",
+    "spa_not_built": "Spa not built",
+    "unauthorized": "Unauthorized",
+    "unprocessable_entity": "Unprocessable entity",
+    "unknown_db_host": "Unknown database host",
+    "unsupported_engine": "Unsupported engine",
+    "unsupported_host": "Unsupported host",
+    "unsupported_lang": "Unsupported language",
+    "user_not_found": "User not found",
+    "username_already_registered": "Username already registered",
+    "username_required": "Username required",
+    "validation_error": "Validation error"
+  }
+}

@@ -7,7 +7,7 @@ export interface BreadcrumbItem {
 }
 
 export const HOME: BreadcrumbItem = {
-  label: 'Dashboard',
+  label: 'crumb.dashboard',
   route: { name: 'Dashboard' },
 }
 
@@ -17,5 +17,5 @@ interface Crumb {
 }
 
 export const breadcrumbMap: Record<string, Crumb> = {
-  Dashboard: { label: 'Dashboard' },
+  Dashboard: { label: 'crumb.dashboard' },
 }

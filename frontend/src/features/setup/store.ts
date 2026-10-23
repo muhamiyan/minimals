@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
 import { api, getErrorMessage } from '@/shared/api'
+import { i18n } from '@/app/i18n'
 
 export interface SetupStatus {
   setupRequired: boolean
@@ -63,7 +64,7 @@ export const useSetupStore = defineStore('setup', () => {
       const { data } = await api.post('/setup/db-test', cfg)
       return data.url as string
     } catch (e: any) {
-      error.value = getErrorMessage(e, 'Connection test failed')
+      error.value = getErrorMessage(e, i18n.global.t('setup.connectionFailed'))
       return null
     }
   }
@@ -72,13 +73,14 @@ export const useSetupStore = defineStore('setup', () => {
     cfg: DbConfig,
     brand: SetupBrand,
     admin: SetupAdmin,
+    lang: string,
   ): Promise<SetupResult | null> {
     error.value = ''
     try {
-      const { data } = await api.post('/setup', { db: cfg, brand, admin })
+      const { data } = await api.post('/setup', { db: cfg, brand, admin, lang })
       return data
     } catch (e: any) {
-      error.value = getErrorMessage(e, 'Setup failed')
+      error.value = getErrorMessage(e, i18n.global.t('setup.setupFailed'))
       return null
     }
   }

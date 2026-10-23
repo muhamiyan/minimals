@@ -1,0 +1,188 @@
+{
+  "nav": {
+    "home": "Beranda",
+    "dashboard": "Dasbor"
+  },
+  "menu": {
+    "theme": "Tema",
+    "light": "Terang",
+    "dark": "Gelap",
+    "system": "Sistem",
+    "language": "Bahasa",
+    "logout": "Keluar",
+    "section": "Menu"
+  },
+  "crumb": {
+    "dashboard": "Dasbor"
+  },
+  "route": {
+    "Login": {
+      "title": "Masuk",
+      "description": "Masuk ke akun Anda."
+    },
+    "Register": {
+      "title": "Buat akun",
+      "description": "Buat akun untuk memulai."
+    },
+    "Setup": {
+      "title": "Setup",
+      "description": "Setup awal: hubungkan basis data, atur brand, dan buat administrator."
+    },
+    "Dashboard": {
+      "title": "Dasbor",
+      "description": "Ringkasan akun Anda: profil dan peran."
+    }
+  },
+  "field": {
+    "fullName": "Nama lengkap",
+    "username": "Nama pengguna",
+    "email": "Email",
+    "password": "Kata sandi",
+    "description": "Deskripsi"
+  },
+  "auth": {
+    "signIn": "Masuk",
+    "createAccount": "Buat akun",
+    "haveAccount": "Sudah punya akun?",
+    "errors": {
+      "loginFailed": "Gagal masuk",
+      "registrationFailed": "Gagal mendaftar"
+    },
+    "login": {
+      "identifier": "Email atau nama pengguna",
+      "noAccount": "Belum punya akun?",
+      "createOne": "Buat akun",
+      "welcome": "Selamat datang kembali, {name}"
+    },
+    "register": {
+      "created": "Akun dibuat — selamat datang, {name}"
+    },
+    "passwordRules": {
+      "uppercase": "Satu huruf besar",
+      "lowercase": "Satu huruf kecil",
+      "digit": "Satu angka",
+      "special": "Satu karakter khusus",
+      "length": "Minimal 8 karakter"
+    }
+  },
+  "shared": {
+    "search": "Cari…",
+    "perPage": "{n} / halaman",
+    "pagination": "Paginasi",
+    "prevPage": "Halaman sebelumnya",
+    "nextPage": "Halaman berikutnya",
+    "ok": "OK",
+    "forbiddenTitle": "Akses Ditolak",
+    "forbiddenMessage": "Halaman ini memerlukan hak akses administrator. Akun Anda terdaftar sebagai pengguna biasa. Hubungi administrator untuk mendapatkan akses."
+  },
+  "dash": {
+    "welcomeBack": "Selamat datang kembali",
+    "roles": "Peran",
+    "noRoles": "Belum ada peran"
+  },
+  "setup": {
+    "title": "Setup",
+    "completeTitle": "Setup selesai",
+    "signInAs": "Masuk sebagai {email} untuk melanjutkan.",
+    "stepOf": "Langkah {step} dari 3",
+    "steps": {
+      "database": "Basis Data",
+      "brand": "Brand",
+      "administrator": "Administrator"
+    },
+    "activeAlert": "Aktif: {engine}",
+    "reasonNoUsers": "Belum ada administrator.",
+    "reasonNoSchema": "Skema basis data tidak ditemukan.",
+    "dbEngine": "Mesin basis data",
+    "dbPath": "Lokasi berkas basis data",
+    "dbPathPlaceholder": "data/app.db (opsional)",
+    "host": "Host",
+    "port": "Port",
+    "database": "Basis Data",
+    "connected": "Terhubung: {url}",
+    "testConnection": "Uji koneksi",
+    "testSuccess": "Koneksi berhasil",
+    "continue": "Lanjutkan",
+    "back": "Kembali",
+    "brandName": "Nama brand",
+    "tagline": "Tagline",
+    "taglinePlaceholder": "Kerja lebih sedikit, capai lebih banyak (opsional)",
+    "descPlaceholder": "Tampil di hasil mesin pencari (opsional)",
+    "siteUrl": "URL Situs",
+    "siteUrlPlaceholder": "https://acme.com (opsional)",
+    "language": "Bahasa",
+    "usernamePlaceholder": "abdulah (opsional)",
+    "complete": "Selesaikan setup",
+    "connectionFailed": "Uji koneksi gagal",
+    "setupFailed": "Setup gagal"
+  },
+  "error": {
+    "generic": "Terjadi kesalahan",
+    "invalid_credentials": "Kredensial tidak valid",
+    "registration_disabled": "Pendaftaran dinonaktifkan",
+    "email_already_registered": "Email sudah terdaftar",
+    "username_taken": "Nama pengguna sudah dipakai",
+    "api_key_not_found": "API key tidak ditemukan",
+    "bad_request": "Permintaan tidak valid",
+    "conflict": "Data bentrok",
+    "cannot_delete_builtin_role": "Tidak bisa menghapus peran bawaan",
+    "could_not_generate_unique_name": "Gagal membuat nama unik",
+    "csrf_token_invalid": "Token CSRF tidak valid",
+    "database_required": "Basis data wajib diisi",
+    "db_connection_failed": "Koneksi basis data gagal",
+    "db_not_found": "Basis data tidak ditemukan",
+    "db_timeout": "Timeout basis data",
+    "db_unreachable": "Basis data tidak terjangkau",
+    "domain_error": "Kesalahan domain",
+    "file_invalid_name": "Nama berkas tidak valid",
+    "file_required": "Berkas wajib diunggah",
+    "file_too_large": "Ukuran berkas terlalu besar",
+    "file_type_not_allowed": "Jenis berkas tidak diizinkan",
+    "forbidden": "Akses ditolak",
+    "idx_invalid": "Indeks tidak valid",
+    "integrity_error": "Pelanggaran integritas data",
+    "internal_server_error": "Terjadi kesalahan server",
+    "invalid_api_key": "API key tidak valid",
+    "invalid_app_role": "Peran aplikasi tidak valid",
+    "invalid_date": "Tanggal tidak valid",
+    "invalid_db_credentials": "Kredensial basis data tidak valid",
+    "invalid_db_host": "Host basis data tidak valid",
+    "invalid_db_name": "Nama basis data tidak valid",
+    "invalid_db_path": "Lokasi basis data tidak valid",
+    "invalid_db_port": "Port basis data tidak valid",
+    "invalid_email": "Email tidak valid",
+    "invalid_operation": "Operasi tidak valid",
+    "invalid_username": "Nama pengguna tidak valid",
+    "malformed": "Format salah",
+    "method_not_allowed": "Metode tidak diizinkan",
+    "name_required": "Nama wajib diisi",
+    "no_fields_to_update": "Tidak ada kolom untuk diperbarui",
+    "not_found": "Tidak ditemukan",
+    "password_must_contain_digit": "Kata sandi harus mengandung angka",
+    "password_must_contain_lowercase": "Kata sandi harus mengandung huruf kecil",
+    "password_must_contain_special_character": "Kata sandi harus mengandung karakter khusus",
+    "password_must_contain_uppercase": "Kata sandi harus mengandung huruf besar",
+    "payload_too_large": "Ukuran payload terlalu besar",
+    "rate_limit_exceeded": "Batas rate limit tercapai",
+    "required": "Wajib diisi",
+    "role_already_exists": "Peran sudah ada",
+    "role_not_found": "Peran tidak ditemukan",
+    "setup_admin_failed": "Pembuatan admin gagal",
+    "setup_already_complete": "Setup sudah selesai",
+    "setup_env_write_failed": "Penulisan env saat setup gagal",
+    "setup_migration_failed": "Migrasi setup gagal",
+    "setup_repoint_failed": "Ganti pointer basis data saat setup gagal",
+    "site_url_invalid": "URL situs tidak valid",
+    "spa_not_built": "Frontend belum di-build",
+    "unauthorized": "Tidak terautentikasi",
+    "unprocessable_entity": "Entitas tidak dapat diproses",
+    "unknown_db_host": "Host basis data tidak dikenal",
+    "unsupported_engine": "Mesin basis data tidak didukung",
+    "unsupported_host": "Host tidak didukung",
+    "unsupported_lang": "Bahasa tidak didukung",
+    "user_not_found": "Pengguna tidak ditemukan",
+    "username_already_registered": "Nama pengguna sudah terdaftar",
+    "username_required": "Nama pengguna wajib diisi",
+    "validation_error": "Validasi gagal"
+  }
+}

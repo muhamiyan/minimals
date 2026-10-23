@@ -38,9 +38,11 @@ Untuk dev lokal via HTTP biasa, set `FORCE_HTTPS=false` di `.env` — default
 
 Selama `GET /api/v1/setup/status` melaporkan `setupRequired`, SPA mengarahkan
 semua navigasi ke `/setup`: pilih database, tes koneksi, tentukan brand
-(nama, tagline, deskripsi SEO, site URL), lalu buat administrator.
-Wizard menulis `DATABASE_URL` ke `.env`, memigrasi target, membuat admin dan
-menyimpan brand; kalau target beda dari engine yang jalan, responsnya
+(nama, tagline, deskripsi SEO, site URL) dan bahasa aplikasi, lalu buat
+administrator.
+Wizard menulis `DATABASE_URL` ke `.env`, memigrasi target, membuat admin,
+menyimpan brand serta bahasa default; kalau target beda dari engine yang
+jalan, responsnya
 `restartRequired`.
 
 Endpoint wizard hanya menerima klien loopback, jadi buka dari server
@@ -59,8 +61,12 @@ setelah **Site URL** diisi — tidak pernah diambil dari header `Host`
 
 - SPA juga membaca `window.brand` — label sidebar/login dan judul per-route
   (`document.title`) ikut brand.
+- Bahasa: pilihan wizard disimpan di `settings.appLang` → `window.appLang`
+  (default locale SPA) dan `<html lang>`; preferensi per pengunjung disimpan
+  di cookie `minimals-lang` (switcher bahasa ada di AppShell & langkah Brand
+  wizard).
 - Env: `SEO_INDEXABLE=true` (`false` → `noindex` + robots disallow) dan
-  `APP_LANG=en` ( atribut `lang` + tag SEO ).
+  `APP_LANG=en` (fallback `appLang`, atribut `lang` + tag SEO ).
 - Upgrade DB yang dibuat **sebelum** fitur ini: `settings` tidak otomatis
   muncul (wizard tak bisa diulang setelah setup complete). Recreate DB, atau
   buat manual — `id CHAR(36) PRIMARY KEY, key VARCHAR(64) UNIQUE NOT NULL,

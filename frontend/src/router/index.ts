@@ -1,5 +1,12 @@
-import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
+import { watch } from 'vue'
+import {
+  createRouter,
+  createWebHistory,
+  type RouteLocationNormalized,
+  type RouteRecordRaw,
+} from 'vue-router'
 
+import { i18n } from '@/app/i18n'
 import AppShell from '@/app/AppShell.vue'
 import { authRoutes } from '@/features/auth/routes'
 import { useAuthStore } from '@/features/auth/store'
@@ -26,14 +33,17 @@ const router = createRouter({
 
 router.beforeEach(authGuard)
 
-// Per-page <head>: title and meta description follow the matched route.
-// Pages without meta.description fall back to the brand description that
-// the server injected; when both are empty the tag is removed so a
-// previous page's copy never lingers.
-router.afterEach((to) => {
-  document.title = to.meta.title ? `${to.meta.title} · ${brand.name}` : brand.name
+const { t, te } = i18n.global
 
-  const description = to.meta.description || brand.description
+function applyHead(to: RouteLocationNormalized) {
+  const titleKey = `route.${String(to.name)}.title`
+  const title = te(titleKey) ? t(titleKey) : to.meta.title
+  document.title = title ? `${title} · ${brand.name}` : brand.name
+
+  const descriptionKey = `route.${String(to.name)}.description`
+  const description =
+    (te(descriptionKey) ? t(descriptionKey) : to.meta.description) ||
+    brand.description
   let meta = document.querySelector<HTMLMetaElement>('meta[name="description"]')
   if (description) {
     if (!meta) {
@@ -45,7 +55,11 @@ router.afterEach((to) => {
   } else {
     meta?.remove()
   }
-})
+}
+
+router.afterEach((to) => applyHead(to))
+
+watch(i18n.global.locale, () => applyHead(router.currentRoute.value))
 
 window.addEventListener('auth:unauthorized', () => {
   const auth = useAuthStore()

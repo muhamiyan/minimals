@@ -14,7 +14,12 @@ from app.auth.models import MEMBER_ROLE, Role
 from app.auth.services import AuthService
 from app.config import BASE_DIR
 from app.infra import db_bootstrap
-from app.infra.seo import save_brand, validate_site_url
+from app.infra.seo import (
+    SUPPORTED_LANGS,
+    save_app_lang,
+    save_brand,
+    validate_site_url,
+)
 from app.infra.setup_dto import AdminCreateIn, BrandIn, DbConfigIn, SetupIn
 from framework.exceptions import Conflict, DomainException, ValidationFailed
 from framework.extensions import db
@@ -143,6 +148,10 @@ class SetupService:
             brand = dto.brand or BrandIn()
             validate_site_url(brand.site_url)
 
+            lang = (dto.lang or "").strip().lower() or "en"
+            if lang not in SUPPORTED_LANGS:
+                raise ValidationFailed("unsupported_lang")
+
             url = _build_url(dto.db)
             _deny_metadata_host(url)
             try:
@@ -172,7 +181,7 @@ class SetupService:
                 raise DomainException("setup_migration_failed", status_code=500) from None
 
             try:
-                admin_id = _seed_initial(url, dto.admin, brand)
+                admin_id = _seed_initial(url, dto.admin, brand, lang)
             except Exception:
                 logger.exception("setup seeding/admin failed")
                 raise DomainException("setup_admin_failed", status_code=500) from None
@@ -198,7 +207,7 @@ class SetupService:
             }
 
 
-def _seed_initial(url: str, admin: AdminCreateIn, brand: BrandIn) -> str:
+def _seed_initial(url: str, admin: AdminCreateIn, brand: BrandIn, lang: str) -> str:
     engine = db_bootstrap._engine_of(url)
     try:
         with Session(engine) as session:
@@ -218,6 +227,7 @@ def _seed_initial(url: str, admin: AdminCreateIn, brand: BrandIn) -> str:
             admin_user.roles.append(member)
             session.add(admin_user)
             save_brand(session, brand.model_dump(by_alias=True))
+            save_app_lang(session, lang)
             session.commit()
             return admin_user.id
     finally:

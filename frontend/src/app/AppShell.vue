@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import {
   DesktopShell,
   MobileNav,
@@ -22,6 +23,7 @@ import { useMediaQuery } from './useMediaQuery'
 const router = useRouter()
 const route = useRoute()
 const auth = useAuthStore()
+const { t, locale } = useI18n()
 
 const isFullscreen = computed(
   () => route.meta.fullscreen === true || route.query.fullscreen === '1',
@@ -36,33 +38,50 @@ const { colorScheme, resolvedColorScheme, setColorScheme, toggleColorScheme } =
 
 const headerMenu = computed(() => [
   {
-    group: 'Theme',
+    group: t('menu.theme'),
     options: [
       {
-        label: 'Light',
+        label: t('menu.light'),
         icon: 'lucide-sun',
         selected: colorScheme.value === 'light',
         onClick: () => setColorScheme('light'),
       },
       {
-        label: 'Dark',
+        label: t('menu.dark'),
         icon: 'lucide-moon',
         selected: colorScheme.value === 'dark',
         onClick: () => setColorScheme('dark'),
       },
       {
-        label: 'System',
+        label: t('menu.system'),
         icon: 'lucide-monitor',
         selected: colorScheme.value === 'system',
         onClick: () => setColorScheme('system'),
       },
     ],
   },
-  { label: 'Log out', icon: 'lucide-log-out', onClick: onLogout },
+  {
+    group: t('menu.language'),
+    options: [
+      {
+        label: 'English',
+        icon: 'lucide-languages',
+        selected: locale.value === 'en',
+        onClick: () => (locale.value = 'en'),
+      },
+      {
+        label: 'Bahasa Indonesia',
+        icon: 'lucide-languages',
+        selected: locale.value === 'id',
+        onClick: () => (locale.value = 'id'),
+      },
+    ],
+  },
+  { label: t('menu.logout'), icon: 'lucide-log-out', onClick: onLogout },
 ])
 
 const themeLabel = computed(() =>
-  resolvedColorScheme.value === 'dark' ? 'Light' : 'Dark',
+  resolvedColorScheme.value === 'dark' ? t('menu.light') : t('menu.dark'),
 )
 const themeIcon = computed(() =>
   resolvedColorScheme.value === 'dark' ? 'lucide-sun' : 'lucide-moon',
@@ -89,9 +108,9 @@ async function onLogout() {
           :menu-items="headerMenu"
         />
         <div class="flex-1 overflow-y-auto space-y-0.5 px-2 pb-2">
-          <SidebarSection label="Menu">
+          <SidebarSection :label="t('menu.section')">
             <SidebarItem
-              label="Dashboard"
+              :label="t('nav.dashboard')"
               icon="lucide-house"
               :route="{ name: 'Dashboard' }"
             />
@@ -112,12 +131,17 @@ async function onLogout() {
     <template #nav>
       <MobileNav>
         <MobileNavItem
-          label="Home"
+          :label="t('nav.home')"
           icon="lucide-house"
           :route="{ name: 'Dashboard' }"
         />
         <MobileNavItem :label="themeLabel" :icon="themeIcon" @click="toggleColorScheme" />
-        <MobileNavItem label="Log out" icon="lucide-log-out" @click="onLogout" />
+        <MobileNavItem
+          :label="locale === 'en' ? 'Bahasa Indonesia' : 'English'"
+          icon="lucide-languages"
+          @click="locale = locale === 'en' ? 'id' : 'en'"
+        />
+        <MobileNavItem :label="t('menu.logout')" icon="lucide-log-out" @click="onLogout" />
       </MobileNav>
     </template>
   </MobileShell>
