@@ -1,3 +1,7 @@
+<script setup lang="ts">
+import { brand } from '@/shared/brand'
+</script>
+
 <template>
   <footer class="border-t border-outline-gray-1">
     <div
@@ -7,7 +11,7 @@
         <span class="rounded-4 bg-surface-gray-2 p-1.5 text-ink-gray-6">
           <span class="lucide-package size-3.5" aria-hidden="true" />
         </span>
-        <span class="text-p-sm-medium text-ink-gray-7">Minimals</span>
+        <span class="text-p-sm-medium text-ink-gray-7">{{ brand.name }}</span>
         <span class="text-p-sm text-ink-gray-4">· open alpha</span>
       </div>
 
@@ -44,7 +48,7 @@
         </router-link>
       </nav>
 
-      <p class="text-p-sm text-ink-gray-4">© 2026 Minimals</p>
+      <p class="text-p-sm text-ink-gray-4">© 2026 {{ brand.name }}</p>
     </div>
   </footer>
 </template>

@@ -4,6 +4,7 @@ import { computed, onMounted } from 'vue'
 
 import LandingFooter from '@/features/landing/components/LandingFooter.vue'
 import LandingNav from '@/features/landing/components/LandingNav.vue'
+import { brand } from '@/shared/brand'
 import { formatDate } from '@/shared/format'
 
 import { useBlogStore } from '../store'
@@ -32,7 +33,7 @@ async function goTo(nextPage: number) {
       <header class="mb-10 max-w-2xl">
         <h1 class="text-4xl-bold text-ink-gray-9">Blog</h1>
         <p class="mt-3 text-p-sm text-ink-gray-6">
-          News, updates, and deep dives from the Minimals team.
+          News, updates, and deep dives from the {{ brand.name }} team.
         </p>
       </header>
 

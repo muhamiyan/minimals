@@ -237,3 +237,218 @@ def test_crawler_endpoints_are_exempt_from_rate_limits():
     from framework.extensions.rate_limit import limiter
 
     assert "seo" in limiter.limit_manager._blueprint_exemptions
+
+
+# --- per-path SEO: blog pages, private areas, article tags ------------------
+
+
+def _save_site(app, site_url: str = "https://acme.test") -> None:
+    with app.app_context():
+        save_brand(db.session, {"name": "Acme", "siteUrl": site_url})
+        db.session.commit()
+
+
+def _make_post(
+    app,
+    *,
+    slug: str,
+    title: str = "Hello World",
+    status: str = "published",
+    cover: str | None = None,
+) -> str:
+    from datetime import UTC, datetime
+
+    from app.blog.models import BlogPost
+
+    with app.app_context():
+        post = BlogPost(
+            title=title,
+            slug=slug,
+            body="<p>Hi there</p>",
+            status=status,
+            cover_image=cover,
+            published_on=(
+                datetime.now(UTC) if status == "published" else None
+            ),
+        )
+        db.session.add(post)
+        db.session.commit()
+        return post.id
+
+
+def test_index_context_blog_list_seo(app):
+    _save_site(app)
+
+    with app.app_context(), app.test_request_context("/blog"):
+        seo = index_context()["seo"]
+
+    assert seo["title"] == "Blog · Acme"
+    assert seo["canonical"] == "https://acme.test/blog"
+    assert seo["robots"] == "index, follow"
+    assert seo["site_name"] == "Acme"
+
+
+def test_index_context_blog_post_seo(app):
+    _save_site(app)
+    _make_post(app, slug="hello-world", title="Hello World")
+
+    with app.app_context(), app.test_request_context("/blog/hello-world"):
+        seo = index_context()["seo"]
+
+    assert seo["title"] == "Hello World · Acme"
+    assert seo["canonical"] == "https://acme.test/blog/hello-world"
+    assert seo["robots"] == "index, follow"
+    assert seo["description"] == "Hi there"
+    assert seo["og_type"] == "article"
+    assert seo["site_name"] == "Acme"
+
+
+def test_index_context_blog_post_without_site_url_has_no_canonical(app):
+    _save_site(app, site_url="")
+    _make_post(app, slug="hello-world", title="Hello World")
+
+    with app.app_context(), app.test_request_context("/blog/hello-world"):
+        seo = index_context()["seo"]
+
+    assert seo["canonical"] == ""
+    assert seo["title"] == "Hello World · Acme"
+
+
+def test_index_context_blog_missing_or_draft_slug_is_noindex(app):
+    _save_site(app)
+    _make_post(app, slug="secret-draft", title="Secret", status="draft")
+
+    for path in ("/blog/ghost", "/blog/secret-draft", "/blog/a/b"):
+        with app.app_context(), app.test_request_context(path):
+            seo = index_context()["seo"]
+
+        assert seo["robots"] == "noindex, nofollow"
+        assert seo["canonical"] == ""
+        assert "Secret" not in seo["title"]
+
+
+@pytest.mark.parametrize(
+    "path",
+    ["/dashboard", "/admin/blog/new", "/setup", "/login", "/register"],
+)
+def test_index_context_private_paths_noindex(app, path):
+    _save_site(app)
+
+    with app.app_context(), app.test_request_context(path):
+        seo = index_context()["seo"]
+
+    assert seo["robots"] == "noindex, nofollow"
+    assert seo["canonical"] == ""
+
+
+def test_index_context_unknown_path_is_noindex(app):
+    with app.app_context(), app.test_request_context("/whatever"):
+        seo = index_context()["seo"]
+
+    assert seo["robots"] == "noindex, nofollow"
+    assert seo["canonical"] == ""
+
+
+def test_render_injects_article_og_tags(app, tmp_path):
+    root = _write_index(tmp_path)
+
+    def provider():
+        return {
+            "brand": {"name": "Acme"},
+            "seo": {
+                "title": "Hello · Acme",
+                "lang": "en",
+                "description": "Hi there",
+                "robots": "index, follow",
+                "canonical": "https://acme.test/blog/hello",
+                "site_name": "Acme",
+                "og_type": "article",
+                "image": "https://acme.test/uploads/cover.png",
+            },
+        }
+
+    with app.test_request_context("/"):
+        html = _render_index_html(root, provider)
+
+    assert '<meta property="og:type" content="article" />' in html
+    assert '<meta property="og:site_name" content="Acme" />' in html
+    assert (
+        '<meta property="og:image" content="https://acme.test/uploads/cover.png" />'
+        in html
+    )
+    assert '<meta name="twitter:card" content="summary_large_image" />' in html
+    assert '<link rel="canonical" href="https://acme.test/blog/hello" />' in html
+
+
+def test_render_without_optional_keys_keeps_website_card(app, tmp_path):
+    root = _write_index(tmp_path)
+
+    def provider():
+        return {"seo": {"title": "Acme", "robots": "index, follow"}}
+
+    with app.test_request_context("/"):
+        html = _render_index_html(root, provider)
+
+    assert '<meta property="og:type" content="website" />' in html
+    assert '<meta property="og:site_name" content="Acme" />' in html
+    assert '<meta name="twitter:card" content="summary" />' in html
+    assert 'property="og:image"' not in html
+
+
+def test_robots_txt_disallows_private_areas(client):
+    body = client.get("/robots.txt").get_data(as_text=True)
+
+    for line in (
+        "Disallow: /dashboard",
+        "Disallow: /admin",
+        "Disallow: /setup",
+        "Disallow: /login",
+        "Disallow: /register",
+    ):
+        assert line in body
+
+
+def test_sitemap_xml_lists_blog_and_published_posts(app, client):
+    _save_site(app)
+    _make_post(app, slug="published-one", title="One")
+    _make_post(app, slug="draft-one", title="Draft", status="draft")
+
+    body = client.get("/sitemap.xml").get_data(as_text=True)
+
+    assert "<loc>https://acme.test/</loc>" in body
+    assert "<loc>https://acme.test/blog</loc>" in body
+    assert "<loc>https://acme.test/blog/published-one</loc>" in body
+    assert "<lastmod>" in body
+    assert "draft-one" not in body
+
+
+def test_index_context_index_html_serves_root_seo(app):
+    _save_site(app)
+
+    with app.app_context(), app.test_request_context("/index.html"):
+        seo = index_context()["seo"]
+
+    assert seo["robots"] == "index, follow"
+    assert seo["canonical"] == "https://acme.test"
+    assert seo["title"] == "Acme"
+
+
+def test_index_context_blog_post_cover_builds_absolute_image(app):
+    _save_site(app)
+    _make_post(app, slug="with-cover", cover="/uploads/cover.png")
+
+    with app.app_context(), app.test_request_context("/blog/with-cover"):
+        seo = index_context()["seo"]
+
+    assert seo["image"] == "https://acme.test/uploads/cover.png"
+
+
+def test_index_context_blog_post_cover_without_site_url_has_no_image(app):
+    _save_site(app, site_url="")
+    _make_post(app, slug="no-site-cover", cover="/uploads/cover.png")
+
+    with app.app_context(), app.test_request_context("/blog/no-site-cover"):
+        seo = index_context()["seo"]
+
+    assert "image" not in seo
+    assert seo["canonical"] == ""

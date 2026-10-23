@@ -50,6 +50,12 @@ def _apply_seo(html: str, seo: dict) -> str:
     canonical, Open Graph, Twitter) so the static HTML a crawler fetches
     always reflects the current brand — no client JS required. Everything
     is HTML-escaped; empty values are skipped.
+
+    Optional per-page keys with brand-compatible fallbacks: ``site_name``
+    (falls back to ``title``), ``og_type`` (``website``) and ``image``
+    (adds ``og:image`` and upgrades the Twitter card to
+    ``summary_large_image``). Callers passing only the classic keys keep
+    the original behaviour.
     """
 
     def _attr(value: str) -> str:
@@ -82,6 +88,13 @@ def _apply_seo(html: str, seo: dict) -> str:
         else:
             html = html.replace("</head>", f"{tag}\n  </head>", 1)
 
+    # Optional per-page overrides; empty/absent values fall back to the
+    # brand-only behaviour (site_name == title, website, no image).
+    site_name = (seo.get("site_name") or "").strip() or title
+    og_type = (seo.get("og_type") or "").strip() or "website"
+    image = (seo.get("image") or "").strip()
+    twitter_card = "summary_large_image" if image else "summary"
+
     lines: list[str] = []
     if description:
         lines.append(f'<meta name="description" content="{_attr(description)}" />')
@@ -90,10 +103,12 @@ def _apply_seo(html: str, seo: dict) -> str:
     if canonical:
         lines.append(f'<link rel="canonical" href="{_attr(canonical)}" />')
     if title:
-        lines.append('<meta property="og:type" content="website" />')
-        lines.append(f'<meta property="og:site_name" content="{_attr(title)}" />')
+        lines.append(f'<meta property="og:type" content="{_attr(og_type)}" />')
+        lines.append(
+            f'<meta property="og:site_name" content="{_attr(site_name)}" />'
+        )
         lines.append(f'<meta property="og:title" content="{_attr(title)}" />')
-        lines.append('<meta name="twitter:card" content="summary" />')
+        lines.append(f'<meta name="twitter:card" content="{twitter_card}" />')
         lines.append(f'<meta name="twitter:title" content="{_attr(title)}" />')
     if canonical:
         lines.append(f'<meta property="og:url" content="{_attr(canonical)}" />')
@@ -104,6 +119,8 @@ def _apply_seo(html: str, seo: dict) -> str:
         lines.append(
             f'<meta name="twitter:description" content="{_attr(description)}" />'
         )
+    if image:
+        lines.append(f'<meta property="og:image" content="{_attr(image)}" />')
     if lines:
         html = html.replace(
             "</head>", "\n    " + "\n    ".join(lines) + "\n  </head>", 1

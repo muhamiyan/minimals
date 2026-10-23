@@ -5,6 +5,7 @@ import { useRoute } from 'vue-router'
 
 import LandingFooter from '@/features/landing/components/LandingFooter.vue'
 import LandingNav from '@/features/landing/components/LandingNav.vue'
+import { brand } from '@/shared/brand'
 import { formatDate } from '@/shared/format'
 
 import { useBlogStore } from '../store'
@@ -16,6 +17,9 @@ const slug = computed(() => String(route.params.slug || ''))
 
 async function load() {
   await blog.fetchPost(slug.value)
+  if (blog.post) {
+    document.title = `${blog.post.title} · ${brand.name}`
+  }
   window.scrollTo({ top: 0 })
 }
 

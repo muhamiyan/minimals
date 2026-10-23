@@ -5,5 +5,6 @@ export const landingRoutes: RouteRecordRaw[] = [
     path: '/',
     name: 'Landing',
     component: () => import('./views/LandingView.vue'),
+    meta: { title: 'Home' },
   },
 ]

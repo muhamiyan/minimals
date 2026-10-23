@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { Button, useColorScheme } from 'frappe-ui'
 
 import { useAuthStore } from '@/features/auth/store'
+import { brand } from '@/shared/brand'
 import { useStartAction } from '../useStartAction'
 
 const auth = useAuthStore()
@@ -35,7 +36,7 @@ function goTop() {
         <span class="rounded-4 bg-surface-gray-2 p-1.5 text-ink-gray-7">
           <span class="lucide-package size-4" aria-hidden="true" />
         </span>
-        <span class="text-base-semibold text-ink-gray-9">Minimals</span>
+        <span class="text-base-semibold text-ink-gray-9">{{ brand.name }}</span>
       </a>
 
       <nav class="hidden items-center gap-1 sm:flex">
