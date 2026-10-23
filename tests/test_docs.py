@@ -5,7 +5,7 @@ import re
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
-README = REPO / "README.md"
+DOC = REPO / "CLAUDE.md"
 
 TABLE_ROW = re.compile(r"^\|\s*(GET|POST|PUT|PATCH|DELETE)\s*\|\s*([/\w{}<>:.-]+)\s*\|")
 PARAM = re.compile(r"<[^>]+>|:[A-Za-z_]\w*")
@@ -37,5 +37,5 @@ def served_endpoints(app) -> set[tuple[str, str]]:
     return rows
 
 
-def test_readme_endpoint_table_matches_url_map(app):
-    assert documented_endpoints(README) == served_endpoints(app)
+def test_endpoint_table_matches_url_map(app):
+    assert documented_endpoints(DOC) == served_endpoints(app)
