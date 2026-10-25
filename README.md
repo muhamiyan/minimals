@@ -13,7 +13,7 @@ berubah; kompatibilitas antar versi belum dijanjikan.
 | **Backend** | Flask 3 · SQLAlchemy 2 · Pydantic 2 · Flask-Login · Alembic · waitress |
 | **Frontend** | Vue 3 · Vite · Pinia · frappe-ui · Tailwind (TS strict) |
 | **Database** | SQLite · MariaDB/MySQL · PostgreSQL |
-| **Deploy** | Docker (non-root) + Caddy (TLS) |
+| **Deploy** | Docker (non-root) + Caddy (TLS) · cPanel/Passenger |
 
 ## Highlights
 
@@ -93,6 +93,9 @@ yarn typecheck
 4. `TRUSTED_PROXY=true` (hanya di belakang proxy) — `FORCE_HTTPS=true`
    (default) asalkan Caddy kirim `X-Forwarded-Proto`
 5. `uv run python -m app.run`
+
+Shared hosting cPanel (Passenger, tanpa container) punya jalur sendiri — lihat
+[`docs/deploy-cpanel.md`](docs/deploy-cpanel.md).
 
 ## Docker
 
