@@ -8,9 +8,30 @@
     "light": "Light",
     "dark": "Dark",
     "system": "System",
-    "language": "Language",
+    "settings": "Settings",
     "logout": "Log out",
     "section": "Menu"
+  },
+  "settings": {
+    "title": "Settings",
+    "nav": {
+      "user": "User settings"
+    },
+    "profile": {
+      "title": "Profile",
+      "fullName": "Full name",
+      "email": "Email",
+      "username": "Username",
+      "role": "Role",
+      "memberSince": "Member since"
+    },
+    "preferences": {
+      "title": "Preferences",
+      "theme": "Theme",
+      "themeDescription": "Light, dark, or follow your system.",
+      "language": "Language",
+      "languageDescription": "Language used across the app."
+    }
   },
   "crumb": {
     "dashboard": "Dashboard"
@@ -72,6 +93,7 @@
     "prevPage": "Previous page",
     "nextPage": "Next page",
     "ok": "OK",
+    "close": "Close",
     "forbiddenTitle": "Access denied",
     "forbiddenMessage": "This page requires administrator privileges. Your account is registered as a regular user. Contact an administrator to get access."
   },

@@ -8,9 +8,30 @@
     "light": "Terang",
     "dark": "Gelap",
     "system": "Sistem",
-    "language": "Bahasa",
+    "settings": "Pengaturan",
     "logout": "Keluar",
     "section": "Menu"
+  },
+  "settings": {
+    "title": "Pengaturan",
+    "nav": {
+      "user": "Pengaturan pengguna"
+    },
+    "profile": {
+      "title": "Profil",
+      "fullName": "Nama lengkap",
+      "email": "Email",
+      "username": "Nama pengguna",
+      "role": "Peran",
+      "memberSince": "Bergabung sejak"
+    },
+    "preferences": {
+      "title": "Preferensi",
+      "theme": "Tema",
+      "themeDescription": "Terang, gelap, atau ikut sistem.",
+      "language": "Bahasa",
+      "languageDescription": "Bahasa yang dipakai di seluruh aplikasi."
+    }
   },
   "crumb": {
     "dashboard": "Dasbor"
@@ -72,6 +93,7 @@
     "prevPage": "Halaman sebelumnya",
     "nextPage": "Halaman berikutnya",
     "ok": "OK",
+    "close": "Tutup",
     "forbiddenTitle": "Akses Ditolak",
     "forbiddenMessage": "Halaman ini memerlukan hak akses administrator. Akun Anda terdaftar sebagai pengguna biasa. Hubungi administrator untuk mendapatkan akses."
   },

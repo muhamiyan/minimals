@@ -343,8 +343,10 @@ src/
   `minimals-lang` → cookie → `window.appLang` (hasil setup wizard) → `en`.
   Ganti teks view = ubah `t('key')` + **kedua** locale; label password rule =
   key (`auth.passwordRules.*`) di `validation.ts`, crumb = key (`crumb.*`).
-  Switcher: grup bahasa di menu AppShell + item mobile nav; wizard setup punya
-  select bahasa di langkah Brand (disimpan ke `settings.appLang`).
+  Switcher bahasa: dialog **Settings → Preferences** (`app/UserSettingsDialog.vue`);
+  tema: tab bar `app/ThemeSwitcher.vue` — di menu avatar (desktop) dan baris
+  Tema di Preferences. Wizard setup punya select bahasa di langkah Brand
+  (disimpan ke `settings.appLang`).
 - **Router guard urutan**: setup dulu (`setupRequired` → semua nav ke `/setup`),
   baru auth (`requiresAuth` / `guestOnly`). `setupRequired` = schema atau
   user kosong.
