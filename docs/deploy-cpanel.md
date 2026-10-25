@@ -125,47 +125,20 @@ Passenger meng-import nama `application`; jangan diganti.
 
 Wizard web (`/setup`) **tidak bisa dipakai** di cPanel: `_deny_public_client()`
 (`app/infra/setup.py`) hanya menerima klien loopback, dan tidak ada port lokal
-untuk di-curl. Jalankan service-nya langsung:
+untuk di-curl. Pakai wizard terminal — service yang sama, tanpa lapisan HTTP:
 
 ```bash
 cd /home/USER/minimals
 source /home/USER/virtualenv/minimals/3.11/bin/activate
-
-python - <<'PY'
-import getpass
-from app.infra.setup_dto import SetupIn
-from app.infra.setup_service import SetupService
-
-result = SetupService().run(SetupIn.validate({
-    "db": {
-        "engine": "mariadb",
-        "host": "localhost",
-        "database": "USER_minimals",
-        "username": "USER_minimals",
-        "password": getpass.getpass("DB password: "),
-    },
-    "admin": {
-        "email": "you@example.com",
-        "password": getpass.getpass("Admin password: "),
-        "fullName": "Your Name",
-    },
-    "brand": {
-        "name": "Minimals",
-        "tagline": "",
-        "description": "",
-        "siteUrl": "https://app.example.com",
-    },
-    "lang": "id",
-})
-print(result)
-PY
+python -m app.cli setup
 ```
 
-Yang dilakukan perintah ini: tes koneksi → tulis `DATABASE_URL` ke `.env` →
-Alembic `upgrade head` → seed role + admin + brand + bahasa.
+Perintah ini tes koneksi → tulis `DATABASE_URL` ke `.env` → Alembic
+`upgrade head` → seed role + admin + brand + bahasa. Aman dijalankan ulang:
+kalau sudah selesai ia hanya melaporkan database aktif.
 
-Kalau sudah pernah jalan dan tabel `users` terisi, ia menolak dengan
-`setup_already_complete` — itu memang idempoten.
+Prompt, validasi, mode non-interaktif, dan troubleshooting: lihat
+[`setup-cli.md`](setup-cli.md).
 
 ## 8. Restart & verifikasi
 
