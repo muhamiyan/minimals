@@ -277,7 +277,9 @@ semua; `app/config.py` menambah path & static.
 | `SECRET_KEY` | — | **Wajib**, ≥32 chars, bukan placeholder (dicek, raise saat import) |
 | `DATABASE_URL` | `sqlite:///app.db` | Path relatif → `data/`. sqlite / mysql+pymysql / postgresql+psycopg |
 | `FLASK_DEBUG` | `false` | `true` → dev server, bukan waitress |
-| `PORT` | `8000` | |
+| `PORT` | `8000` | Bind port waitress; juga jadi akhiran nama cookie sesi |
+| `SESSION_COOKIE_NAME` | `session_{PORT}` | Cookie sesi. Cookie browser disimpan per host, bukan per port — akhiran `PORT` yang memisahkan dua instance di satu mesin; replika satu deployment (PORT sama) tetap berbagi |
+| `REMEMBER_COOKIE_NAME` | `remember_{PORT}` | Sama, untuk remember-me |
 | `FORCE_HTTPS` | `false` | Cookie secure, HSTS, SameSite=None |
 | `TRUSTED_PROXY` | `false` | Lihat §Security |
 | `CSRF_ENABLED` | `true` | |
