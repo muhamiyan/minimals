@@ -32,6 +32,7 @@ uv run pytest                  # test suite
 uv run ruff check .            # lint
 uv run python -m app.run       # serve (waitress, default :8000)
 uv run minimals                # sama — entry point script
+uv run python -m app.cli setup # wizard via terminal (cPanel/headless)
 
 # Frontend
 cd frontend && yarn install && yarn dev     # Vite dev :5173, proxy /api → :8000

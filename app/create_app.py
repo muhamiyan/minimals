@@ -135,4 +135,8 @@ def create_app() -> Flask:
 
     request_middleware(app)
 
+    from app.cli import setup as setup_command
+
+    app.cli.add_command(setup_command)
+
     return app
