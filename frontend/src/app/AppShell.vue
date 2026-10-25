@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, h, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import {
+  Avatar,
   DesktopShell,
   MobileNav,
   MobileNavItem,
@@ -12,18 +13,19 @@ import {
   SidebarHeader,
   SidebarItem,
   SidebarSection,
-  useColorScheme,
 } from 'frappe-ui'
 
 import { useAuthStore } from '@/features/auth/store'
 import ForbiddenDialog from '@/shared/components/ForbiddenDialog.vue'
 import { brand } from '@/shared/brand'
 import { useMediaQuery } from './useMediaQuery'
+import ThemeSwitcher from './ThemeSwitcher.vue'
+import UserSettingsDialog from './UserSettingsDialog.vue'
 
 const router = useRouter()
 const route = useRoute()
 const auth = useAuthStore()
-const { t, locale } = useI18n()
+const { t } = useI18n()
 
 const isFullscreen = computed(
   () => route.meta.fullscreen === true || route.query.fullscreen === '1',
@@ -31,61 +33,34 @@ const isFullscreen = computed(
 
 const isDesktop = useMediaQuery('(min-width: 640px)')
 
-const sidebarCollapsed = ref(false)
+const displayName = computed(() => auth.user?.fullName || auth.user?.email || '')
 
-const { colorScheme, resolvedColorScheme, setColorScheme, toggleColorScheme } =
-  useColorScheme()
+const sidebarCollapsed = ref(false)
+const settingsOpen = ref(false)
+const settingsTab = ref('profile')
+
+function openSettings(tab: 'profile' | 'preferences' = 'profile') {
+  settingsTab.value = tab
+  settingsOpen.value = true
+}
 
 const headerMenu = computed(() => [
   {
     group: t('menu.theme'),
     options: [
       {
-        label: t('menu.light'),
-        icon: 'lucide-sun',
-        selected: colorScheme.value === 'light',
-        onClick: () => setColorScheme('light'),
-      },
-      {
-        label: t('menu.dark'),
-        icon: 'lucide-moon',
-        selected: colorScheme.value === 'dark',
-        onClick: () => setColorScheme('dark'),
-      },
-      {
-        label: t('menu.system'),
-        icon: 'lucide-monitor',
-        selected: colorScheme.value === 'system',
-        onClick: () => setColorScheme('system'),
+        label: t('menu.theme'),
+        slots: { label: () => h(ThemeSwitcher) },
       },
     ],
   },
   {
-    group: t('menu.language'),
-    options: [
-      {
-        label: 'English',
-        icon: 'lucide-languages',
-        selected: locale.value === 'en',
-        onClick: () => (locale.value = 'en'),
-      },
-      {
-        label: 'Bahasa Indonesia',
-        icon: 'lucide-languages',
-        selected: locale.value === 'id',
-        onClick: () => (locale.value = 'id'),
-      },
-    ],
+    label: t('menu.settings'),
+    icon: 'lucide-settings',
+    onClick: () => openSettings(),
   },
   { label: t('menu.logout'), icon: 'lucide-log-out', onClick: onLogout },
 ])
-
-const themeLabel = computed(() =>
-  resolvedColorScheme.value === 'dark' ? t('menu.light') : t('menu.dark'),
-)
-const themeIcon = computed(() =>
-  resolvedColorScheme.value === 'dark' ? 'lucide-sun' : 'lucide-moon',
-)
 
 async function onLogout() {
   await auth.logout()
@@ -96,15 +71,12 @@ async function onLogout() {
 <template>
   <router-view v-if="isFullscreen" />
 
-  <DesktopShell
-    v-else-if="isDesktop"
-    :scroll="route.meta.scroll !== false"
-  >
+  <DesktopShell v-else-if="isDesktop" :scroll="route.meta.scroll !== false">
     <template #sidebar>
       <Sidebar v-model:collapsed="sidebarCollapsed" class="border-r">
         <SidebarHeader
           :title="brand.name"
-          :subtitle="auth.user?.fullName || auth.user?.email || ''"
+          :subtitle="displayName"
           :menu-items="headerMenu"
         />
         <div class="flex-1 overflow-y-auto space-y-0.5 px-2 pb-2">
@@ -135,16 +107,27 @@ async function onLogout() {
           icon="lucide-house"
           :route="{ name: 'Dashboard' }"
         />
-        <MobileNavItem :label="themeLabel" :icon="themeIcon" @click="toggleColorScheme" />
         <MobileNavItem
-          :label="locale === 'en' ? 'Bahasa Indonesia' : 'English'"
-          icon="lucide-languages"
-          @click="locale = locale === 'en' ? 'id' : 'en'"
-        />
-        <MobileNavItem :label="t('menu.logout')" icon="lucide-log-out" @click="onLogout" />
+          :label="t('settings.profile.title')"
+          :active="settingsOpen"
+          @click="openSettings('profile')"
+        >
+          <template #default="{ active }">
+            <Avatar
+              :label="displayName"
+              size="md"
+              :class="active ? 'ring-2 ring-outline-gray-4' : ''"
+            />
+          </template>
+        </MobileNavItem>
       </MobileNav>
     </template>
   </MobileShell>
 
+  <UserSettingsDialog
+    v-model:open="settingsOpen"
+    v-model:tab="settingsTab"
+    @logout="onLogout"
+  />
   <ForbiddenDialog />
 </template>
