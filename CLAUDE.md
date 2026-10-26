@@ -156,6 +156,8 @@ Tidak ada CLI generator di project ini (berbeda dengan root `cells`).
 | POST | /api/v1/account/api-keys | Create API key (session) |
 | GET | /api/v1/account/api-keys | List API keys (session) |
 | DELETE | /api/v1/account/api-keys/:id | Revoke API key (session) |
+| GET | /api/v1/account/menu-preferences | Menu order/visibility (session) |
+| PUT | /api/v1/account/menu-preferences | Save menu order/visibility (session) |
 | GET | /api/v1/app/ping | Liveness of the read API (public) |
 | GET | /api/v1/app/users | Cross-service read API (internal token or admin) |
 | GET | /api/v1/app/roles | Cross-service read API (internal token or admin) |

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, h, ref } from 'vue'
+import { computed, h, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import {
@@ -18,6 +18,7 @@ import {
 import { useAuthStore } from '@/features/auth/store'
 import ForbiddenDialog from '@/shared/components/ForbiddenDialog.vue'
 import { brand } from '@/shared/brand'
+import { useMenuStore } from './menuStore'
 import { useMediaQuery } from './useMediaQuery'
 import ThemeSwitcher from './ThemeSwitcher.vue'
 import UserSettingsDialog from './UserSettingsDialog.vue'
@@ -25,7 +26,17 @@ import UserSettingsDialog from './UserSettingsDialog.vue'
 const router = useRouter()
 const route = useRoute()
 const auth = useAuthStore()
+const menu = useMenuStore()
 const { t } = useI18n()
+
+watch(
+  () => auth.user?.id,
+  (userId) => {
+    if (userId) menu.fetchPreference()
+    else menu.reset()
+  },
+  { immediate: true },
+)
 
 const isFullscreen = computed(
   () => route.meta.fullscreen === true || route.query.fullscreen === '1',
@@ -82,9 +93,11 @@ async function onLogout() {
         <div class="flex-1 overflow-y-auto space-y-0.5 px-2 pb-2">
           <SidebarSection :label="t('menu.section')">
             <SidebarItem
-              :label="t('nav.dashboard')"
-              icon="lucide-house"
-              :route="{ name: 'Dashboard' }"
+              v-for="item in menu.items"
+              :key="item.key"
+              :label="t(item.labelKey)"
+              :icon="item.icon"
+              :route="item.route"
             />
           </SidebarSection>
         </div>
@@ -103,9 +116,11 @@ async function onLogout() {
     <template #nav>
       <MobileNav>
         <MobileNavItem
-          :label="t('nav.home')"
-          icon="lucide-house"
-          :route="{ name: 'Dashboard' }"
+          v-for="item in menu.items"
+          :key="item.key"
+          :label="t(item.mobileLabelKey ?? item.labelKey)"
+          :icon="item.icon"
+          :route="item.route"
         />
         <MobileNavItem
           :label="t('settings.profile.title')"
