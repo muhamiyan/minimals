@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
 import { api, getErrorMessage } from '@/shared/api'
+import { i18n } from '@/app/i18n'
 
 export interface AuthUser {
   id: string
@@ -28,7 +29,7 @@ export const useAuthStore = defineStore('auth', () => {
       checked.value = true
       return true
     } catch (e: any) {
-      error.value = getErrorMessage(e, 'Login failed')
+      error.value = getErrorMessage(e, i18n.global.t('auth.errors.loginFailed'))
       return false
     }
   }
@@ -46,7 +47,7 @@ export const useAuthStore = defineStore('auth', () => {
       checked.value = true
       return true
     } catch (e: any) {
-      error.value = getErrorMessage(e, 'Registration failed')
+      error.value = getErrorMessage(e, i18n.global.t('auth.errors.registrationFailed'))
       return false
     }
   }

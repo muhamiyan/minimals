@@ -1,19 +1,35 @@
 # Minimals
 
-Production-ready Flask starter untuk self-hosting di cPanel/VPS di belakang Caddy.
-Satu service, satu database, satu container — tanpa gateway, tanpa microservice.
+Untuk tim kecil dengan cPanel/VPS seadanya: satu service, satu database, satu
+container di belakang Caddy. Tanpa gateway, tanpa microservice, tanpa platform
+tambahan — clone, isi `SECRET_KEY`, jalankan wizard, selesai. "Minimals"
+hanyalah default; di production, brand-nya milikmu.
 
-Sudah jadi dan siap pakai: SPA Vue 3 yang di-serve Flask sendiri, auth (session +
-API key) dengan role, first-run setup wizard, dan keamanan aktif secara default
-(CSRF, rate limit, CSP/HSTS, audit log, scrypt password). Lengkap dengan
-Alembic dan structured JSON logging.
+**Status: open alpha** — dipakai sungguhan, tapi skema & kontrak masih bisa
+berubah; kompatibilitas antar versi belum dijanjikan.
 
 | | |
 |---|---|
 | **Backend** | Flask 3 · SQLAlchemy 2 · Pydantic 2 · Flask-Login · Alembic · waitress |
 | **Frontend** | Vue 3 · Vite · Pinia · frappe-ui · Tailwind (TS strict) |
 | **Database** | SQLite · MariaDB/MySQL · PostgreSQL |
-| **Deploy** | Docker (non-root) + Caddy (TLS) |
+| **Deploy** | Docker (non-root) + Caddy (TLS) · cPanel/Passenger |
+
+## Highlights
+
+- **White-label & SEO** — brand (nama, tagline, deskripsi, site URL, bahasa)
+  diatur sekali di wizard, di-inject server-side ke `<title>`/meta/robots/
+  Open Graph, plus label SPA & judul/meta description per halaman. Default
+  seluruh stack "Minimals".
+- **Auth lengkap** — session + API key, role admin/member, dan **registration
+  gate**: admin bisa menutup/membuka pendaftaran lewat API, efektif tanpa
+  restart, untuk deployment invite-only.
+- **First-run wizard** — pilih database (SQLite/MySQL/PostgreSQL), tes
+  koneksi, brand, lalu buat administrator. Hanya menerima klien loopback.
+- **Keamanan aktif by default** — CSRF, rate limit, CSP/HSTS, audit log,
+  password scrypt.
+- **SPA Vue 3 di-serve Flask** — tanpa web server terpisah untuk frontend;
+  Docker image non-root.
 
 ## Quick Start
 
@@ -31,40 +47,31 @@ uv run python -m app.run                        # waitress di :8000
 MIGRATE_ON_BOOT=true uv run python -m app.run    # migration dulu
 ```
 
-Untuk dev lokal via HTTP biasa, set `FORCE_HTTPS=false` di `.env` — default
-`.env.example` `true`, dan tanpa TLS proxy akan loop redirect.
+Dev lokal via HTTP biasa: set `FORCE_HTTPS=false` — default `.env.example`
+`true`, dan tanpa TLS proxy akan loop redirect.
 
 ## First-run Setup
 
-Selama `GET /api/v1/setup/status` melaporkan `setupRequired`, SPA mengarahkan
-semua navigasi ke `/setup`: pilih database, tes koneksi, tentukan brand
-(nama, tagline, deskripsi SEO, site URL), lalu buat administrator.
-Wizard menulis `DATABASE_URL` ke `.env`, memigrasi target, membuat admin dan
-menyimpan brand; kalau target beda dari engine yang jalan, responsnya
-`restartRequired`.
-
-Endpoint wizard hanya menerima klien loopback, jadi buka dari server
-sendiri atau lewat SSH tunnel (`ssh -L 8000:localhost:8000 server` →
-`http://127.0.0.1:8000/setup`).
+Sampai setup selesai, SPA mengarahkan semua navigasi ke `/setup`. Wizard
+(loopback-only — buka dari server atau SSH tunnel
+`ssh -L 8000:localhost:8000 server` → `http://127.0.0.1:8000/setup`) menulis
+`DATABASE_URL` ke `.env`, memigrasi target, membuat admin, dan menyimpan brand
++ bahasa. Kalau database target beda dari engine aktif, respons meminta
+restart.
 
 ## White-label & SEO
 
-Brand disimpan di tabel `settings` (key/value) dan di-inject **server-side**
-ke `index.html` tiap request: `<title>`, meta description, robots, canonical,
-Open Graph, dan Twitter card selalu mencerminkan brand saat ini — crawler
-tidak perlu menjalankan JS. `GET /robots.txt` dan `GET /sitemap.xml`
-di-serve sesuai brand; canonical, `og:url`, dan baris Sitemap hanya muncul
-setelah **Site URL** diisi — tidak pernah diambil dari header `Host`
-(anti spoofing).
+Brand disimpan di tabel `settings` dan di-inject server-side tiap request
+`index.html` — crawler tidak perlu menjalankan JS. `robots.txt` dan
+`sitemap.xml` mengikuti brand; canonical/`og:url` hanya muncul setelah **Site
+URL** diisi (tidak pernah dari header `Host`).
 
-- SPA juga membaca `window.brand` — label sidebar/login dan judul per-route
-  (`document.title`) ikut brand.
-- Env: `SEO_INDEXABLE=true` (`false` → `noindex` + robots disallow) dan
-  `APP_LANG=en` ( atribut `lang` + tag SEO ).
-- Upgrade DB yang dibuat **sebelum** fitur ini: `settings` tidak otomatis
-  muncul (wizard tak bisa diulang setelah setup complete). Recreate DB, atau
-  buat manual — `id CHAR(36) PRIMARY KEY, key VARCHAR(64) UNIQUE NOT NULL,
-  value TEXT NOT NULL DEFAULT ''` — brand berikutnya tetap "Minimals".
+- Env: `SEO_INDEXABLE=false` → `noindex` + robots disallow; `APP_LANG` →
+  fallback bahasa (`en` default). Preferensi pengunjung di cookie
+  `minimals-lang`.
+- DB lama yang dibuat **sebelum** fitur ini tidak otomatis punya tabel
+  `settings` — recreate DB, atau buat manual
+  (`id CHAR(36) PK, key VARCHAR(64) UNIQUE, value TEXT DEFAULT ''`).
 
 ## Development
 
@@ -83,10 +90,12 @@ yarn typecheck
 1. `cd frontend && yarn install && yarn build`
 2. `.env` dengan `SECRET_KEY` asli + `DATABASE_URL`
 3. Arahkan Caddy (`Caddyfile`) ke `localhost:8000`
-4. `TRUSTED_PROXY=true` — hanya di belakang proxy; `X-Forwarded-*` dari peer publik
-   tidak pernah dipercaya walau flag aktif
-5. `FORCE_HTTPS=true` (default) — Caddy wajib kirim `X-Forwarded-Proto`
-6. `uv run python -m app.run`
+4. `TRUSTED_PROXY=true` (hanya di belakang proxy) — `FORCE_HTTPS=true`
+   (default) asalkan Caddy kirim `X-Forwarded-Proto`
+5. `uv run python -m app.run`
+
+Shared hosting cPanel (Passenger, tanpa container) punya jalur sendiri — lihat
+[`docs/deploy-cpanel.md`](docs/deploy-cpanel.md).
 
 ## Docker
 
@@ -94,98 +103,44 @@ yarn typecheck
 docker compose up --build
 ```
 
-Bind `127.0.0.1:8000` saja (Caddy di depan), selalu `MIGRATE_ON_BOOT=true`,
-SQLite persist di `./data` (`sudo chown -R 1000:1000 data` di Linux kalau
-container user tidak bisa write). Ganti database dari dalam container tidak
-persist — env container immutable, pakai `DATABASE_URL` di `.env`.
+Bind `127.0.0.1:8000` (Caddy di depan), `MIGRATE_ON_BOOT=true` sudah
+diset. Kalau SQLite dipakai dan host volume `./data` tak writable oleh
+container, jalankan `sudo chown -R 10001:10001 data` (uid `appuser`).
+Database dari dalam container tidak persist — set `DATABASE_URL` di `.env`.
 
 ## Architecture
 
-```
-framework/   base classes, API utils, exceptions, extensions, infra, logging
-app/
-  auth/      User, Role, session auth
-  account/   user & role management, API key
-  infra/     CSRF, rate limit, roles, security, audit, setup, read API, health, SEO
-  migrations/  Alembic — alpha: edit 0001_initial.py langsung
-frontend/src/
-  features/  auth, setup, dashboard, landing
-  shared/    satu axios instance untuk semua API call
-tests/       pytest; test_docs.py menjaga README ↔ url_map sinkron
-```
-
-Tiap domain: `api → dto → services → repositories → models → presenters`, dan
-commit hanya di service. Domain memanggil domain lain lewat **service**, bukan
-repository/model. Response camelCase, error `{"message": "<snake_case_key>"}`.
-
-Detail lengkap: [`CLAUDE.md`](CLAUDE.md), [`framework/README.md`](framework/README.md).
-
-## API Endpoints
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | /api/v1/auth/register | Register new user (public, rate-limited) |
-| POST | /api/v1/auth/login | Login (public, rate-limited) |
-| POST | /api/v1/auth/logout | Logout (session) |
-| GET | /api/v1/auth/me | Current user (session) |
-| GET | /api/v1/auth/registration | Registration mode open/closed (public) |
-| PUT | /api/v1/auth/registration | Set registration mode (admin) |
-| GET | /api/v1/setup/status | First-run setup status (public) |
-| POST | /api/v1/setup/db-test | Test DB connection (loopback client only) |
-| POST | /api/v1/setup | Run first-run setup (loopback client only) |
-| GET | /api/v1/csrf | Fetch CSRF token (public) |
-| GET | /api/v1/account/users | List users (admin) |
-| GET | /api/v1/account/users/:id | Fetch one user (owner or admin) |
-| PATCH | /api/v1/account/users/:id | Update user (admin) |
-| GET | /api/v1/account/roles | List roles (admin) |
-| POST | /api/v1/account/roles | Create role (admin) |
-| PATCH | /api/v1/account/roles/:id | Update role (admin) |
-| DELETE | /api/v1/account/roles/:id | Delete role (admin) |
-| POST | /api/v1/account/api-keys | Create API key (session) |
-| GET | /api/v1/account/api-keys | List API keys (session) |
-| DELETE | /api/v1/account/api-keys/:id | Revoke API key (session) |
-| GET | /api/v1/app/ping | Liveness of the read API (public) |
-| GET | /api/v1/app/users | Cross-service read API (internal token or admin) |
-| GET | /api/v1/app/roles | Cross-service read API (internal token or admin) |
-| POST | /api/v1/uploads | Upload image (admin, max 5 MiB, png/jpg/jpeg/webp/gif) |
-| DELETE | /api/v1/uploads/:name | Delete uploaded image (admin, idempotent 204) |
-| GET | /api/v1/blog/posts | List published posts (public, paginated) |
-| GET | /api/v1/blog/posts/:slug | Fetch one post (public; drafts admin-only) |
-| GET | /api/v1/blog/admin/posts | List all posts incl. drafts (admin, paginated) |
-| POST | /api/v1/blog/posts | Create post (admin) |
-| PATCH | /api/v1/blog/posts/:slug | Update post (admin) |
-| DELETE | /api/v1/blog/posts/:slug | Delete post (admin) |
-| GET | /robots.txt | Crawler instructions, brand-driven (public) |
-| GET | /sitemap.xml | Canonical site URL for crawlers (public) |
-| GET | /health | Health check (public) |
-| GET | /ready | Readiness check (public) |
+Satu service dengan domain berlapis (`api → dto → services → repositories →
+models → presenters`); commit hanya di service; response camelCase, error
+`{"message": "<snake_case_key>"}`. Detail & konvensi lengkap:
+[`CLAUDE.md`](CLAUDE.md), [`framework/README.md`](framework/README.md).
 
 ## Security notes
 
-Known gaps — baca sebelum eksposur internet:
+Baca sebelum eksposur internet:
 
-- `/uploads/*` diserve **tanpa autentikasi**. Jangan taruh file sensitif di
+- `/uploads/*` diserve **tanpa autentikasi** — jangan simpan file sensitif di
   `app/static/uploads/`
-- `POST /api/v1/uploads` butuh `MAX_CONTENT_LENGTH` ≥ 5 MiB; cap global
-  default 1 MiB menolak request lebih awal dengan 413 sebelum limit
-  per-file (5 MiB) di view sempat dicek
-- `POST /api/v1/auth/register` terbuka untuk siapa saja (mode default
-  `open`) dan langsung login. Tutup lewat `PUT /api/v1/auth/registration`
-  (admin) — mode `registrationMode` disimpan di tabel `settings`, efektif
-  tanpa restart; saat `closed` register ditolak 403 `registration_disabled`.
-  Gate atau disable kalau deployment invite-only
-- `/api/v1/setup/status` dan `/health` publik, dan mengekspos engine aktif,
-  database URL yang sebagian dimasking, plus metrik per-route
-- API key mengautentikasi request read; request mutasi tetap butuh token CSRF
-  yang terikat ke session cookie
-- Rate limit di-key per IP efektif, hanya untuk route API. SPA asset/route,
-  `/uploads/*`, `/health`, `/ready` di-exempt. Set `RATE_LIMIT_STORAGE_URL`
-  (mis. `redis://…`) kalau multi-worker
-- `TRUSTED_PROXY=true` saja tidak cukup: rewrite `X-Forwarded-*` hanya dipakai
-  kalau socket peer juga private/loopback. Kalau app diekspos langsung biarkan
-  `false` — dengan `true` dan tanpa proxy, siapa pun bisa memalsukan address
-  yang jadi key rate limiting
+- `POST /api/v1/auth/register` terbuka (mode default `open`) dan langsung
+  login. Tutup via `PUT /api/v1/auth/registration` (admin) untuk deployment
+  invite-only
+- `/api/v1/setup/status` dan `/health` publik — mengekspos engine aktif,
+  database URL ter-mask, dan metrik agregat
+- API key hanya mengautentikasi request read; mutasi tetap butuh CSRF session
+- Rate limit per IP efektif, hanya route API; set `RATE_LIMIT_STORAGE_URL`
+  (mis. `redis://…`) untuk multi-worker
+- `TRUSTED_PROXY=true` hanya di belakang proxy: rewrite `X-Forwarded-*` cuma
+  dipercaya dari peer private/loopback
 - Body blog disanitasi saat ditulis (allowlist tag/attribut via `nh3`), tapi
   surface admin-terpercaya sengaja dipertahankan: atribut `style`/`class` di
   semua tag dan embed `iframe` https. Admin tetap bisa memasukkan HTML yang
   tampil ke semua pembaca — jangan beri `app_role=admin` sembarangan
+
+## Contributing
+
+Selama open alpha, kontribusi hanya untuk **perbaikan bug** — issue maupun PR
+fix diterima. Fitur baru tidak diterima.
+
+## License
+
+[MIT](LICENSE) — © 2026 Apriliansyah Idris.

@@ -85,6 +85,54 @@ def validate_site_url(url: str | None) -> None:
         raise ValidationFailed("site_url_invalid")
 
 
+SUPPORTED_LANGS = ("en", "id")
+APP_LANG_KEY = "appLang"
+
+
+def _default_app_lang() -> str:
+    lang = (current_app.config.get("APP_LANG") or "en").strip().lower()
+    return lang if lang in SUPPORTED_LANGS else "en"
+
+
+def get_app_lang() -> str:
+    """App-wide default language from settings; never raises.
+
+    Falls back to ``APP_LANG`` (then ``en``) before setup or on any
+    storage error so serving ``index.html`` keeps working.
+    """
+    try:
+        row = db.session.scalar(
+            select(AppSetting).where(AppSetting.key == APP_LANG_KEY)
+        )
+    except Exception:
+        db.session.rollback()
+        return _default_app_lang()
+    if row is None:
+        return _default_app_lang()
+    lang = (row.value or "").strip().lower()
+    return lang if lang in SUPPORTED_LANGS else _default_app_lang()
+
+
+def save_app_lang(session: Session, lang: str) -> None:
+    """Upsert the app language row into the given (setup) session."""
+    row = session.execute(
+        select(AppSetting).where(AppSetting.key == APP_LANG_KEY)
+    ).scalar_one_or_none()
+    if row is None:
+        session.add(AppSetting(key=APP_LANG_KEY, value=lang))
+    else:
+        row.value = lang
+
+
+def _request_lang() -> str:
+    """Visitor language: the SPA's ``minimals-lang`` cookie, else the app default."""
+    if has_request_context():
+        lang = (request.cookies.get("minimals-lang") or "").strip().lower()
+        if lang in SUPPORTED_LANGS:
+            return lang
+    return get_app_lang()
+
+
 def _canonical(brand: dict[str, str] | None = None) -> str:
     """Absolute site URL from brand ``siteUrl``; empty when not configured.
 
@@ -141,7 +189,7 @@ def _seo_for_path(brand: dict[str, str], path: str) -> dict:
     """
     site = _canonical(brand)
     name = brand["name"]
-    lang = current_app.config.get("APP_LANG", "en")
+    lang = _request_lang()
     description = brand.get("description") or brand.get("tagline") or ""
     blog_title = f"{BLOG_LIST_TITLE} · {name}"
 
@@ -192,16 +240,16 @@ def _seo_for_path(brand: dict[str, str], path: str) -> dict:
 
 
 def index_context() -> dict:
-    """Boot payload for ``index.html``: brand for the SPA, ``seo`` for the head.
+    """Boot payload for ``index.html``: brand + app language for the SPA, seo for the head.
 
     ``seo`` is built for the current request path (per-page title/canonical,
     noindex for private areas) and is consumed server-side by
-    ``_apply_seo`` — it never becomes a window global; everything else
-    lands on ``window.brand``.
+    ``_apply_seo`` — it never becomes a window global; everything else lands
+    on ``window.brand`` and ``window.appLang``.
     """
     brand = get_brand()
     seo = _seo_for_path(brand, _current_path())
-    return {"brand": brand, "seo": seo}
+    return {"brand": brand, "seo": seo, "appLang": get_app_lang()}
 
 
 @bp.get("/robots.txt")
@@ -265,11 +313,15 @@ def sitemap_xml():
 
 
 __all__ = [
+    "APP_LANG_KEY",
     "BRAND_KEYS",
     "DEFAULT_BRAND",
+    "SUPPORTED_LANGS",
     "bp",
+    "get_app_lang",
     "get_brand",
     "index_context",
+    "save_app_lang",
     "save_brand",
     "validate_site_url",
 ]

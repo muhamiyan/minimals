@@ -32,6 +32,7 @@ uv run pytest                  # test suite
 uv run ruff check .            # lint
 uv run python -m app.run       # serve (waitress, default :8000)
 uv run minimals                # sama — entry point script
+uv run python -m app.cli setup # wizard via terminal (cPanel/headless)
 
 # Frontend
 cd frontend && yarn install && yarn dev     # Vite dev :5173, proxy /api → :8000
@@ -124,11 +125,52 @@ rute API.
 3. **Import model di `app/create_app.py`** (blok `with app.app_context()`) —
    tanpa ini tabel tidak ikut `db.create_all()` / autodetect.
 4. `app.register_blueprint(bp)` di `create_app.py`, **sebelum** `register_spa`.
-5. **Tambah baris endpoint di tabel `README.md`** — `tests/test_docs.py`
-   membandingkan tabel README dengan `app.url_map`. Kalau lupa, test gagal.
+5. **Tambah baris endpoint di tabel `## API Endpoints` dokumen ini** —
+   `tests/test_docs.py` membandingkan tabel itu dengan `app.url_map`.
+   Kalau lupa, test gagal.
 6. Tambah test di `tests/test_<domain>.py`.
 
 Tidak ada CLI generator di project ini (berbeda dengan root `cells`).
+
+## API Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | /api/v1/auth/register | Register new user (public, rate-limited) |
+| POST | /api/v1/auth/login | Login (public, rate-limited) |
+| POST | /api/v1/auth/logout | Logout (session) |
+| GET | /api/v1/auth/me | Current user (session) |
+| GET | /api/v1/auth/registration | Registration mode open/closed (public) |
+| PUT | /api/v1/auth/registration | Set registration mode (admin) |
+| GET | /api/v1/setup/status | First-run setup status (public) |
+| POST | /api/v1/setup/db-test | Test DB connection (loopback client only) |
+| POST | /api/v1/setup | Run first-run setup (loopback client only) |
+| GET | /api/v1/csrf | Fetch CSRF token (public) |
+| GET | /api/v1/account/users | List users (admin) |
+| GET | /api/v1/account/users/:id | Fetch one user (owner or admin) |
+| PATCH | /api/v1/account/users/:id | Update user (admin) |
+| GET | /api/v1/account/roles | List roles (admin) |
+| POST | /api/v1/account/roles | Create role (admin) |
+| PATCH | /api/v1/account/roles/:id | Update role (admin) |
+| DELETE | /api/v1/account/roles/:id | Delete role (admin) |
+| POST | /api/v1/account/api-keys | Create API key (session) |
+| GET | /api/v1/account/api-keys | List API keys (session) |
+| DELETE | /api/v1/account/api-keys/:id | Revoke API key (session) |
+| GET | /api/v1/app/ping | Liveness of the read API (public) |
+| GET | /api/v1/app/users | Cross-service read API (internal token or admin) |
+| GET | /api/v1/app/roles | Cross-service read API (internal token or admin) |
+| POST | /api/v1/uploads | Upload image (admin, max 5 MiB, png/jpg/jpeg/webp/gif) |
+| DELETE | /api/v1/uploads/:name | Delete uploaded image (admin, idempotent 204) |
+| GET | /api/v1/blog/posts | List published posts (public, paginated) |
+| GET | /api/v1/blog/posts/:slug | Fetch one post (public; drafts admin-only) |
+| GET | /api/v1/blog/admin/posts | List all posts incl. drafts (admin, paginated) |
+| POST | /api/v1/blog/posts | Create post (admin) |
+| PATCH | /api/v1/blog/posts/:slug | Update post (admin) |
+| DELETE | /api/v1/blog/posts/:slug | Delete post (admin) |
+| GET | /robots.txt | Crawler instructions, brand-driven (public) |
+| GET | /sitemap.xml | Canonical site URL for crawlers (public) |
+| GET | /health | Health check (public) |
+| GET | /ready | Readiness check (public) |
 
 ## Wire format (kontrak — diuji `tests/test_contract.py`)
 
@@ -242,7 +284,9 @@ semua; `app/config.py` menambah path & static.
 | `SECRET_KEY` | — | **Wajib**, ≥32 chars, bukan placeholder (dicek, raise saat import) |
 | `DATABASE_URL` | `sqlite:///app.db` | Path relatif → `data/`. sqlite / mysql+pymysql / postgresql+psycopg |
 | `FLASK_DEBUG` | `false` | `true` → dev server, bukan waitress |
-| `PORT` | `8000` | |
+| `PORT` | `8000` | Bind port waitress; juga jadi akhiran nama cookie sesi |
+| `SESSION_COOKIE_NAME` | `session_{PORT}` | Cookie sesi. Cookie browser disimpan per host, bukan per port — akhiran `PORT` yang memisahkan dua instance di satu mesin; replika satu deployment (PORT sama) tetap berbagi |
+| `REMEMBER_COOKIE_NAME` | `remember_{PORT}` | Sama, untuk remember-me |
 | `FORCE_HTTPS` | `false` | Cookie secure, HSTS, SameSite=None |
 | `TRUSTED_PROXY` | `false` | Lihat §Security |
 | `CSRF_ENABLED` | `true` | |
@@ -257,7 +301,7 @@ semua; `app/config.py` menambah path & static.
 | `INTERNAL_API_TOKEN` | — | Gate `/api/v1/app/*` untuk non-browser client |
 | `MIGRATE_ON_BOOT` | `false` | |
 | `SEO_INDEXABLE` | `true` | `false` → `noindex, nofollow` + `robots.txt` disallow |
-| `APP_LANG` | `en` | `lang` + tag SEO di `index.html` |
+| `APP_LANG` | `en` | Fallback `appLang` (pilihan bahasa setup → `settings.appLang`); atribut `lang` + tag SEO. Preferensi pengunjung = cookie `minimals-lang` |
 | `SQLALCHEMY_POOL_*` | 10/20/30/1800 | **Diabaikan untuk sqlite** |
 
 ## Security model
@@ -287,7 +331,7 @@ Vue 3 + Vite + Pinia + frappe-ui (`1.0.0-rc.2`), TypeScript strict.
 
 ```
 src/
-  app/       AppShell, useMediaQuery — shell & layout
+  app/       AppShell, i18n.ts + locales/{en,id}.json, useMediaQuery — shell, i18n & layout
   features/  <feature>/{routes.ts, store.ts, views/*.vue} — auth, setup, dashboard
   shared/    api/{client.ts, errors.ts, index.ts} — SATU-SATUNYA axios instance
   router/    index.ts + guard.ts + meta.d.ts
@@ -301,14 +345,26 @@ src/
   misleading di bagian itu.
 - **Error handling di store**: `error.value = getErrorMessage(e, fallback)` —
   FE humanisasi snake_case jadi sentence. Return `null`/`false` agar view tahu
-  gagal; `toast` **setelah** await selesai.
+  gagal; `toast` **setelah** await selesai. `error.<key>` ada di locale →
+  pesan backend ikut bahasa; fallback store pakai `i18n.global.t(...)`.
+- **i18n**: `vue-i18n` legacy:false — `app/i18n.ts` + `app/locales/{en,id}.json`
+  (key **wajib identik** antar locale). Resolusi locale: localStorage
+  `minimals-lang` → cookie → `window.appLang` (hasil setup wizard) → `en`.
+  Ganti teks view = ubah `t('key')` + **kedua** locale; label password rule =
+  key (`auth.passwordRules.*`) di `validation.ts`, crumb = key (`crumb.*`).
+  Switcher bahasa: dialog **Settings → Preferences** (`app/UserSettingsDialog.vue`);
+  tema: tab bar `app/ThemeSwitcher.vue` — di menu avatar (desktop) dan baris
+  Tema di Preferences. Wizard setup punya select bahasa di langkah Brand
+  (disimpan ke `settings.appLang`).
 - **Router guard urutan**: setup dulu (`setupRequired` → semua nav ke `/setup`),
   baru auth (`requiresAuth` / `guestOnly`). `setupRequired` = schema atau
   user kosong.
 - **Per-page `<head>`**: `router.afterEach` (`router/index.ts`) mengisi
-  `document.title` dari `meta.title` dan `<meta name="description">` dari
-  `meta.description` (fallback ke brand description; tag dihapus kalau
-  keduanya kosong). Halaman baru = isi kedua field itu di `routes.ts`.
+  `document.title`/`meta description` dari kunci i18n `route.<Name>.title`
+  dan `route.<Name>.description` (fallback `meta.title`/`meta.description`
+  di `routes.ts`, lalu brand description; tag dihapus kalau keduanya kosong).
+  Di-resolve ulang saat locale berganti. Halaman baru = tambah kunci
+  `route.<Name>.*` di **kedua** locale.
 - **401 global**: interceptor fire event `auth:unauthorized` → router
   redirect. **Jangan** tangani 401 per-request.
 - **Ikon**: `lucide-*` (string, via unplugin-icons). Shape:
@@ -319,10 +375,11 @@ src/
   Jangan pakai palet Tailwind mentah untuk surface/ink.
 
 > **Skills di `.claude/skills/`** — `wiring` (bridges frontend↔Flask: axios
-> client, Pinia, CSRF, auth flow), `polish` (cosmetics/presentasi), dan `review`
-> (review & fix workflow atas git working tree) semuanya memakai path yang
-> cocok dengan project ini. Kalau skill dan `frontend/src/`/`app/` bertentangan,
-> **kode yang menang**.
+> client, Pinia, CSRF, auth flow), `polish` (cosmetics/presentasi), `review`
+> (review & fix workflow atas git working tree), dan `translate` (kanon i18n
+> EN/ID: locale key, error dictionary, bahasa setup/boot) semuanya memakai
+> path yang cocok dengan project ini. Kalau skill dan `frontend/src/`/`app/`
+> bertentangan, **kode yang menang**.
 
 ## Tests
 
@@ -335,13 +392,14 @@ Fixture di `tests/conftest.py`: `app`, `client` (CSRF-ready), `member`, `admin`.
 `csrf_client(app)` ambil token dulu lalu set `HTTP_X_CSRFTOKEN`. Test DB = sqlite
 di temp dir, dibuat via `db.create_all()`.
 
-`tests/test_docs.py` menjaga agar **README dan `url_map` sinkron** — tambah
-endpoint wajib tambah baris di tabel README. Ini gotcha paling sering
-terlewat.
+`tests/test_docs.py` menjaga agar **tabel endpoint dan `url_map` sinkron** —
+tambah endpoint wajib tambah baris di tabel `## API Endpoints` dokumen ini.
+Ini gotcha paling sering terlewat.
 
 ## Pitfalls
 
-1. **Daftar endpoint baru = tambah baris README**, atau `test_docs.py` gagal.
+1. **Daftar endpoint baru = tambah baris di tabel `## API Endpoints`**,
+   atau `test_docs.py` gagal.
 2. **Presenter baru = kontrak API berubah.** Menambah field ke presenter yang
    sudah ada itu breaking — tambah endpoint baru atau presenter terpisah,
    jangan ganggu yang lama.

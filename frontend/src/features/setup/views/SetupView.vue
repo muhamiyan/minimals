@@ -1,6 +1,15 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { Alert, Button, ErrorMessage, FormControl, Select, toast } from 'frappe-ui'
+import { useI18n } from 'vue-i18n'
+import {
+  Alert,
+  Button,
+  ErrorMessage,
+  FormControl,
+  Select,
+  toast,
+  type SelectOptionValue,
+} from 'frappe-ui'
 
 import {
   checkPassword,
@@ -12,6 +21,7 @@ import { brand } from '@/shared/brand'
 import { useSetupStore, type SetupResult } from '../store'
 
 const setup = useSetupStore()
+const { t, locale } = useI18n()
 
 const step = ref(1)
 const done = ref<SetupResult | null>(null)
@@ -25,6 +35,8 @@ const dbUsername = ref('')
 const dbPassword = ref('')
 const testing = ref(false)
 const testedUrl = ref<string | null>(null)
+
+const lang = ref(locale.value)
 
 const brandName = ref(brand.name)
 const brandTagline = ref(brand.tagline)
@@ -43,8 +55,19 @@ const engineOptions = [
   { label: 'PostgreSQL', value: 'postgresql' },
 ]
 
-const stepLabels = ['Database', 'Brand', 'Administrator']
-const stepLabel = computed(() => stepLabels[step.value - 1] ?? '')
+const langOptions = [
+  { label: 'English', value: 'en' },
+  { label: 'Bahasa Indonesia', value: 'id' },
+]
+
+const stepLabel = computed(
+  () =>
+    [
+      t('setup.steps.database'),
+      t('setup.steps.brand'),
+      t('setup.steps.administrator'),
+    ][step.value - 1] ?? '',
+)
 
 const isSqlite = computed(() => engine.value === 'sqlite')
 
@@ -67,8 +90,8 @@ const adminDisabled = computed(
 )
 
 const reasonText = computed(() => {
-  if (setup.status?.reason === 'no_users') return 'No administrator exists yet.'
-  if (setup.status?.reason === 'no_schema') return 'No database schema found.'
+  if (setup.status?.reason === 'no_users') return t('setup.reasonNoUsers')
+  if (setup.status?.reason === 'no_schema') return t('setup.reasonNoSchema')
   return ''
 })
 
@@ -109,6 +132,12 @@ function dbConfig() {
   }
 }
 
+function onLang(value: SelectOptionValue | null | undefined) {
+  if (value !== 'en' && value !== 'id') return
+  lang.value = value
+  locale.value = value
+}
+
 async function onTest() {
   testing.value = true
   testedUrl.value = null
@@ -116,7 +145,7 @@ async function onTest() {
   testing.value = false
   if (url) {
     testedUrl.value = url
-    toast.success('Connection successful')
+    toast.success(t('setup.testSuccess'))
   }
 }
 
@@ -147,6 +176,7 @@ async function onSubmit() {
       fullName: fullName.value.trim(),
       username: username.value.trim() || undefined,
     },
+    lang.value,
   )
   submitting.value = false
   if (!result) return
@@ -176,15 +206,17 @@ onMounted(async () => {
             <span class="lucide-check size-6" aria-hidden="true" />
           </div>
         </div>
-        <h1 class="text-2xl-semibold text-ink-gray-8">Setup complete</h1>
+        <h1 class="text-2xl-semibold text-ink-gray-8">
+          {{ t('setup.completeTitle') }}
+        </h1>
         <p class="text-p-sm text-ink-gray-5 [overflow-wrap:anywhere]">
-          Sign in as {{ done.email }} to continue.
+          {{ t('setup.signInAs', { email: done.email }) }}
         </p>
         <Button
           variant="solid"
           theme="gray"
           icon-left="lucide-log-in"
-          label="Sign in"
+          :label="t('auth.signIn')"
           @click="goToLogin"
         />
       </div>
@@ -194,16 +226,16 @@ onMounted(async () => {
           <div class="rounded-full bg-surface-gray-2 p-3 text-ink-gray-5">
             <span class="lucide-rocket size-6" aria-hidden="true" />
           </div>
-          <h1 class="text-2xl-semibold text-ink-gray-8">Setup</h1>
+          <h1 class="text-2xl-semibold text-ink-gray-8">{{ t('setup.title') }}</h1>
           <p class="text-p-sm text-ink-gray-5">
-            Step {{ step }} of 3 · {{ stepLabel }}
+            {{ t('setup.stepOf', { step }) }} · {{ stepLabel }}
           </p>
         </div>
 
         <Alert
           v-if="step === 1 && setup.status"
           class="mt-4 [overflow-wrap:anywhere]"
-          :title="`Active: ${activeEngineLabel}`"
+          :title="t('setup.activeAlert', { engine: activeEngineLabel })"
           :description="alertDescription || undefined"
         />
 
@@ -212,44 +244,48 @@ onMounted(async () => {
         <form v-if="step === 1" class="mt-4 space-y-4" @submit.prevent="onTest">
           <Select
             v-model="engine"
-            label="Database engine"
+            :label="t('setup.dbEngine')"
             :options="engineOptions"
           />
 
           <template v-if="isSqlite">
             <FormControl
               v-model="path"
-              label="Database file path"
-              placeholder="data/app.db (optional)"
+              :label="t('setup.dbPath')"
+              :placeholder="t('setup.dbPathPlaceholder')"
             />
           </template>
 
           <template v-else>
             <FormControl
               v-model="host"
-              label="Host"
+              :label="t('setup.host')"
               placeholder="127.0.0.1"
               required
             />
-            <FormControl v-model="port" label="Port" placeholder="5432" />
+            <FormControl v-model="port" :label="t('setup.port')" placeholder="5432" />
             <FormControl
               v-model="database"
-              label="Database"
+              :label="t('setup.database')"
               :placeholder="dbSlug"
               required
             />
-            <FormControl v-model="dbUsername" label="Username" :placeholder="dbSlug" />
+            <FormControl
+              v-model="dbUsername"
+              :label="t('field.username')"
+              :placeholder="dbSlug"
+            />
             <FormControl
               v-model="dbPassword"
               type="password"
-              label="Password"
+              :label="t('field.password')"
               placeholder="••••••••"
               autocomplete="new-password"
             />
           </template>
 
           <p v-if="testedUrl" class="text-p-sm text-ink-green-6 [overflow-wrap:anywhere]">
-            Connected: {{ prettyUrl(testedUrl) }}
+            {{ t('setup.connected', { url: prettyUrl(testedUrl) }) }}
           </p>
 
           <div class="flex gap-2">
@@ -257,14 +293,14 @@ onMounted(async () => {
               type="submit"
               variant="subtle"
               icon-left="lucide-plug"
-              label="Test connection"
+              :label="t('setup.testConnection')"
               :loading="testing"
             />
             <Button
               type="button"
               variant="solid"
               theme="gray"
-              label="Continue"
+              :label="t('setup.continue')"
               class="flex-1"
               :disabled="testing"
               @click="goStep(2)"
@@ -279,42 +315,48 @@ onMounted(async () => {
         >
           <FormControl
             v-model="brandName"
-            label="Brand name"
+            :label="t('setup.brandName')"
             placeholder="Acme Inc."
             maxlength="64"
             required
           />
           <FormControl
             v-model="brandTagline"
-            label="Tagline"
-            placeholder="Work less, achieve more (optional)"
+            :label="t('setup.tagline')"
+            :placeholder="t('setup.taglinePlaceholder')"
             maxlength="120"
           />
           <FormControl
             v-model="brandDescription"
-            label="Description"
-            placeholder="Shown to search engines (optional)"
+            :label="t('field.description')"
+            :placeholder="t('setup.descPlaceholder')"
             maxlength="300"
           />
           <FormControl
             v-model="brandSiteUrl"
-            label="Site URL"
-            placeholder="https://acme.com (optional)"
+            :label="t('setup.siteUrl')"
+            :placeholder="t('setup.siteUrlPlaceholder')"
             maxlength="512"
+          />
+          <Select
+            :model-value="lang"
+            :label="t('setup.language')"
+            :options="langOptions"
+            @update:model-value="onLang"
           />
 
           <div class="flex gap-2">
             <Button
               type="button"
               variant="subtle"
-              label="Back"
+              :label="t('setup.back')"
               @click="goStep(1)"
             />
             <Button
               type="submit"
               variant="solid"
               theme="gray"
-              label="Continue"
+              :label="t('setup.continue')"
               class="flex-1"
               :disabled="brandDisabled"
             />
@@ -324,21 +366,21 @@ onMounted(async () => {
         <form v-else class="mt-4 space-y-4" @submit.prevent="onSubmit">
           <FormControl
             v-model="fullName"
-            label="Full name"
+            :label="t('field.fullName')"
             placeholder="Abdullah"
             autocomplete="name"
             required
           />
           <FormControl
             v-model="username"
-            label="Username"
-            placeholder="abdulah (optional)"
+            :label="t('field.username')"
+            :placeholder="t('setup.usernamePlaceholder')"
             autocomplete="username"
           />
           <FormControl
             v-model="email"
             type="email"
-            label="Email"
+            :label="t('field.email')"
             placeholder="abdulah@example.com"
             autocomplete="email"
             required
@@ -346,7 +388,7 @@ onMounted(async () => {
           <FormControl
             v-model="adminPassword"
             type="password"
-            label="Password"
+            :label="t('field.password')"
             placeholder="••••••••"
             autocomplete="new-password"
             required
@@ -364,7 +406,7 @@ onMounted(async () => {
                 class="size-3"
                 aria-hidden="true"
               />
-              {{ rule.label }}
+              {{ t(rule.label) }}
             </li>
           </ul>
 
@@ -372,7 +414,7 @@ onMounted(async () => {
             <Button
               type="button"
               variant="subtle"
-              label="Back"
+              :label="t('setup.back')"
               @click="goStep(2)"
             />
             <Button
@@ -380,7 +422,7 @@ onMounted(async () => {
               variant="solid"
               theme="gray"
               icon-left="lucide-check"
-              label="Complete setup"
+              :label="t('setup.complete')"
               class="flex-1"
               :loading="submitting"
               :disabled="adminDisabled"

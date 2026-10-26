@@ -1,9 +1,9 @@
 export const passwordRules = [
-  { key: 'uppercase', label: 'One uppercase letter' },
-  { key: 'lowercase', label: 'One lowercase letter' },
-  { key: 'digit', label: 'One number' },
-  { key: 'special', label: 'One special character' },
-  { key: 'length', label: 'At least 8 characters' },
+  { key: 'uppercase', label: 'auth.passwordRules.uppercase' },
+  { key: 'lowercase', label: 'auth.passwordRules.lowercase' },
+  { key: 'digit', label: 'auth.passwordRules.digit' },
+  { key: 'special', label: 'auth.passwordRules.special' },
+  { key: 'length', label: 'auth.passwordRules.length' },
 ] as const
 
 export function checkPassword(password: string) {
