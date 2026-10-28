@@ -6,11 +6,13 @@ import { Button, ErrorMessage, FormControl, toast } from 'frappe-ui'
 
 import { useAuthStore } from '../store'
 import { checkPassword, isPasswordValid, passwordRules } from '../validation'
-import { brand } from '@/shared/brand'
+import { brand, useBrandLogo } from '@/shared/brand'
 
 const router = useRouter()
 const auth = useAuthStore()
 const { t } = useI18n()
+
+const { logoSrc, onLogoError } = useBrandLogo()
 
 const fullName = ref('')
 const username = ref('')
@@ -60,7 +62,18 @@ async function onSubmit() {
     <div class="w-full max-w-sm rounded-6 border border-outline-gray-1 bg-surface-elevation-2 p-6">
       <form class="space-y-4" @submit.prevent="onSubmit">
         <div class="flex flex-col items-center gap-1.5 text-center">
-          <div class="rounded-full bg-surface-gray-2 p-3 text-ink-gray-5">
+          <div
+            v-if="logoSrc"
+            class="size-12 overflow-hidden rounded-6 bg-surface-gray-2"
+          >
+            <img
+              :src="logoSrc"
+              alt=""
+              class="h-full w-full object-cover"
+              @error="onLogoError"
+            />
+          </div>
+          <div v-else class="rounded-full bg-surface-gray-2 p-3 text-ink-gray-5">
             <span class="lucide-package size-6" aria-hidden="true" />
           </div>
           <h1 class="text-2xl-semibold text-ink-gray-8">

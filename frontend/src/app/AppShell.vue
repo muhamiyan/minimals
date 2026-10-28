@@ -17,7 +17,7 @@ import {
 
 import { useAuthStore } from '@/features/auth/store'
 import ForbiddenDialog from '@/shared/components/ForbiddenDialog.vue'
-import { brand } from '@/shared/brand'
+import { brand, useBrandLogo } from '@/shared/brand'
 import { useMenuStore } from './menuStore'
 import { useMediaQuery } from './useMediaQuery'
 import ThemeSwitcher from './ThemeSwitcher.vue'
@@ -45,6 +45,8 @@ const isFullscreen = computed(
 const isDesktop = useMediaQuery('(min-width: 640px)')
 
 const displayName = computed(() => auth.user?.fullName || auth.user?.email || '')
+
+const { logoSrc, onLogoError } = useBrandLogo()
 
 const sidebarCollapsed = ref(false)
 const settingsOpen = ref(false)
@@ -89,7 +91,23 @@ async function onLogout() {
           :title="brand.name"
           :subtitle="displayName"
           :menu-items="headerMenu"
-        />
+        >
+          <template #prefix>
+            <img
+              v-if="logoSrc"
+              :src="logoSrc"
+              alt="Logo"
+              class="h-full w-full object-cover"
+              @error="onLogoError"
+            />
+            <div
+              v-else
+              class="flex h-full w-full items-center justify-center bg-surface-gray-4 text-ink-gray-7"
+            >
+              {{ brand.name.charAt(0).toUpperCase() }}
+            </div>
+          </template>
+        </SidebarHeader>
         <div class="flex-1 overflow-y-auto space-y-0.5 px-2 pb-2">
           <SidebarSection :label="t('menu.section')">
             <SidebarItem
