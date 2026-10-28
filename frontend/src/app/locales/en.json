@@ -15,7 +15,8 @@
   "settings": {
     "title": "Settings",
     "nav": {
-      "user": "User settings"
+      "user": "User settings",
+      "app": "Application"
     },
     "profile": {
       "title": "Profile",
@@ -37,6 +38,30 @@
       "description": "Drag to reorder. Turn an item off to hide it from the sidebar and bottom navigation.",
       "show": "Show {name}",
       "saveFailed": "Couldn't save the menu preference."
+    },
+    "brand": {
+      "title": "Brand",
+      "description": "App-wide logo shown in the sidebar, sign-in screens, and browser favicon.",
+      "logo": "Logo",
+      "logoDescription": "PNG, JPG, WebP, or GIF up to 5 MB. You'll crop it to a square before saving.",
+      "upload": "Upload logo",
+      "replace": "Replace logo",
+      "remove": "Remove",
+      "updated": "Logo updated.",
+      "removed": "Logo removed.",
+      "updateFailed": "Couldn't update the logo.",
+      "removeFailed": "Couldn't remove the logo.",
+      "invalidType": "Choose a PNG, JPG, WebP, or GIF image.",
+      "tooLarge": "Image must be 5 MB or smaller.",
+      "crop": {
+        "title": "Crop logo",
+        "hint": "Drag to reposition, then zoom in if needed.",
+        "zoom": "Zoom",
+        "apply": "Use image",
+        "cancel": "Cancel",
+        "loadFailed": "Couldn't load this image. Try another file.",
+        "stage": "Logo crop preview"
+      }
     }
   },
   "crumb": {

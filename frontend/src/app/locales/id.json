@@ -15,7 +15,8 @@
   "settings": {
     "title": "Pengaturan",
     "nav": {
-      "user": "Pengaturan pengguna"
+      "user": "Pengaturan pengguna",
+      "app": "Aplikasi"
     },
     "profile": {
       "title": "Profil",
@@ -37,6 +38,30 @@
       "description": "Seret untuk mengubah urutan. Matikan item untuk menyembunyikannya dari sidebar dan navigasi bawah.",
       "show": "Tampilkan {name}",
       "saveFailed": "Preferensi menu gagal disimpan."
+    },
+    "brand": {
+      "title": "Brand",
+      "description": "Logo untuk seluruh aplikasi, tampil di sidebar, halaman masuk, dan favicon browser.",
+      "logo": "Logo",
+      "logoDescription": "PNG, JPG, WebP, atau GIF maksimal 5 MB. Anda akan memotongnya menjadi persegi sebelum disimpan.",
+      "upload": "Unggah logo",
+      "replace": "Ganti logo",
+      "remove": "Hapus",
+      "updated": "Logo diperbarui.",
+      "removed": "Logo dihapus.",
+      "updateFailed": "Logo gagal diperbarui.",
+      "removeFailed": "Logo gagal dihapus.",
+      "invalidType": "Pilih gambar PNG, JPG, WebP, atau GIF.",
+      "tooLarge": "Ukuran gambar maksimal 5 MB.",
+      "crop": {
+        "title": "Potong logo",
+        "hint": "Geser untuk mengatur posisi, lalu perbesar bila perlu.",
+        "zoom": "Perbesaran",
+        "apply": "Gunakan gambar",
+        "cancel": "Batal",
+        "loadFailed": "Gambar tidak bisa dimuat. Coba file lain.",
+        "stage": "Pratinjau potongan logo"
+      }
     }
   },
   "crumb": {

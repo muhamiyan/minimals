@@ -163,6 +163,7 @@ Tidak ada CLI generator di project ini (berbeda dengan root `cells`).
 | GET | /api/v1/app/roles | Cross-service read API (internal token or admin) |
 | POST | /api/v1/uploads | Upload image (admin, max 5 MiB, png/jpg/jpeg/webp/gif) |
 | DELETE | /api/v1/uploads/:name | Delete uploaded image (admin, idempotent 204) |
+| PUT | /api/v1/brand/logo | Set or clear the brand logo (admin, stored upload only) |
 | GET | /robots.txt | Crawler instructions, brand-driven (public) |
 | GET | /sitemap.xml | Canonical site URL for crawlers (public) |
 | GET | /health | Health check (public) |
@@ -424,10 +425,10 @@ Ini gotcha paling sering terlewat.
 13. **Migrasi on boot jalan di dalam `create_app()`**, sebelum
     `ensure_member_role()` — jangan panggil `run_migrations()` lagi di
     `run.py`, dan jangan seed sebelum migrasi.
-14. **Brand/SEO** — `<title>`, meta description, robots, canonical, OG di
-    `index.html` di-inject server-side (`app/infra/seo.py` →
-    `_apply_seo`); sumber kebenaran = tabel `settings`. `<title>` di
-    `frontend/index.html` hanya fallback dev. SPA membaca
+14. **Brand/SEO** — `<title>`, meta description, robots, canonical, OG,
+    favicon, dan `og:image` logo di `index.html` di-inject server-side
+    (`app/infra/seo.py` → `_apply_seo`); sumber kebenaran = tabel `settings`.
+    `<title>` di `frontend/index.html` hanya fallback dev. SPA membaca
     `window.brand`; `seo` tidak pernah jadi window global.
 
 ## Deployment

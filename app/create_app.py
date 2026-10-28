@@ -108,6 +108,7 @@ def create_app() -> Flask:
         from app.account.preference_api import bp as account_preference_bp
         from app.auth import bp as auth_bp
         from app.infra.api import bp as app_api_bp
+        from app.infra.brand_api import bp as brand_bp
         from app.infra.csrf import bp as csrf_bp
         from app.infra.health import bp as health_bp
         from app.infra.seo import bp as seo_bp
@@ -125,6 +126,7 @@ def create_app() -> Flask:
         app.register_blueprint(account_preference_bp)
         app.register_blueprint(app_api_bp)
         app.register_blueprint(uploads_bp)
+        app.register_blueprint(brand_bp)
 
         register_spa(
             app,
