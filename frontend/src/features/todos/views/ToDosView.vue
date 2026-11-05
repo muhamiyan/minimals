@@ -1,0 +1,414 @@
+<script setup lang="ts">
+import { computed, onMounted, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
+import {
+  Badge,
+  Button,
+  Dialog,
+  ErrorMessage,
+  FormControl,
+  PageHeader,
+  Select,
+  Spinner,
+  Switch,
+  toast,
+  type SelectOptionValue,
+} from 'frappe-ui'
+import type { ListColumnsByBreakpoint } from 'frappe-ui/list'
+import {
+  List,
+  ListCell,
+  ListHeaderCell,
+  ListRow,
+  ListRows,
+} from 'frappe-ui/list'
+
+import PageBreadcrumbs from '@/shared/components/PageBreadcrumbs.vue'
+import ListFoot from '@/shared/components/ListFoot.vue'
+import ListHead from '@/shared/components/ListHead.vue'
+import ListToolbar from '@/shared/components/ListToolbar.vue'
+import { useListControls } from '@/shared/composables/useListControls'
+import { formatDate } from '@/shared/format'
+
+import { useTenancyStore } from '@/features/tenancy/store'
+import {
+  useTodosStore,
+  type Todo,
+  type TodoStatusFilter,
+} from '../store'
+
+const listColumns: ListColumnsByBreakpoint = {
+  base: ['minmax(0,1fr)', '110px', '80px'],
+  md: ['minmax(0,1fr)', '110px', '120px', '110px'],
+}
+
+const { t } = useI18n()
+const tenancy = useTenancyStore()
+const store = useTodosStore()
+
+const org = computed(() => tenancy.currentOrg)
+const featureOn = computed(() => tenancy.hasFeature('todos'))
+
+const status = ref<TodoStatusFilter>('all')
+const statusOptions = computed(() => [
+  { label: t('todos.filter.all'), value: 'all' },
+  { label: t('todos.filter.open'), value: 'open' },
+  { label: t('todos.filter.done'), value: 'done' },
+])
+
+const { search, perPage, reload, goToPage } = useListControls({
+  fetch: (query) => {
+    const orgId = org.value?.id
+    if (orgId) store.list(orgId, { ...query, completed: status.value })
+  },
+  setPage: (page) => store.setPage(page),
+})
+
+const isFiltered = computed(
+  () => search.value.trim() !== '' || status.value !== 'all',
+)
+
+function onStatusChange(value: SelectOptionValue | null | undefined): void {
+  status.value = value === 'open' || value === 'done' ? value : 'all'
+  store.setPage(1)
+  reload()
+}
+
+onMounted(() => {
+  if (!tenancy.myOrgsLoaded) tenancy.fetchMyOrgs()
+})
+
+// Feature flags resolve per organization: reset first so rows from the
+// previous organization are never shown while the next request is pending.
+watch(
+  () => org.value?.id ?? null,
+  async (orgId) => {
+    store.reset()
+    if (!orgId) return
+    await tenancy.fetchActiveFeatures()
+    if (tenancy.hasFeature('todos')) reload()
+  },
+  { immediate: true },
+)
+
+async function retryFeatures(): Promise<void> {
+  await tenancy.fetchActiveFeatures()
+  if (tenancy.hasFeature('todos')) {
+    store.setPage(1)
+    reload()
+  }
+}
+
+// --- create / edit dialog -------------------------------------------------
+const formOpen = ref(false)
+const editing = ref<Todo | null>(null)
+const form = ref({ title: '', description: '', completed: false, dueDate: '' })
+const titleError = ref('')
+
+function openCreate(): void {
+  if (!featureOn.value) return
+  editing.value = null
+  form.value = { title: '', description: '', completed: false, dueDate: '' }
+  titleError.value = ''
+  store.error = ''
+  formOpen.value = true
+}
+
+function openEdit(todo: Todo): void {
+  editing.value = todo
+  form.value = {
+    title: todo.title,
+    description: todo.description ?? '',
+    completed: todo.completed,
+    dueDate: todo.dueDate ?? '',
+  }
+  titleError.value = ''
+  store.error = ''
+  formOpen.value = true
+}
+
+async function submit(): Promise<void> {
+  if (store.saving || !org.value) return
+  const title = form.value.title.trim()
+  titleError.value = title ? '' : t('todos.validation.title')
+  if (titleError.value) return
+
+  const payload = {
+    title,
+    description: form.value.description.trim() || null,
+    completed: form.value.completed,
+    dueDate: form.value.dueDate || null,
+  }
+  const saved = editing.value
+    ? await store.update(org.value.id, editing.value.id, payload)
+    : await store.create(org.value.id, payload)
+  if (!saved) return
+
+  formOpen.value = false
+  toast.success(editing.value ? t('todos.updated') : t('todos.created'))
+}
+
+async function toggle(todo: Todo): Promise<void> {
+  if (!org.value || store.saving) return
+  await store.update(org.value.id, todo.id, { completed: !todo.completed })
+}
+
+// --- delete dialog --------------------------------------------------------
+const deleteTarget = ref<Todo | null>(null)
+const deleteOpen = ref(false)
+
+function openDelete(todo: Todo): void {
+  store.error = ''
+  deleteTarget.value = todo
+  deleteOpen.value = true
+}
+
+async function confirmDelete(): Promise<void> {
+  if (!deleteTarget.value || !org.value || store.deletingId) return
+  const done = await store.remove(org.value.id, deleteTarget.value.id)
+  if (!done) return
+  deleteOpen.value = false
+  toast.success(t('todos.delete.done'))
+}
+</script>
+
+<template>
+  <PageHeader>
+    <PageBreadcrumbs />
+    <Button
+      v-if="featureOn"
+      :label="t('todos.new')"
+      icon-left="lucide-plus"
+      variant="solid"
+      theme="gray"
+      @click="openCreate"
+    />
+  </PageHeader>
+
+  <div class="mx-auto w-full max-w-6xl space-y-3 px-5 py-6">
+    <div
+      v-if="!org"
+      class="rounded-6 border border-outline-gray-1 bg-surface-elevation-2 px-5 py-10 text-center text-p-sm text-ink-gray-5"
+    >
+      {{ t('todos.noOrg') }}
+    </div>
+
+    <div
+      v-else-if="tenancy.activeFeaturesLoading"
+      class="flex justify-center rounded-6 border border-outline-gray-1 bg-surface-elevation-2 py-10"
+    >
+      <Spinner />
+    </div>
+
+    <div
+      v-else-if="tenancy.activeFeaturesError"
+      class="space-y-4 rounded-6 border border-outline-gray-1 bg-surface-elevation-2 p-5"
+    >
+      <ErrorMessage :message="tenancy.activeFeaturesError" />
+      <Button
+        :label="t('todos.retry')"
+        variant="outline"
+        icon-left="lucide-refresh-cw"
+        @click="retryFeatures"
+      />
+    </div>
+
+    <div
+      v-else-if="!featureOn"
+      class="space-y-1 rounded-6 border border-outline-gray-1 bg-surface-elevation-2 p-6"
+    >
+      <div class="text-base-medium text-ink-gray-8">{{ t('todos.upsell.title') }}</div>
+      <p class="text-p-sm text-ink-gray-5">{{ t('todos.upsell.description') }}</p>
+    </div>
+
+    <template v-else>
+      <ListToolbar
+        v-model:search="search"
+        v-model:per-page="perPage"
+        :placeholder="t('todos.searchPlaceholder')"
+      >
+        <Select
+          :model-value="status"
+          :options="statusOptions"
+          class="w-36"
+          @update:model-value="onStatusChange"
+        />
+      </ListToolbar>
+
+      <ErrorMessage v-if="store.error" :message="store.error" />
+
+      <div
+        v-if="store.items.length"
+        class="overflow-hidden rounded-6 border border-outline-gray-1 bg-surface-elevation-2"
+      >
+        <List class="list-row-px-3" :columns="listColumns">
+          <ListHead>
+            <ListHeaderCell>{{ t('todos.columns.title') }}</ListHeaderCell>
+            <ListHeaderCell>{{ t('todos.columns.status') }}</ListHeaderCell>
+            <ListHeaderCell class="hidden md:flex">{{ t('todos.columns.due') }}</ListHeaderCell>
+            <ListHeaderCell class="justify-end">
+              <span class="sr-only">{{ t('todos.columns.actions') }}</span>
+            </ListHeaderCell>
+          </ListHead>
+          <ListRows :items="store.items" row-key="id" v-slot="{ item }">
+            <ListRow>
+              <ListCell class="min-w-0">
+                <div class="min-w-0">
+                  <div
+                    class="truncate text-base-medium"
+                    :class="item.completed ? 'text-ink-gray-4 line-through' : 'text-ink-gray-8'"
+                  >
+                    {{ item.title }}
+                  </div>
+                  <div v-if="item.description" class="truncate text-p-xs text-ink-gray-5">
+                    {{ item.description }}
+                  </div>
+                </div>
+              </ListCell>
+              <ListCell>
+                <Badge
+                  :label="item.completed ? t('todos.status.done') : t('todos.status.open')"
+                  :theme="item.completed ? 'green' : 'amber'"
+                  variant="subtle"
+                />
+              </ListCell>
+              <ListCell class="hidden md:flex">
+                <span class="text-p-sm text-ink-gray-6">
+                  {{ item.dueDate ? formatDate(item.dueDate) : '—' }}
+                </span>
+              </ListCell>
+              <ListCell class="justify-end">
+                <div class="flex items-center justify-end gap-1">
+                  <Button
+                    icon="lucide-check"
+                    variant="ghost"
+                    :label="item.completed ? t('todos.actions.reopen') : t('todos.actions.complete')"
+                    @click="toggle(item)"
+                  />
+                  <Button
+                    icon="lucide-pencil"
+                    variant="ghost"
+                    :label="t('todos.actions.edit')"
+                    @click="openEdit(item)"
+                  />
+                  <Button
+                    icon="lucide-trash-2"
+                    variant="ghost"
+                    theme="red"
+                    :label="t('todos.actions.delete')"
+                    @click="openDelete(item)"
+                  />
+                </div>
+              </ListCell>
+            </ListRow>
+          </ListRows>
+        </List>
+        <ListFoot
+          :total="store.total"
+          :page="store.page"
+          :per-page="perPage"
+          @update:page="goToPage"
+        />
+      </div>
+
+      <div
+        v-else-if="store.loading"
+        class="flex justify-center rounded-6 border border-outline-gray-1 bg-surface-elevation-2 py-10"
+      >
+        <Spinner />
+      </div>
+
+      <div
+        v-else
+        class="rounded-6 border border-outline-gray-1 bg-surface-elevation-2 px-5 py-10 text-center"
+      >
+        <p class="text-p-sm text-ink-gray-5">
+          {{ isFiltered ? t('todos.emptyFiltered') : t('todos.empty') }}
+        </p>
+      </div>
+    </template>
+  </div>
+
+  <Dialog
+    v-model:open="formOpen"
+    :title="editing ? t('todos.edit.title') : t('todos.create.title')"
+    icon="lucide-list-todo"
+    size="md"
+  >
+    <template #default>
+      <form class="space-y-4" @submit.prevent="submit">
+        <ErrorMessage v-if="store.error" :message="store.error" />
+        <FormControl
+          v-model="form.title"
+          :label="t('todos.fields.title')"
+          :placeholder="t('todos.fields.titlePlaceholder')"
+          required
+          :error="titleError"
+        />
+        <FormControl
+          v-model="form.description"
+          type="textarea"
+          :label="t('todos.fields.description')"
+          :placeholder="t('todos.fields.descriptionPlaceholder')"
+        />
+        <div class="grid gap-4 sm:grid-cols-2">
+          <FormControl
+            v-model="form.dueDate"
+            type="date"
+            :label="t('todos.fields.dueDate')"
+            clearable
+          />
+          <div class="flex items-center">
+            <Switch v-model="form.completed" :label="t('todos.fields.completed')" />
+          </div>
+        </div>
+      </form>
+    </template>
+    <template #actions>
+      <div class="flex justify-end gap-2">
+        <Button
+          :label="t('tenancy.fields.cancel')"
+          variant="outline"
+          @click="formOpen = false"
+        />
+        <Button
+          :label="editing ? t('todos.edit.submit') : t('todos.create.submit')"
+          variant="solid"
+          theme="gray"
+          :loading="store.saving"
+          @click="submit"
+        />
+      </div>
+    </template>
+  </Dialog>
+
+  <Dialog
+    v-model:open="deleteOpen"
+    :title="t('todos.delete.title')"
+    icon="lucide-trash-2"
+    size="sm"
+  >
+    <div class="space-y-4">
+      <p v-if="deleteTarget" class="text-p-sm text-ink-gray-6">
+        {{ t('todos.delete.question', { title: deleteTarget.title }) }}
+      </p>
+      <ErrorMessage v-if="store.error" :message="store.error" />
+    </div>
+    <template #actions="{ close }">
+      <div class="flex justify-end gap-2">
+        <Button
+          :label="t('tenancy.fields.cancel')"
+          variant="outline"
+          @click="close()"
+        />
+        <Button
+          :label="t('todos.delete.confirm')"
+          variant="solid"
+          theme="red"
+          :loading="Boolean(store.deletingId)"
+          @click="confirmDelete"
+        />
+      </div>
+    </template>
+  </Dialog>
+</template>
