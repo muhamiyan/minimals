@@ -8,7 +8,7 @@ from pydantic import field_validator, model_validator
 from app.infra.validation import CredentialPolicy, UsernamePolicy
 from framework.base import DTOBase
 
-VALID_APP_ROLES = ("user", "admin")
+VALID_APP_ROLES = ("user", "admin", "superadmin")
 
 TAppRole = TypeVar("TAppRole", bound=str | None)
 

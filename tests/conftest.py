@@ -41,6 +41,11 @@ def register(client, **overrides):
     return client.post("/api/v1/auth/register", json=payload)
 
 
+def default_plan_id(client, tier="professional"):
+    items = client.get("/api/v1/plans").get_json()["items"]
+    return next(p["id"] for p in items if p["tier"] == tier and p["isDefault"])
+
+
 @pytest.fixture(autouse=True)
 def _isolate_env_file(tmp_path, monkeypatch):
     from app.infra import db_bootstrap
@@ -62,6 +67,10 @@ def app():
         if db.session.scalar(db.select(Role).where(Role.name == "Member")) is None:
             db.session.add(Role(name="Member"))
             db.session.commit()
+
+        from app.plans.services import ensure_default_plans
+
+        ensure_default_plans()
 
     yield application
 
@@ -106,6 +115,28 @@ def admin(app):
 
     with app.app_context():
         db.session.get(User, user_id).app_role = "admin"
+        db.session.commit()
+
+    return client
+
+
+@pytest.fixture()
+def superadmin(app):
+    from app.auth.models import User
+    from framework.extensions import db
+
+    client = csrf_client(app)
+    response = register(
+        client,
+        email="root@example.com",
+        username="root",
+        fullName="Root User",
+    )
+    assert response.status_code == 201, response.get_json()
+    user_id = response.get_json()["id"]
+
+    with app.app_context():
+        db.session.get(User, user_id).app_role = "superadmin"
         db.session.commit()
 
     return client

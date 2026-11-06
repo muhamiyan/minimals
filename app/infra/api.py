@@ -30,7 +30,7 @@ def _check_read_access():
     if not current_user.is_authenticated:
         return error("unauthorized", 401)
 
-    if current_user.app_role == "admin":
+    if current_user.app_role in ("admin", "superadmin"):
         return None
 
     return error("forbidden", 403)
