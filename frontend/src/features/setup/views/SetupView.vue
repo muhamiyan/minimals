@@ -33,6 +33,9 @@ const port = ref('')
 const database = ref('')
 const dbUsername = ref('')
 const dbPassword = ref('')
+const tursoUrl = ref('')
+const tursoToken = ref('')
+const tursoPath = ref('')
 const testing = ref(false)
 const testedUrl = ref<string | null>(null)
 
@@ -53,6 +56,7 @@ const engineOptions = [
   { label: 'SQLite', value: 'sqlite' },
   { label: 'MariaDB', value: 'mariadb' },
   { label: 'PostgreSQL', value: 'postgresql' },
+  { label: 'Turso', value: 'turso' },
 ]
 
 const langOptions = [
@@ -70,6 +74,7 @@ const stepLabel = computed(
 )
 
 const isSqlite = computed(() => engine.value === 'sqlite')
+const isTurso = computed(() => engine.value === 'turso')
 
 const passwordChecks = computed(() => checkPassword(adminPassword.value))
 const passwordValid = computed(() => isPasswordValid(adminPassword.value))
@@ -121,6 +126,14 @@ const alertDescription = computed(() =>
 function dbConfig() {
   if (isSqlite.value) {
     return { engine: 'sqlite', path: path.value.trim() || undefined }
+  }
+  if (isTurso.value) {
+    return {
+      engine: 'turso',
+      url: tursoUrl.value.trim() || undefined,
+      authToken: tursoToken.value || undefined,
+      path: tursoPath.value.trim() || undefined,
+    }
   }
   return {
     engine: String(engine.value),
@@ -253,6 +266,28 @@ onMounted(async () => {
               v-model="path"
               :label="t('setup.dbPath')"
               :placeholder="t('setup.dbPathPlaceholder')"
+            />
+          </template>
+
+          <template v-else-if="isTurso">
+            <FormControl
+              v-model="tursoUrl"
+              :label="t('setup.tursoUrl')"
+              placeholder="libsql://db-name-org.turso.io"
+              required
+            />
+            <FormControl
+              v-model="tursoToken"
+              type="password"
+              :label="t('setup.tursoToken')"
+              placeholder="eyJ..."
+              autocomplete="off"
+              required
+            />
+            <FormControl
+              v-model="tursoPath"
+              :label="t('setup.tursoPath')"
+              placeholder="absolute path for embedded replica, e.g. /app/data/replica.db (optional)"
             />
           </template>
 

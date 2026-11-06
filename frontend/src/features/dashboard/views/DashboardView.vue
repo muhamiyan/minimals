@@ -1,12 +1,29 @@
 <script setup lang="ts">
+import { computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { Badge, PageHeader } from 'frappe-ui'
+import { Badge, PageHeader, Spinner } from 'frappe-ui'
 import PageBreadcrumbs from '@/shared/components/PageBreadcrumbs.vue'
 
 import { useAuthStore } from '@/features/auth/store'
+import {
+  statusLabel,
+  statusTheme,
+  tierLabel,
+  tierTheme,
+  useTenancyStore,
+} from '@/features/tenancy/store'
 
 const auth = useAuthStore()
+const tenancy = useTenancyStore()
 const { t } = useI18n()
+
+const org = computed(() => tenancy.currentOrg)
+const advancedReporting = computed(() => tenancy.hasFeature('advanced_reporting'))
+
+onMounted(() => {
+  if (!tenancy.myOrgs.length) tenancy.fetchMyOrgs()
+  tenancy.fetchActiveFeatures()
+})
 </script>
 
 <template>
@@ -35,6 +52,45 @@ const { t } = useI18n()
           {{ t('dash.noRoles') }}
         </p>
       </div>
+    </div>
+
+    <div class="rounded-6 border border-outline-gray-1 bg-surface-elevation-2 p-5">
+      <div class="text-base-medium text-ink-gray-8">{{ t('dash.currentOrg') }}</div>
+      <div v-if="tenancy.myOrgsLoading && !org" class="mt-3 flex justify-center py-4">
+        <Spinner />
+      </div>
+      <template v-else-if="org">
+        <div class="mt-3 flex flex-wrap items-center gap-2">
+          <span class="text-p-base text-ink-gray-8">{{ org.name }}</span>
+          <Badge
+            :label="tierLabel(org.subscription)"
+            :theme="tierTheme(org.subscription)"
+            variant="subtle"
+          />
+          <Badge
+            :label="statusLabel(org.subscription)"
+            :theme="statusTheme(org.subscription)"
+            variant="subtle"
+          />
+        </div>
+        <p class="mt-2 text-p-sm text-ink-gray-5">{{ t('dash.orgFeaturesNote') }}</p>
+      </template>
+      <p v-else class="mt-3 text-p-sm text-ink-gray-5">{{ t('dash.noOrg') }}</p>
+    </div>
+
+    <div class="rounded-6 border border-outline-gray-1 bg-surface-elevation-2 p-5">
+      <div class="text-base-medium text-ink-gray-8">
+        {{ t('dash.advancedReporting') }}
+      </div>
+      <p v-if="advancedReporting" class="mt-3 text-p-sm text-ink-gray-5">
+        {{ t('dash.reportingEnabled') }}
+      </p>
+      <p v-else-if="tenancy.activeFeaturesLoading" class="mt-3 text-p-sm text-ink-gray-4">
+        {{ t('dash.checkingPlan') }}
+      </p>
+      <p v-else class="mt-3 text-p-sm text-ink-gray-5">
+        {{ t('dash.reportingUpsell') }}
+      </p>
     </div>
   </div>
 </template>

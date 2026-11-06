@@ -20,8 +20,12 @@ export function formatRupiah(value: number | string | null | undefined): string 
   return formatted ? `Rp ${formatted}` : ''
 }
 
+const isoDateOnly = /^\d{4}-\d{2}-\d{2}$/
+
 export function formatDate(value: string | null | undefined): string {
   if (!value) return ''
-  const d = new Date(value)
+  // A date-only value is a calendar day, not an instant: anchor it to local
+  // midnight so it never shifts a day in negative UTC offsets.
+  const d = new Date(isoDateOnly.test(value) ? `${value}T00:00:00` : value)
   return Number.isNaN(d.getTime()) ? '' : idrDate.format(d)
 }

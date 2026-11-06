@@ -6,6 +6,8 @@ export interface NavItem {
   mobileLabelKey?: string
   icon: string
   route: RouteDestination
+  /** Role gate evaluated in menuStore against auth + org membership. */
+  gate?: 'superadmin' | 'owner' | 'superadminOrOwner'
 }
 
 export interface MenuPreference {
@@ -20,6 +22,47 @@ export const NAV_ITEMS: NavItem[] = [
     mobileLabelKey: 'nav.home',
     icon: 'lucide-house',
     route: { name: 'Dashboard' },
+  },
+  {
+    key: 'ToDos',
+    labelKey: 'nav.todos',
+    icon: 'lucide-list-todo',
+    route: { name: 'ToDos' },
+  },
+  {
+    key: 'MyOrganizations',
+    labelKey: 'nav.organizations',
+    icon: 'lucide-building',
+    route: { name: 'MyOrganizations' },
+    gate: 'owner',
+  },
+  {
+    key: 'Tenancy',
+    labelKey: 'nav.tenancy',
+    icon: 'lucide-building-2',
+    route: { name: 'Tenancy' },
+    gate: 'superadmin',
+  },
+  {
+    key: 'Plans',
+    labelKey: 'nav.plans',
+    icon: 'lucide-layers',
+    route: { name: 'Plans' },
+    gate: 'superadmin',
+  },
+  {
+    key: 'Billing',
+    labelKey: 'nav.billing',
+    icon: 'lucide-credit-card',
+    route: { name: 'Billing' },
+    gate: 'superadminOrOwner',
+  },
+  {
+    key: 'Infrastructure',
+    labelKey: 'nav.infrastructure',
+    icon: 'lucide-database',
+    route: { name: 'Infrastructure' },
+    gate: 'superadmin',
   },
 ]
 
