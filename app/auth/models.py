@@ -47,6 +47,11 @@ class User(db.Model, UserMixin):
 
     app_role: Mapped[str] = mapped_column(String(20), nullable=False, default="user")
 
+    # Organization the user last worked in. Deliberately a bare id with no
+    # ForeignKey/relationship: a FK would make app.auth depend on app.tenancy.
+    # TenancyService validates existence and membership on every write.
+    default_org_id: Mapped[str | None] = mapped_column(String(36), nullable=True)
+
     created_on: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )
