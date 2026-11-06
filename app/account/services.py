@@ -15,7 +15,7 @@ from app.auth.models import MEMBER_ROLE, Role, User
 from app.auth.repositories import RoleRepository, UserRepository
 from app.infra.audit import log as audit_log
 from framework.base import ServiceBase
-from framework.exceptions import Conflict, InvalidOperation, NotFound
+from framework.exceptions import Conflict, Forbidden, InvalidOperation, NotFound
 
 BUILTIN_ROLES = {MEMBER_ROLE}
 
@@ -54,6 +54,10 @@ class AccountService(ServiceBase[AccountRepository]):
             raise NotFound("user_not_found")
 
         data = dto.model_dump(exclude_unset=True, exclude_none=True)
+        if data.get("app_role") == "superadmin" or user.app_role == "superadmin":
+            actor = self._repo.get(actor_id)
+            if actor is None or actor.app_role != "superadmin":
+                raise Forbidden("superadmin_only")
         if "username" in data:
             new_username = data["username"]
             existing = self._repo.find_user_by_username(new_username)

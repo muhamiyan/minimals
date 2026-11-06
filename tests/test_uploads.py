@@ -33,6 +33,14 @@ def test_member_cannot_upload(member):
     assert response.status_code == 403
 
 
+def test_superadmin_can_upload_image(app, superadmin, tmp_path):
+    app.config["UPLOAD_FOLDER"] = str(tmp_path)
+
+    response = _upload(superadmin)
+
+    assert response.status_code == 201
+
+
 def test_upload_rejects_bad_extension(admin):
     response = _upload(admin, filename="payload.svg")
 

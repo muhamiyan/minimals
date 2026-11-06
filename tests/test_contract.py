@@ -126,6 +126,10 @@ def test_cross_service_users_requires_admin(member):
     assert_error(member.get("/api/v1/app/users"), 403)
 
 
+def test_cross_service_users_accepts_superadmin(superadmin):
+    assert superadmin.get("/api/v1/app/users").status_code == 200
+
+
 def test_cross_service_users_accepts_internal_token(app):
     response = app.test_client().get(
         "/api/v1/app/users",
