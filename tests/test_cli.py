@@ -75,7 +75,7 @@ def test_setup_command_creates_admin_and_brand(fresh_app, tmp_path):
             .scalars().unique().one()
         )
         assert user.username == "boss"
-        assert user.app_role == "admin"
+        assert user.app_role == "superadmin"
         assert [role.name for role in user.roles] == ["Member"]
 
         settings = {row.key: row.value for row in db.session.scalars(select(AppSetting))}

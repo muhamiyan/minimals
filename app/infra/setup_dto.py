@@ -10,13 +10,15 @@ from framework.base import DTOBase
 class DbConfigIn(DTOBase):
     """Validate a database connection payload."""
 
-    engine: str = Field(default="sqlite", max_length=32)  # sqlite | mariadb | postgresql
+    engine: str = Field(default="sqlite", max_length=32)  # sqlite | mariadb | postgresql | turso
     host: str | None = Field(default=None, max_length=255)
     port: int | None = Field(default=None, ge=1, le=65535)
     database: str | None = Field(default=None, max_length=128)
     username: str | None = Field(default=None, max_length=128)
     password: str | None = Field(default=None, max_length=512)
     path: str | None = Field(default=None, max_length=4096)  # sqlite file path (optional)
+    url: str | None = Field(default=None, max_length=255)  # turso remote URL
+    auth_token: str | None = Field(default=None, alias="authToken", max_length=512)
 
 
 class AdminCreateIn(DTOBase, CredentialPolicy):

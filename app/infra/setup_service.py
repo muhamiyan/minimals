@@ -3,9 +3,10 @@ from __future__ import annotations
 
 import ipaddress
 import logging
+import os
 import socket
 import threading
-from urllib.parse import urlsplit, urlunsplit
+from urllib.parse import urlsplit
 
 from sqlalchemy import inspect, select, text
 from sqlalchemy.orm import Session
@@ -22,7 +23,6 @@ from app.infra.seo import (
 )
 from app.infra.setup_dto import AdminCreateIn, BrandIn, DbConfigIn, SetupIn
 from framework.exceptions import Conflict, DomainException, ValidationFailed
-from framework.extensions import db
 
 logger = logging.getLogger(__name__)
 
@@ -50,10 +50,7 @@ def _deny_metadata_host(url: str) -> None:
 
 
 def _active_engine_url() -> str:
-    try:
-        return str(db.engine.url)
-    except Exception:
-        return db_bootstrap.default_sqlite_url()
+    return db_bootstrap.active_engine_url()
 
 
 def _has_schema(url: str) -> bool:
@@ -84,15 +81,11 @@ def _user_count(url: str) -> int:
 
 
 def _engine_name(url: str) -> str:
-    return url.split(":", 1)[0].split("+")[0]
+    return db_bootstrap.engine_name(url)
 
 
 def _mask_password(url: str) -> str:
-    parts = urlsplit(url)
-    if parts.password:
-        netloc = parts.netloc.replace(f":{parts.password}@", ":*****@")
-        return urlunsplit((parts.scheme, netloc, parts.path, parts.query, parts.fragment))
-    return url
+    return db_bootstrap.mask_password(url)
 
 
 def _requires_restart(active_url: str, target_url: str) -> bool:
@@ -109,6 +102,14 @@ def _build_url(cfg: DbConfigIn) -> str:
         username=cfg.username,
         password=cfg.password,
         path=cfg.path,
+        url=cfg.url,
+    )
+
+
+def _connect_args(url: str, cfg: DbConfigIn) -> dict:
+    """Wizard runs before ``TURSO_*`` env lands, so token/sync travel inline."""
+    return db_bootstrap.libsql_connect_args(
+        url, auth_token=cfg.auth_token, sync_url=cfg.url
     )
 
 
@@ -136,7 +137,7 @@ class SetupService:
         url = _build_url(cfg)
         _deny_metadata_host(url)
         try:
-            db_bootstrap.test_connection(url)
+            db_bootstrap.test_connection(url, connect_args=_connect_args(url, cfg))
         except Exception as exc:
             logger.info("db-test failed for %s: %s", cfg.engine, exc)
             raise ValidationFailed(db_bootstrap.db_error_key(exc)) from exc
@@ -157,7 +158,9 @@ class SetupService:
             url = _build_url(dto.db)
             _deny_metadata_host(url)
             try:
-                db_bootstrap.test_connection(url)
+                db_bootstrap.test_connection(
+                    url, connect_args=_connect_args(url, dto.db)
+                )
             except Exception as exc:
                 logger.info(
                     "setup db unreachable for %s: %s",
@@ -175,6 +178,19 @@ class SetupService:
                     raise DomainException(
                         "setup_env_write_failed", status_code=500
                     ) from None
+
+            if dto.db.engine == "turso":
+                token = dto.db.auth_token or ""
+                remote = dto.db.url or ""
+                try:
+                    db_bootstrap.write_turso_env(token, remote)
+                except Exception:
+                    logger.exception("setup turso env write failed")
+                    raise DomainException(
+                        "setup_env_write_failed", status_code=500
+                    ) from None
+                os.environ["TURSO_AUTH_TOKEN"] = token
+                os.environ["TURSO_DATABASE_URL"] = remote
 
             try:
                 db_bootstrap.migrate_to(url, MIGRATIONS_DIR)
@@ -224,7 +240,7 @@ def _seed_initial(url: str, admin: AdminCreateIn, brand: BrandIn, lang: str) -> 
                 email=admin.email,
                 full_name=admin.full_name,
                 password=admin.password,
-                app_role="admin",
+                app_role="superadmin",
             )
             admin_user.roles.append(member)
             session.add(admin_user)

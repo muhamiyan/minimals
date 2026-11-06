@@ -1,15 +1,16 @@
 """Database bootstrap helpers for the first-run setup wizard."""
 from __future__ import annotations
 
+import os
 import re
 from pathlib import Path
-from urllib.parse import quote_plus
+from urllib.parse import quote_plus, urlsplit, urlunsplit
 
 from sqlalchemy import text
 
 from framework.exceptions import ValidationFailed
 
-SUPPORTED_ENGINES = ("sqlite", "mariadb", "postgresql")
+SUPPORTED_ENGINES = ("sqlite", "mariadb", "postgresql", "turso")
 
 # An absolute POSIX path, or a Windows drive path already normalised to "/".
 _ABSOLUTE_PATH = re.compile(r"^(?:[A-Za-z]:)?/")
@@ -61,6 +62,40 @@ def _validate_database(database: str) -> str:
     return database
 
 
+def _validate_turso_remote(remote: str) -> str:
+    host = re.sub(r"^(?:libsql|https?)://", "", remote).rstrip("/").split("/")[0]
+    if not host or not _HOST.match(host):
+        raise ValidationFailed("invalid_db_host")
+    return host
+
+
+def libsql_connect_args(
+    url: str,
+    auth_token: str | None = None,
+    sync_url: str | None = None,
+) -> dict:
+    """Build connect_args for a ``sqlite+libsql://`` URL.
+
+    Explicit args win over env vars. Embedded replicas (no host in the URL)
+    pick up ``TURSO_DATABASE_URL`` as the sync target automatically.
+    """
+    if not url.startswith("sqlite+libsql"):
+        return {}
+    args: dict = {}
+    token = (
+        auth_token
+        if auth_token is not None
+        else os.environ.get("TURSO_AUTH_TOKEN", "")
+    )
+    if token:
+        args["auth_token"] = token
+    if not urlsplit(url).netloc:
+        remote = sync_url or os.environ.get("TURSO_DATABASE_URL", "")
+        if remote:
+            args["sync_url"] = remote
+    return args
+
+
 def build_url(engine: str, **params) -> str:
     engine = engine.lower()
     if engine not in SUPPORTED_ENGINES:
@@ -71,6 +106,16 @@ def build_url(engine: str, **params) -> str:
         if not path:
             return default_sqlite_url()
         return f"sqlite:///{_validate_sqlite_path(path)}"
+
+    if engine == "turso":
+        remote = (params.get("url") or "").strip()
+        if not remote:
+            raise ValidationFailed("database_required")
+        host = _validate_turso_remote(remote)
+        local_path = (params.get("path") or "").strip()
+        if local_path:
+            return f"sqlite+libsql:///{_validate_sqlite_path(local_path)}"
+        return f"sqlite+libsql://{host}?secure=true"
 
     if engine == "mariadb":
         driver = "mysql+pymysql"
@@ -93,6 +138,60 @@ def build_url(engine: str, **params) -> str:
     if password:
         userinfo += f":{quote_plus(password)}"
     return f"{driver}://{userinfo}@{host}:{port}/{database}"
+
+
+def engine_name(url: str) -> str:
+    """Short engine label for a SQLAlchemy URL (``turso``, ``sqlite``, ...)."""
+    if url.startswith("sqlite+libsql"):
+        return "turso"
+    return url.split(":", 1)[0].split("+")[0]
+
+
+def mask_password(url: str) -> str:
+    """Replace any password in the URL with ``*****`` before it leaves the server."""
+    parts = urlsplit(url)
+    if parts.password:
+        netloc = parts.netloc.replace(f":{parts.password}@", ":*****@")
+        return urlunsplit((parts.scheme, netloc, parts.path, parts.query, parts.fragment))
+    return url
+
+
+def active_engine_url() -> str:
+    try:
+        from framework.extensions import db
+
+        return str(db.engine.url)
+    except Exception:
+        return default_sqlite_url()
+
+
+def turso_mode(url: str) -> str:
+    """How Turso is wired for ``url``: ``embedded_replica``, ``remote``, or ``none``.
+
+    An embedded replica is a libsql URL with no host — the local file is the
+    replica and ``TURSO_DATABASE_URL`` supplies the sync target. A libsql URL
+    *with* a host talks to Turso directly and never syncs to disk.
+    """
+    if not url.startswith("sqlite+libsql"):
+        return "none"
+    return "remote" if urlsplit(url).netloc else "embedded_replica"
+
+
+def turso_sync_target() -> str:
+    """Host of the configured sync target, or ``''``. Never the auth token."""
+    remote = os.environ.get("TURSO_DATABASE_URL", "").strip()
+    if not remote:
+        return ""
+    try:
+        return _validate_turso_remote(remote)
+    except ValidationFailed:
+        return ""
+
+
+def turso_driver_installed() -> bool:
+    import importlib.util
+
+    return importlib.util.find_spec("libsql") is not None
 
 
 def env_file_path() -> Path:
@@ -124,22 +223,55 @@ def write_database_url_to_env(url: str) -> Path:
     return path
 
 
-def _engine_of(url: str):
+def write_turso_env(auth_token: str, remote_url: str) -> Path:
+    path = env_file_path()
+    updates = {
+        "TURSO_AUTH_TOKEN": auth_token,
+        "TURSO_DATABASE_URL": remote_url,
+    }
+
+    if not path.exists():
+        path.write_text(
+            "\n".join(f"{k}={v}" for k, v in updates.items()) + "\n",
+            encoding="utf-8",
+        )
+        return path
+
+    lines = path.read_text(encoding="utf-8").splitlines()
+    out: list[str] = []
+    written: set[str] = set()
+    for line in lines:
+        key = line.split("=", 1)[0] if "=" in line else None
+        if key in updates:
+            out.append(f"{key}={updates[key]}")
+            written.add(key)
+        else:
+            out.append(line)
+    for key, value in updates.items():
+        if key not in written:
+            out.append(f"{key}={value}")
+    path.write_text("\n".join(out) + "\n", encoding="utf-8")
+    return path
+
+
+def _engine_of(url: str, connect_args: dict | None = None):
     from sqlalchemy import create_engine
 
-    connect_args = {}
-    if url.startswith("sqlite"):
-        pass
+    args = dict(connect_args or {})
+    if url.startswith("sqlite+libsql"):
+        env_args = libsql_connect_args(url)
+        env_args.update(args)
+        args = env_args
     elif url.startswith("mysql"):
-        connect_args["connect_timeout"] = 5
+        args.setdefault("connect_timeout", 5)
     elif url.startswith("postgresql"):
-        connect_args["connect_timeout"] = 5
+        args.setdefault("connect_timeout", 5)
 
-    return create_engine(url, connect_args=connect_args)
+    return create_engine(url, connect_args=args)
 
 
-def test_connection(url: str) -> None:
-    engine = _engine_of(url)
+def test_connection(url: str, connect_args: dict | None = None) -> None:
+    engine = _engine_of(url, connect_args=connect_args)
     try:
         with engine.connect() as conn:
             conn.execute(text("SELECT 1"))
@@ -156,6 +288,8 @@ def db_error_key(exc: Exception) -> str:
     would leak connection details for a guessable endpoint.
     """
     text = str(exc).lower()
+    if "libsql" in text and ("plugin" in text or "no module" in text or "import" in text):
+        return "turso_driver_not_installed"
     code = getattr(exc, "orig", None)
     code = (
         next(iter(getattr(code, "args", [])), None)
@@ -236,6 +370,10 @@ def repoint_engine(url: str) -> None:
     # configured pool.
     options = _pool_options(url)
     options["url"] = url
+    if url.startswith("sqlite+libsql"):
+        ca = libsql_connect_args(url)
+        if ca:
+            options["connect_args"] = ca
     # Adds utf8mb4 for MySQL, StaticPool + check_same_thread for sqlite. It can
     # also rewrite options["url"] (relative sqlite paths, charset query), so the
     # effective URL is read back from options afterwards.
