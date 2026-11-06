@@ -3,6 +3,7 @@ import { computed, ref, shallowRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import {
   Avatar,
+  Badge,
   Button,
   SettingsBody,
   SettingsContent,
@@ -21,27 +22,37 @@ import {
 import type { DropInfo, MoveContext, TreeNode } from 'frappe-ui'
 
 import { useAuthStore } from '@/features/auth/store'
-import BrandLogo from '@/shared/components/BrandLogo.vue'
-import { languageOptions } from '@/app/i18n'
-import { brand } from '@/shared/brand'
+import { useTenancyStore } from '@/features/tenancy/store'
+import { api, getErrorMessage } from '@/shared/api'
+import { brand, setBrandLogo, useBrandLogo } from '@/shared/brand'
 import LogoCropper from './LogoCropper.vue'
-import { useBrandStore } from './brandStore'
 import { useMenuStore } from './menuStore'
 import ThemeSwitcher from './ThemeSwitcher.vue'
 
 const open = defineModel<boolean>('open', { default: false })
 const activeTab = defineModel<string>('tab', { default: 'profile' })
 
-const emit = defineEmits<{ logout: [] }>()
+const props = withDefaults(defineProps<{ showOrganizations?: boolean }>(), {
+  showOrganizations: false,
+})
+
+const emit = defineEmits<{ logout: []; switchOrg: [orgId: string] }>()
 
 const { t, locale } = useI18n()
 const auth = useAuthStore()
+const tenancy = useTenancyStore()
 const menu = useMenuStore()
-const brandStore = useBrandStore()
 
 const user = computed(() => auth.user)
 const displayName = computed(() => user.value?.fullName || user.value?.email || '')
 const isAdmin = computed(() => user.value?.appRole === 'admin')
+
+const { logoSrc, onLogoError } = useBrandLogo()
+
+const languageOptions = [
+  { label: 'English', value: 'en' },
+  { label: 'Bahasa Indonesia', value: 'id' },
+]
 
 const language = computed({
   get: () => locale.value,
@@ -62,6 +73,12 @@ const memberSince = computed(() => {
     new Date(created),
   )
 })
+
+function roleLabel(role: string | null | undefined): string {
+  if (role === 'owner') return t('orgSwitcher.owner')
+  if (role === 'member') return t('orgSwitcher.member')
+  return ''
+}
 
 const menuBusy = computed(() => menu.saving || !menu.loaded)
 
@@ -99,9 +116,9 @@ const MAX_LOGO_BYTES = 5 * 1024 * 1024
 
 const logoInput = ref<HTMLInputElement | null>(null)
 const pendingLogoFile = shallowRef<File | null>(null)
-const uploadingLogo = computed(() => brandStore.uploading)
-const removingLogo = computed(() => brandStore.removing)
-const logoBusy = computed(() => brandStore.busy)
+const uploadingLogo = ref(false)
+const removingLogo = ref(false)
+const logoBusy = computed(() => uploadingLogo.value || removingLogo.value)
 
 function pickLogo() {
   if (logoBusy.value || pendingLogoFile.value) return
@@ -143,37 +160,70 @@ function onCropError() {
 }
 
 async function onCropApply(blob: Blob) {
-  if (brandStore.uploading) return
+  if (uploadingLogo.value) return
   if (blob.size > MAX_LOGO_BYTES) {
     toast.error(t('settings.brand.tooLarge'))
     return
   }
 
-  const ok = await brandStore.uploadLogo(
-    new File([blob], 'logo.png', { type: 'image/png' }),
-  )
-  if (ok) {
+  uploadingLogo.value = true
+  try {
+    await uploadLogo(new File([blob], 'logo.png', { type: 'image/png' }))
     pendingLogoFile.value = null
+  } catch (e: any) {
+    toast.error(getErrorMessage(e, t('settings.brand.updateFailed')))
+  } finally {
+    uploadingLogo.value = false
+  }
+}
+
+async function uploadLogo(file: File) {
+  const body = new FormData()
+  body.append('file', file)
+  const { data } = await api.post('/uploads', body)
+  const url = typeof data?.url === 'string' ? data.url : ''
+  if (!url) throw new Error('upload_failed')
+  await saveLogo(url)
+}
+
+async function saveLogo(url: string) {
+  try {
+    await api.put('/brand/logo', { logoUrl: url })
+    setBrandLogo(url)
     toast.success(t('settings.brand.updated'))
-  } else {
-    toast.error(brandStore.error)
+  } catch (e) {
+    const name = url.split('/').pop()
+    if (name) void api.delete(`/uploads/${name}`).catch(() => {})
+    throw e
   }
 }
 
 async function removeLogo() {
   if (logoBusy.value || pendingLogoFile.value) return
-
-  const ok = await brandStore.removeLogo()
-  if (ok) {
+  removingLogo.value = true
+  try {
+    await api.put('/brand/logo', { logoUrl: '' })
+    setBrandLogo('')
     toast.success(t('settings.brand.removed'))
-  } else {
-    toast.error(brandStore.error)
+  } catch (e: any) {
+    toast.error(getErrorMessage(e, t('settings.brand.removeFailed')))
+  } finally {
+    removingLogo.value = false
   }
 }
 
 watch([open, activeTab], ([isOpen, tab]) => {
   if (!isOpen || tab !== 'brand') pendingLogoFile.value = null
 })
+
+watch(
+  () => [props.showOrganizations, tenancy.myOrgs.length] as const,
+  ([show, count]) => {
+    if (activeTab.value === 'organizations' && (!show || count === 0)) {
+      activeTab.value = 'profile'
+    }
+  },
+)
 </script>
 
 <template>
@@ -202,6 +252,18 @@ watch([open, activeTab], ([isOpen, tab]) => {
         </SettingsNavItem>
       </SettingsNavGroup>
 
+      <SettingsNavGroup
+        v-if="showOrganizations && tenancy.myOrgs.length"
+        :label="t('settings.nav.organization')"
+      >
+        <SettingsNavItem value="organizations">
+          <template #prefix>
+            <span class="lucide-building size-4 text-ink-gray-6" />
+          </template>
+          {{ t('orgSwitcher.switch') }}
+        </SettingsNavItem>
+      </SettingsNavGroup>
+
       <SettingsNavGroup v-if="isAdmin" :label="t('settings.nav.app')">
         <SettingsNavItem value="brand">
           <template #prefix>
@@ -219,7 +281,7 @@ watch([open, activeTab], ([isOpen, tab]) => {
             <Button
               variant="ghost"
               icon-left="lucide-x"
-              :label="t('shared.close')"
+              :aria-label="t('shared.close')"
               class="sm:hidden"
               @click="open = false"
             />
@@ -256,9 +318,7 @@ watch([open, activeTab], ([isOpen, tab]) => {
             </SettingsRow>
           </div>
 
-          <div
-            class="mt-8 flex flex-col gap-2 border-t border-outline-gray-1 pt-4 sm:hidden"
-          >
+          <div class="mt-8 border-t border-outline-gray-1 pt-4 sm:hidden">
             <Button
               :label="t('menu.logout')"
               icon-left="lucide-log-out"
@@ -276,7 +336,7 @@ watch([open, activeTab], ([isOpen, tab]) => {
             <Button
               variant="ghost"
               icon-left="lucide-x"
-              :label="t('shared.close')"
+              :aria-label="t('shared.close')"
               class="sm:hidden"
               @click="open = false"
             />
@@ -326,7 +386,7 @@ watch([open, activeTab], ([isOpen, tab]) => {
             <Button
               variant="ghost"
               icon-left="lucide-x"
-              :label="t('shared.close')"
+              :aria-label="t('shared.close')"
               class="sm:hidden"
               @click="open = false"
             />
@@ -379,13 +439,70 @@ watch([open, activeTab], ([isOpen, tab]) => {
         </SettingsBody>
       </SettingsPanel>
 
+      <SettingsPanel value="organizations">
+        <SettingsHeader
+          class="settings-header"
+          :title="t('orgSwitcher.switch')"
+        >
+          <template #actions>
+            <Button
+              variant="ghost"
+              icon-left="lucide-x"
+              :aria-label="t('shared.close')"
+              class="sm:hidden"
+              @click="open = false"
+            />
+          </template>
+        </SettingsHeader>
+        <SettingsBody class="settings-body">
+          <p class="mt-6 text-p-sm leading-5 text-ink-gray-5">
+            {{ t('settings.organization.description') }}
+          </p>
+
+          <div
+            class="mt-4 divide-y divide-outline-gray-1 overflow-hidden rounded-6 border border-outline-gray-1"
+          >
+            <button
+              v-for="org in tenancy.myOrgs"
+              :key="org.id"
+              type="button"
+              class="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-surface-gray-2"
+              :class="org.id === tenancy.currentOrg?.id ? 'bg-surface-gray-2' : ''"
+              @click="emit('switchOrg', org.id)"
+            >
+              <span
+                class="lucide-building size-4 shrink-0 text-ink-gray-6"
+                aria-hidden="true"
+              />
+              <span class="min-w-0 flex-1">
+                <span class="block truncate text-base-medium text-ink-gray-8">
+                  {{ org.name }}
+                </span>
+                <span
+                  v-if="roleLabel(org.myRole)"
+                  class="block text-p-xs text-ink-gray-5"
+                >
+                  {{ roleLabel(org.myRole) }}
+                </span>
+              </span>
+              <Badge
+                v-if="org.id === tenancy.currentOrg?.id"
+                :label="t('tenancy.myOrgs.current')"
+                theme="green"
+                variant="subtle"
+              />
+            </button>
+          </div>
+        </SettingsBody>
+      </SettingsPanel>
+
       <SettingsPanel value="brand">
         <SettingsHeader class="settings-header" :title="t('settings.brand.title')">
           <template #actions>
             <Button
               variant="ghost"
               icon-left="lucide-x"
-              :label="t('shared.close')"
+              :aria-label="t('shared.close')"
               class="sm:hidden"
               @click="open = false"
             />
@@ -398,11 +515,23 @@ watch([open, activeTab], ([isOpen, tab]) => {
 
           <template v-if="!pendingLogoFile">
             <div class="mt-6 flex items-center gap-4">
-              <BrandLogo size="lg" class="shrink-0 border border-outline-gray-1">
-                <div class="flex h-full w-full items-center justify-center text-ink-gray-5">
+              <div
+                class="size-14 shrink-0 overflow-hidden rounded-6 border border-outline-gray-1 bg-surface-gray-2"
+              >
+                <img
+                  v-if="logoSrc"
+                  :src="logoSrc"
+                  alt=""
+                  class="h-full w-full object-cover"
+                  @error="onLogoError"
+                />
+                <div
+                  v-else
+                  class="flex h-full w-full items-center justify-center text-ink-gray-5"
+                >
                   <span class="lucide-image size-5" aria-hidden="true" />
                 </div>
-              </BrandLogo>
+              </div>
               <div class="min-w-0 flex-1">
                 <div class="text-base-medium leading-tighter text-ink-gray-8">
                   {{ t('settings.brand.logo') }}

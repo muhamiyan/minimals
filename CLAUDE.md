@@ -18,7 +18,7 @@ dengan Vue 3 SPA (frappe-ui) yang di-serve oleh Flask sendiri.
 | `app/` | Service ini: `auth` + `account` domain, `infra` cross-domain, migrations, config, entry point |
 | `frontend/` | Vue 3 + Vite + Pinia + frappe-ui SPA. Build output → `app/static/frontend/` |
 | `tests/` | pytest, 1 file per concern + `conftest.py` |
-| `frappe-ui/` | Checkout sibling dari upstream (git-ignored, `.git` sendiri). **Bukan** dependency yang di-resolve build — `frontend/` ambil `frappe-ui@1.0.0-rc.2` dari npm. Referensi baca saja. **Jangan diedit.** |
+| `frappe-ui/` | Checkout sibling dari upstream (git-ignored, `.git` sendiri). **Bukan** dependency yang di-resolve build — `frontend/` ambil `frappe-ui@1.0.2` dari npm. Referensi baca saja. **Jangan diedit.** |
 
 Single service, so: tidak ada `cells.services` discovery, tidak ada cross-service
 SDK. Endpoint `/api/v1/app/*` adalah read API untuk service **luar** repo ini
@@ -82,6 +82,12 @@ di-inject ke `AccountService`. Referensi: `app/account/services.py` constructor.
 > (repository & presenter juga, `repositories.py:5`, `presenters.py:5`). Jangan
 > tambah yang baru; kalau bisa, arahkan ke repository.
 
+> **Tenancy, billing & to-dos** punya dokumen intent sendiri:
+> [`TENANCY.md`](TENANCY.md) — maksud desain, dua konsep role (`app_role` vs
+> membership), matriks guard per endpoint, dan decision log yang sudah
+> disetujui. **Baca sebelum mengubah `app/tenancy/`, `app/billing/`,
+> `app/todos/`, atau `frontend/src/features/{tenancy,billing,todos}`.**
+
 ### Base classes (dari `framework/base`)
 
 - **`DTOBase`** — `populate_by_name=True` (terima `fullName` **dan** `full_name`).
@@ -142,14 +148,13 @@ Tidak ada CLI generator di project ini (berbeda dengan root `cells`).
 | GET | /api/v1/auth/me | Current user (session) |
 | GET | /api/v1/auth/registration | Registration mode open/closed (public) |
 | PUT | /api/v1/auth/registration | Set registration mode (admin) |
-| GET | /api/v1/setup/status | First-run setup status (public; engine/URL only for loopback clients) |
+| GET | /api/v1/setup/status | First-run setup status (public) |
 | POST | /api/v1/setup/db-test | Test DB connection (loopback client only) |
 | POST | /api/v1/setup | Run first-run setup (loopback client only) |
 | GET | /api/v1/csrf | Fetch CSRF token (public) |
 | GET | /api/v1/account/users | List users (admin) |
 | GET | /api/v1/account/users/:id | Fetch one user (owner or admin) |
 | PATCH | /api/v1/account/users/:id | Update user (admin) |
-| POST | /api/v1/account/users | Create user with chosen appRole (admin) |
 | GET | /api/v1/account/roles | List roles (admin) |
 | POST | /api/v1/account/roles | Create role (admin) |
 | PATCH | /api/v1/account/roles/:id | Update role (admin) |
@@ -159,6 +164,45 @@ Tidak ada CLI generator di project ini (berbeda dengan root `cells`).
 | DELETE | /api/v1/account/api-keys/:id | Revoke API key (session) |
 | GET | /api/v1/account/menu-preferences | Menu order/visibility (session) |
 | PUT | /api/v1/account/menu-preferences | Save menu order/visibility (session) |
+| GET | /api/v1/tenancy/organizations | List organizations (superadmin, paginated) |
+| POST | /api/v1/tenancy/organizations | Create organization (superadmin) |
+| GET | /api/v1/tenancy/organizations/:id | Fetch organization (superadmin or member) |
+| PATCH | /api/v1/tenancy/organizations/:id | Update organization (superadmin) |
+| GET | /api/v1/tenancy/organizations/:id/subscription | Fetch subscription (superadmin) |
+| PUT | /api/v1/tenancy/organizations/:id/subscription | Upsert subscription (superadmin) |
+| GET | /api/v1/tenancy/organizations/:id/features | Effective feature flags (superadmin or member) |
+| GET | /api/v1/tenancy/organizations/:id/members | List members (superadmin or org owner) |
+| POST | /api/v1/tenancy/organizations/:id/members | Add member (superadmin or org owner) |
+| DELETE | /api/v1/tenancy/organizations/:id/members/:userId | Remove member (superadmin or org owner) |
+| GET | /api/v1/tenancy/organizations/:id/user-lookup | Exact email/username check for add-member (superadmin or org owner) |
+| GET | /api/v1/tenancy/organizations/:id/invite-codes | List invite codes (superadmin or org owner) |
+| POST | /api/v1/tenancy/organizations/:id/invite-codes | Generate invite code (superadmin or org owner) |
+| DELETE | /api/v1/tenancy/organizations/:id/invite-codes/:codeId | Revoke invite code (superadmin or org owner) |
+| POST | /api/v1/tenancy/invites/redeem | Redeem invite code (session) |
+| GET | /api/v1/tenancy/my-organizations | Current user's organizations (session) |
+| POST | /api/v1/tenancy/my-organizations | Create your own organization, creator becomes owner, max 10 per user (session) |
+| PUT | /api/v1/tenancy/my-organizations/default | Set the caller's default organization (session) |
+| GET | /api/v1/tenancy/settings | Platform settings — member quota (superadmin) |
+| PUT | /api/v1/tenancy/settings | Update member quota, 0 = no limit (superadmin) |
+| GET | /api/v1/todos/organizations/:orgId | List organization todos (paginated, `?search=&completed=&page=&per_page=`), requires `todos` feature (superadmin or member) |
+| POST | /api/v1/todos/organizations/:orgId | Create a todo, requires `todos` feature (superadmin or member) |
+| PUT | /api/v1/todos/organizations/:orgId/:todoId | Update a todo, partial update, requires `todos` feature (superadmin or member) |
+| DELETE | /api/v1/todos/organizations/:orgId/:todoId | Delete a todo, requires `todos` feature (superadmin or member) |
+| GET | /api/v1/plans | List plans (paginated, `?search=&page=&per_page=`), optional `?tier=` filter (superadmin) |
+| GET | /api/v1/plans/features | Feature registry keys for the plan editor (superadmin) |
+| POST | /api/v1/plans | Create a plan (superadmin) |
+| PUT | /api/v1/plans/:id | Update a plan, partial update (superadmin) |
+| DELETE | /api/v1/plans/:id | Delete an unused plan (superadmin) |
+| GET | /api/v1/billing/invoices | List invoices (superadmin or org owner, paginated) |
+| POST | /api/v1/billing/invoices | Create an invoice manually (superadmin) |
+| GET | /api/v1/billing/invoices/:id | Fetch invoice (superadmin or org owner) |
+| POST | /api/v1/billing/invoices/:id/pay | Mark invoice paid (superadmin) |
+| POST | /api/v1/billing/invoices/:id/void | Void invoice (superadmin) |
+| GET | /api/v1/billing/organizations/:id/invoices | List organization invoices (superadmin or org owner) |
+| GET | /api/v1/billing/settings | Billing settings: trial, renewal lead (superadmin) |
+| PUT | /api/v1/billing/settings | Update billing settings, partial update (superadmin) |
+| GET | /api/v1/infra/database | Active DB engine + Turso sync status (superadmin) |
+| POST | /api/v1/infra/database/test | Test the active DB connection (superadmin) |
 | GET | /api/v1/app/ping | Liveness of the read API (public) |
 | GET | /api/v1/app/users | Cross-service read API (internal token or admin) |
 | GET | /api/v1/app/roles | Cross-service read API (internal token or admin) |
@@ -229,39 +273,22 @@ ditolak 403 `registration_disabled` + audit `register_failure`. `GET
 /api/v1/auth/registration` publik — dipakai FE untuk menyembunyikan link
 "Create one" dan me-redirect `/register` ke `/login`.
 
-### Definisi ketat: `app_role` vs `roles`
+Dua konsep role, jangan dicampur:
 
-Dua konsep dengan **dimensi akses berbeda** — jangan pernah dicampur atau
-dianggap setara:
+- **`User.app_role`** — kolom string, nilainya `"user"`, `"admin"`, atau
+  `"superadmin"`. Ini yang dicek `require_role(...)`. Setup wizard seed user
+  pertama sebagai `superadmin`; hanya superadmin yang boleh grant
+  `superadmin` atau edit akun superadmin (dicek di `AccountService`).
+- **`Role` + `user_roles`** — tabel role relasional (seeded `Member`).
+  Untuk display/label dan FUTURE permission granularity.
 
-| | `User.app_role` | `Role` + `user_roles` (tabel `roles`) |
-|---|---|---|
-| Dimensi | **Tier akses (pangkat)** — biner, menentukan pintu/manajemen mana yang boleh | **Peran fungsional DI DALAM sebuah tier** — many-to-many; himpunan roles boleh berbeda antar app_role |
-| Nilai | Hanya `"user"` atau `"admin"` — `VALID_APP_ROLES` di `app/account/dto.py`. `admin` = **tier tertinggi** (manajemen sistem), `user` = tier dasar | Nama bebas (unique, ≤64 char), seeded `Member` (`MEMBER_ROLE`). Contoh: `app_role="user"` + role `Owner` = owner di tier `user` |
-| Assignment | Kolom langsung di `users` | `PATCH /api/v1/account/users/:id` dengan `roleNames: [...]` → relasi `user_roles` |
-| Gate | **`require_role()` / `require_owner_or_role()`** (`framework/auth/helpers.py`) — baca `app_role` **saja**, return `None` / response tuple | **`User.has_role(name)`** (`app/auth/models.py`) — baca tabel `roles` via `user_roles`, return bool |
-
-Aturan keras:
-
-- Menambah/mengubah baris tabel `roles` **bukan** menambah tier. Nilai
-  `app_role` baru hanya lewat `VALID_APP_ROLES` + keputusan eksplisit.
-- **Belum ada validasi pasangan** `(app_role, role)` di code — `roleNames`
-  bebas di-assign ke app_role mana pun.
-- `BUILTIN_ROLES` (`Member`) dilindungi dari hapus; role lain CRUD via
-  `/api/v1/account/roles` (admin).
-
-Dua gate, dua kontrak — jangan tertukar:
+`require_role(*roles)` / `require_owner_or_role(owner_id, *roles)` dari
+`framework.auth` — return `None` kalau boleh, atau response tuple yang langsung
+di-`return` dari view:
 
 ```python
-# gate app_role (tier) — framework.auth; args = nilai app_role.
-# return None kalau boleh, atau response tuple untuk langsung di-return view:
 if denied := require_role("admin"):
     return denied
-
-# gate roles (peran fungsional) — exact match Role.name, return bool;
-# view yang menentukan response error (mis. 403):
-if not current_user.has_role("Owner"):
-    return error("forbidden", 403)  # framework.api.response
 ```
 
 ## CSRF
@@ -344,27 +371,15 @@ semua; `app/config.py` menambah path & static.
 
 ## Frontend
 
-Vue 3 + Vite + Pinia + frappe-ui (`1.0.0-rc.2`), TypeScript strict.
+Vue 3 + Vite + Pinia + frappe-ui (`1.0.2`), TypeScript strict.
 
 ```
 src/
-  app/       AppShell (komposisi shared/shell), i18n.ts + locales/{en,id}.json, navigation, menuStore
+  app/       AppShell, i18n.ts + locales/{en,id}.json, useMediaQuery — shell, i18n & layout
   features/  <feature>/{routes.ts, store.ts, views/*.vue} — auth, setup, dashboard
-  shared/    shell/{AppPageHeader, ShellSidebar, MobileBottomNav, MobileMenuSheet} — shell reusable;
-             api/{client.ts, errors.ts, index.ts} — SATU-SATUNYA axios instance
+  shared/    api/{client.ts, errors.ts, index.ts} — SATU-SATUNYA axios instance
   router/    index.ts + guard.ts + meta.d.ts
 ```
-
-- **Shell reusable di `shared/shell/`**: `AppPageHeader` (breadcrumb desktop /
-  `PageHeaderMobile` + tombol menu mobile), `ShellSidebar`, `MobileBottomNav`,
-  `MobileMenuSheet` (menu sidebar — dari tombol menu `AppPageHeader`).
-  `AppShell.vue` hanya komposisi: nav dari
-  `app/navigation.ts` (menu preferences) di-map jadi `ShellNavItem` (label
-  sudah di-resolve `t()`, `active` = nama route) lalu di-pass ke komponen.
-  Header sidebar (brand/logo/menu avatar) lewat slot `#header`; tab avatar di
-  bottom nav lewat slot default — klik langsung buka `UserSettingsDialog`
-  (tab profile, `openSettings('profile')`, `:active="settingsOpen"`).
-  State sheet global: `shared/shell/mobile-menu.ts` (`openMobileMenu()`).
 
 - **Selalu** `import { api } from '@/shared/api'` dengan route tanpa prefix
   (`baseURL: '/api/v1'` sudah handles). **Jangan** `axios.create()` baru,
@@ -386,9 +401,8 @@ src/
   Tema di Preferences. Wizard setup punya select bahasa di langkah Brand
   (disimpan ke `settings.appLang`).
 - **Router guard urutan**: setup dulu (`setupRequired` → semua nav ke `/setup`),
-  baru auth (`requiresAuth` / `guestOnly`), baru admin (`requiresAdmin` →
-  redirect `/` kalau `appRole !== "admin"` — dipakai route `/users`).
-  `setupRequired` = schema atau user kosong.
+  baru auth (`requiresAuth` / `guestOnly`). `setupRequired` = schema atau
+  user kosong.
 - **Per-page `<head>`**: `router.afterEach` (`router/index.ts`) mengisi
   `document.title`/`meta description` dari kunci i18n `route.<Name>.title`
   dan `route.<Name>.description` (fallback `meta.title`/`meta.description`
@@ -397,26 +411,6 @@ src/
   `route.<Name>.*` di **kedua** locale.
 - **401 global**: interceptor fire event `auth:unauthorized` → router
   redirect. **Jangan** tangani 401 per-request.
-- **Async readiness gate di View**: template utama dirender hanya setelah
-  fetch backend selesai, cegah flash UI default. Pola kanonik per View:
-  `const gateReady = computed(...)` dari state store yang sudah ada
-  (tanpa ubah store/API), `onMounted` fetch jika belum terisi, lalu
-  `<Spinner v-if="!gateReady" />` + `<div v-else>...</div>`.
-  Contoh: Dashboard `auth.checked`; Setup
-  `setup.status !== null || setup.statusFailed`; Login
-  `auth.checked && auth.registrationMode !== null`; Register
-  `!!auth.user || auth.registrationMode !== null`. Wajib fail-safe:
-  error fetch tetap membuka gate (store harus set flag `checked`/
-  `statusFailed` di `finally`), jangan spinner selamanya. Jangan
-  tambah `gateReady` ke store kalau computed view cukup. **Gate wajib
-  `v-else`** — jangan dua `v-if` independen.
-- **Pola list**: tanpa card wrapper. Chain state lewat
-  `shared/components/ListState.vue`: `loading` → `<Spinner>` di
-  `flex justify-center py-10`, `error` → `ErrorMessage`, `empty` → icon
-  centered tanpa border + pesan `shared.noResults` (override prop
-  `emptyMessage`) + slot `#action` opsional, lalu default slot untuk
-  `<List>`. `ListFoot` di-guard `v-if="!empty"` di luar `ListState`.
-  Prop `icon` harus literal string. Detail: skill `wiring` §List pages.
 - **Ikon**: `lucide-*` (string, via unplugin-icons). Shape:
   `<span class="lucide-log-in size-6" aria-hidden="true" />` atau
   `:icon-left="'lucide-log-in'"`.
@@ -483,6 +477,14 @@ Ini gotcha paling sering terlewat.
     (`app/infra/seo.py` → `_apply_seo`); sumber kebenaran = tabel `settings`.
     `<title>` di `frontend/index.html` hanya fallback dev. SPA membaca
     `window.brand`; `seo` tidak pernah jadi window global.
+15. **Tenant UI mengikuti org aktif.** `currentOrg` = `activeOrgId`
+    (`sessionStorage` per tab + per user) → `default_org_id` → org pertama.
+    Sesi berakhir (logout/401) → pilihan dihapus, login berikutnya mulai dari
+    default. `default_org_id` di-seed backend saat membership pertama dan
+    dibersihkan saat membership itu dicabut. Nav owner, filter Billing, dan
+    `/billing` `ownerOnly` memakai `currentOrg.myRole`; `Make default` hanya
+    mengubah default, bukan active. Jangan mengembalikan gate ke
+    `myOrgs.some(o => o.myRole === 'owner')`.
 
 ## Deployment
 

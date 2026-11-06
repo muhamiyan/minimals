@@ -6,8 +6,8 @@ export interface NavItem {
   mobileLabelKey?: string
   icon: string
   route: RouteDestination
-  requireAdmin?: boolean
-  mobile?: boolean
+  /** Role gate evaluated in menuStore against auth + org membership. */
+  gate?: 'superadmin' | 'owner' | 'superadminOrOwner'
 }
 
 export interface MenuPreference {
@@ -15,7 +15,7 @@ export interface MenuPreference {
   hidden: string[]
 }
 
-const NAV_ITEMS: NavItem[] = [
+export const NAV_ITEMS: NavItem[] = [
   {
     key: 'Dashboard',
     labelKey: 'nav.dashboard',
@@ -24,11 +24,45 @@ const NAV_ITEMS: NavItem[] = [
     route: { name: 'Dashboard' },
   },
   {
-    key: 'Users',
-    labelKey: 'nav.users',
-    icon: 'lucide-users',
-    route: { name: 'Users' },
-    requireAdmin: true,
+    key: 'ToDos',
+    labelKey: 'nav.todos',
+    icon: 'lucide-list-todo',
+    route: { name: 'ToDos' },
+  },
+  {
+    key: 'MyOrganizations',
+    labelKey: 'nav.organizations',
+    icon: 'lucide-building',
+    route: { name: 'MyOrganizations' },
+    gate: 'owner',
+  },
+  {
+    key: 'Tenancy',
+    labelKey: 'nav.tenancy',
+    icon: 'lucide-building-2',
+    route: { name: 'Tenancy' },
+    gate: 'superadmin',
+  },
+  {
+    key: 'Plans',
+    labelKey: 'nav.plans',
+    icon: 'lucide-layers',
+    route: { name: 'Plans' },
+    gate: 'superadmin',
+  },
+  {
+    key: 'Billing',
+    labelKey: 'nav.billing',
+    icon: 'lucide-credit-card',
+    route: { name: 'Billing' },
+    gate: 'superadminOrOwner',
+  },
+  {
+    key: 'Infrastructure',
+    labelKey: 'nav.infrastructure',
+    icon: 'lucide-database',
+    route: { name: 'Infrastructure' },
+    gate: 'superadmin',
   },
 ]
 
@@ -48,12 +82,6 @@ export function orderedNavItems(order: string[]): NavItem[] {
   }
 
   return ordered
-}
-
-const MAX_MOBILE_NAV_ITEMS = 3
-
-export function mobileNavItems(items: NavItem[]): NavItem[] {
-  return items.filter((item) => item.mobile !== false).slice(0, MAX_MOBILE_NAV_ITEMS)
 }
 
 export function visibleNavItems(order: string[], hidden: string[]): NavItem[] {

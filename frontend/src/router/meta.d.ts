@@ -5,6 +5,8 @@ declare module 'vue-router' {
     requiresAuth?: boolean
     requiresAdmin?: boolean
     guestOnly?: boolean
+    roles?: string[]
+    ownerOnly?: boolean
     scroll?: boolean
     fullscreen?: boolean
     title?: string

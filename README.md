@@ -59,6 +59,12 @@ Sampai setup selesai, SPA mengarahkan semua navigasi ke `/setup`. Wizard
 + bahasa. Kalau database target beda dari engine aktif, respons meminta
 restart.
 
+Wizard juga menerima engine **Turso**: isi remote URL + auth token (mode
+remote), atau tambahkan *local replica path* absolut untuk mode
+**embedded replica** — database lokal di-sync otomatis dengan remote
+(`TURSO_DATABASE_URL` + `TURSO_AUTH_TOKEN` ditulis ke `.env`), jadi app
+tetap baca/tulis walau jaringan ke Turso sedang putus.
+
 ## White-label & SEO
 
 Brand disimpan di tabel `settings` dan di-inject server-side tiap request
@@ -138,6 +144,10 @@ Baca sebelum eksposur internet:
   (mis. `redis://…`) untuk multi-worker
 - `TRUSTED_PROXY=true` hanya di belakang proxy: rewrite `X-Forwarded-*` cuma
   dipercaya dari peer private/loopback
+- Semua endpoint org-scoped (`organizations/:id/*`, `billing/invoices/:id`,
+  dst. — lewat `require_org_access`) mengecek keberadaan org dulu (404)
+  sebelum membership (403) — user login bisa probe org ID mana yang ada.
+  Org ID UUID, severity rendah
 
 ## Contributing
 

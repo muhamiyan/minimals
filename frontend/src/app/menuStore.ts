@@ -2,8 +2,9 @@ import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 
 import { i18n } from '@/app/i18n'
-import { api, getErrorMessage } from '@/shared/api'
 import { useAuthStore } from '@/features/auth/store'
+import { useTenancyStore } from '@/features/tenancy/store'
+import { api, getErrorMessage } from '@/shared/api'
 import {
   orderedNavItems,
   visibleNavItems,
@@ -26,17 +27,24 @@ export const useMenuStore = defineStore('menu', () => {
   const saving = ref(false)
   const error = ref('')
 
+  const auth = useAuthStore()
+  const tenancy = useTenancyStore()
+
   let confirmed: MenuPreference = { order: [], hidden: [] }
   let generation = 0
 
-  const auth = useAuthStore()
-  const isAdmin = computed(() => auth.user?.appRole === 'admin')
-  const visibleForRole = (items: NavItem[]) =>
-    items.filter((item) => !item.requireAdmin || isAdmin.value)
+  function allowed(item: NavItem): boolean {
+    if (!item.gate) return true
+    const isOwner = tenancy.currentOrg?.myRole === 'owner'
+    const isSuperadmin = auth.user?.appRole === 'superadmin'
+    if (item.gate === 'owner') return isOwner
+    if (item.gate === 'superadmin') return isSuperadmin
+    return isSuperadmin || isOwner
+  }
 
-  const allItems = computed(() => visibleForRole(orderedNavItems(order.value)))
+  const allItems = computed(() => orderedNavItems(order.value).filter(allowed))
   const items = computed(() =>
-    visibleForRole(visibleNavItems(order.value, hidden.value)),
+    visibleNavItems(order.value, hidden.value).filter(allowed),
   )
 
   function apply(preference: MenuPreference) {
