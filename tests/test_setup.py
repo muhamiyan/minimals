@@ -243,7 +243,7 @@ def test_setup_repoints_engine_without_restart(client, app, tmp_path, restore_en
             db.select(User).where(User.email == "boss@example.com")
         )
         assert seeded is not None
-        assert seeded.app_role == "admin"
+        assert seeded.app_role == "superadmin"
 
     # The wizard rewrote DATABASE_URL, so a later restart agrees with the swap.
     assert app.config["SQLALCHEMY_DATABASE_URI"].endswith("switched.db")

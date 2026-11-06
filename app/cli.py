@@ -14,7 +14,7 @@ from app.infra.setup_dto import AdminCreateIn, BrandIn, DbConfigIn, SetupIn
 from app.infra.setup_service import SetupService
 from framework.exceptions import DomainException
 
-ENGINES = ("mariadb", "sqlite", "postgresql")
+ENGINES = ("mariadb", "sqlite", "turso", "postgresql")
 DEFAULT_PORTS = {"mariadb": 3306, "postgresql": 5432}
 
 
@@ -31,6 +31,21 @@ def _prompt_db() -> DbConfigIn:
     if engine == "sqlite":
         path = click.prompt("SQLite path (blank = data/app.db)", default="")
         return DbConfigIn.validate({"engine": engine, "path": path or None})
+
+    if engine == "turso":
+        return DbConfigIn.validate(
+            {
+                "engine": engine,
+                "url": click.prompt("Turso database URL"),
+                "authToken": click.prompt(
+                    "Turso auth token", hide_input=True
+                ),
+                "path": click.prompt(
+                    "Local replica path (blank = data/turso.db)", default=""
+                )
+                or None,
+            }
+        )
 
     return DbConfigIn.validate(
         {

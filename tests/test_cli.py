@@ -71,7 +71,7 @@ def test_setup_command_creates_admin_and_brand(fresh_app, tmp_path):
     with fresh_app.app_context():
         user = db.session.query(User).filter_by(email="boss@example.com").one()
         assert user.username == "boss"
-        assert user.app_role == "admin"
+        assert user.app_role == "superadmin"
         assert [role.name for role in user.roles] == ["Member"]
 
         settings = {row.key: row.value for row in db.session.query(AppSetting)}

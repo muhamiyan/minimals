@@ -29,6 +29,9 @@ dev = [
     "pytest>=8.3.3",
     "ruff>=0.6.0",
 ]
+turso = [
+    "sqlalchemy-libsql>=0.1.0",
+]
 
 [project.scripts]
 minimals = "app.run:main"
