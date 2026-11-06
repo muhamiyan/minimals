@@ -97,24 +97,34 @@ def create_app() -> Flask:
 
         from app.account.models import ApiKey, UserPreference  # noqa: F401
         from app.auth.models import Role, User, user_roles  # noqa: F401
+        from app.billing.models import Invoice  # noqa: F401
         from app.infra.audit import AuditLog  # noqa: F401
         from app.infra.models import AppSetting  # noqa: F401
         from app.infra.roles import ensure_member_role
+        from app.plans.models import Plan  # noqa: F401
+        from app.plans.services import ensure_default_plans
+        from app.todos.models import Todo  # noqa: F401
 
         ensure_member_role()
+        ensure_default_plans()
 
         from app.account import bp as account_bp
         from app.account.api_key_api import bp as account_api_key_bp
         from app.account.preference_api import bp as account_preference_bp
         from app.auth import bp as auth_bp
+        from app.billing import bp as billing_bp
         from app.infra.api import bp as app_api_bp
         from app.infra.brand_api import bp as brand_bp
         from app.infra.csrf import bp as csrf_bp
+        from app.infra.database import bp as infra_database_bp
         from app.infra.health import bp as health_bp
         from app.infra.seo import bp as seo_bp
         from app.infra.seo import index_context
         from app.infra.setup import bp as setup_bp
         from app.infra.uploads import bp as uploads_bp
+        from app.plans import bp as plans_bp
+        from app.tenancy import bp as tenancy_bp
+        from app.todos import bp as todos_bp
 
         app.register_blueprint(health_bp)
         app.register_blueprint(csrf_bp)
@@ -124,6 +134,11 @@ def create_app() -> Flask:
         app.register_blueprint(account_bp)
         app.register_blueprint(account_api_key_bp)
         app.register_blueprint(account_preference_bp)
+        app.register_blueprint(tenancy_bp)
+        app.register_blueprint(todos_bp)
+        app.register_blueprint(billing_bp)
+        app.register_blueprint(plans_bp)
+        app.register_blueprint(infra_database_bp)
         app.register_blueprint(app_api_bp)
         app.register_blueprint(uploads_bp)
         app.register_blueprint(brand_bp)
