@@ -281,7 +281,7 @@ watch(
             <Button
               variant="ghost"
               icon-left="lucide-x"
-              :aria-label="t('shared.close')"
+              :label="t('shared.close')"
               class="sm:hidden"
               @click="open = false"
             />
@@ -336,7 +336,7 @@ watch(
             <Button
               variant="ghost"
               icon-left="lucide-x"
-              :aria-label="t('shared.close')"
+              :label="t('shared.close')"
               class="sm:hidden"
               @click="open = false"
             />
@@ -386,7 +386,7 @@ watch(
             <Button
               variant="ghost"
               icon-left="lucide-x"
-              :aria-label="t('shared.close')"
+              :label="t('shared.close')"
               class="sm:hidden"
               @click="open = false"
             />
@@ -448,7 +448,7 @@ watch(
             <Button
               variant="ghost"
               icon-left="lucide-x"
-              :aria-label="t('shared.close')"
+              :label="t('shared.close')"
               class="sm:hidden"
               @click="open = false"
             />
@@ -502,7 +502,7 @@ watch(
             <Button
               variant="ghost"
               icon-left="lucide-x"
-              :aria-label="t('shared.close')"
+              :label="t('shared.close')"
               class="sm:hidden"
               @click="open = false"
             />
