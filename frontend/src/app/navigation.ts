@@ -8,6 +8,8 @@ export interface NavItem {
   route: RouteDestination
   /** Role gate evaluated in menuStore against auth + org membership. */
   gate?: 'superadmin' | 'owner' | 'superadminOrOwner'
+  /** Feature flag evaluated in menuStore via tenancy.hasFeature(flag). */
+  feature?: string
 }
 
 export interface MenuPreference {

@@ -193,7 +193,8 @@
     "noRoles": "No roles assigned",
     "currentOrg": "Current organization",
     "orgFeaturesNote": "This is the organization your features are resolved from.",
-    "noOrg": "You are not a member of any organization yet.",
+    "noOrgEmpty": "You are not a member of any organization yet — create one to get started.",
+    "noOrgFeature": "No active organization — features are resolved per organization, so nothing is available yet.",
     "advancedReporting": "Advanced reporting",
     "reportingEnabled": "Enabled for this organization.",
     "checkingPlan": "Checking plan…",
@@ -432,7 +433,7 @@
       "makeDefault": "Make default",
       "open": "Open organization",
       "defaultUpdated": "Default organization updated",
-      "empty": "You are not a member of any organization yet."
+      "emptyOnboarding": "You are not a member of any organization yet — create your first organization or redeem an invite code to get started."
     },
     "console": {
       "settings": "Settings",
@@ -538,7 +539,7 @@
     "new": "New todo",
     "searchPlaceholder": "Search todos…",
     "retry": "Retry",
-    "noOrg": "You are not a member of any organization yet.",
+    "noOrgFeature": "To-dos need an active organization — join or create one to use them.",
     "empty": "No todos yet.",
     "emptyFiltered": "No todos match your filters.",
     "filter": {

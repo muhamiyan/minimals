@@ -190,7 +190,7 @@ async function confirmDelete(): Promise<void> {
       v-if="!org"
       class="rounded-6 border border-outline-gray-1 bg-surface-elevation-2 px-5 py-10 text-center text-p-sm text-ink-gray-5"
     >
-      {{ t('todos.noOrg') }}
+      {{ t('todos.noOrgFeature') }}
     </div>
 
     <div
