@@ -34,6 +34,7 @@ export const useMenuStore = defineStore('menu', () => {
   let generation = 0
 
   function allowed(item: NavItem): boolean {
+    if (item.feature && !tenancy.hasFeature(item.feature)) return false
     if (!item.gate) return true
     const isOwner = tenancy.currentOrg?.myRole === 'owner'
     const isSuperadmin = auth.user?.appRole === 'superadmin'

@@ -193,7 +193,8 @@
     "noRoles": "Belum ada peran",
     "currentOrg": "Organisasi saat ini",
     "orgFeaturesNote": "Organisasi tempat fitur Anda diresolusi.",
-    "noOrg": "Anda belum menjadi anggota organisasi mana pun.",
+    "noOrgEmpty": "Anda belum menjadi anggota organisasi mana pun — buat satu untuk memulai.",
+    "noOrgFeature": "Tidak ada organisasi aktif — fitur diresolusi per organisasi, jadi belum ada yang tersedia.",
     "advancedReporting": "Laporan lanjutan",
     "reportingEnabled": "Aktif untuk organisasi ini.",
     "checkingPlan": "Memeriksa paket…",
@@ -432,7 +433,7 @@
       "makeDefault": "Jadikan utama",
       "open": "Buka organisasi",
       "defaultUpdated": "Organisasi utama diperbarui",
-      "empty": "Anda belum menjadi anggota organisasi mana pun."
+      "emptyOnboarding": "Anda belum menjadi anggota organisasi mana pun — buat organisasi pertama Anda atau tukarkan kode undangan untuk memulai."
     },
     "console": {
       "settings": "Pengaturan",
@@ -538,7 +539,7 @@
     "new": "Tugas baru",
     "searchPlaceholder": "Cari tugas…",
     "retry": "Coba lagi",
-    "noOrg": "Anda belum menjadi anggota organisasi mana pun.",
+    "noOrgFeature": "Tugas membutuhkan organisasi aktif — bergabung atau buat organisasi untuk menggunakannya.",
     "empty": "Belum ada tugas.",
     "emptyFiltered": "Tidak ada tugas yang cocok dengan filter.",
     "filter": {

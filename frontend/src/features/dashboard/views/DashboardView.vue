@@ -75,7 +75,13 @@ onMounted(() => {
         </div>
         <p class="mt-2 text-p-sm text-ink-gray-5">{{ t('dash.orgFeaturesNote') }}</p>
       </template>
-      <p v-else class="mt-3 text-p-sm text-ink-gray-5">{{ t('dash.noOrg') }}</p>
+      <p v-else class="mt-3 text-p-sm text-ink-gray-5">
+        {{
+          tenancy.myOrgsLoaded
+            ? t('dash.noOrgEmpty')
+            : t('dash.noOrgFeature')
+        }}
+      </p>
     </div>
 
     <div class="rounded-6 border border-outline-gray-1 bg-surface-elevation-2 p-5">
