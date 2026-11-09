@@ -18,9 +18,9 @@ berubah; kompatibilitas antar versi belum dijanjikan.
 ## Highlights
 
 - **White-label & SEO** — brand (nama, tagline, deskripsi, site URL, bahasa)
-  diatur sekali di wizard, di-inject server-side ke `<title>`/meta/robots/
-  Open Graph, plus label SPA & judul/meta description per halaman. Default
-  seluruh stack "Minimals".
+  diatur sekali di wizard; logo diganti admin dari Pengaturan. Semuanya
+  di-inject server-side ke `<title>`/meta/robots/Open Graph, plus label SPA &
+  judul/meta description per halaman. Default seluruh stack "Minimals".
 - **Auth lengkap** — session + API key, role admin/member, dan **registration
   gate**: admin bisa menutup/membuka pendaftaran lewat API, efektif tanpa
   restart, untuk deployment invite-only.
@@ -69,6 +69,11 @@ URL** diisi (tidak pernah dari header `Host`).
 - Env: `SEO_INDEXABLE=false` → `noindex` + robots disallow; `APP_LANG` →
   fallback bahasa (`en` default). Preferensi pengunjung di cookie
   `minimals-lang`.
+- Logo (admin saja) diunggah dari **Pengaturan → Aplikasi → Brand**; dipakai
+  di sidebar, halaman masuk, favicon, dan `og:image` (saat Site URL diisi).
+  Sebelum diunggah, logo dipotong persegi di klien (geser + zoom, output PNG
+  ≤512px). Hanya URL `/uploads/*` hasil upload aplikasi yang diterima, dan file
+  lama dihapus saat logo diganti atau dikosongkan.
 - DB lama yang dibuat **sebelum** fitur ini tidak otomatis punya tabel
   `settings` — recreate DB, atau buat manual
   (`id CHAR(36) PK, key VARCHAR(64) UNIQUE, value TEXT DEFAULT ''`).

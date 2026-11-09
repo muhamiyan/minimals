@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, h, ref } from 'vue'
+import { computed, h, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import {
@@ -17,7 +17,8 @@ import {
 
 import { useAuthStore } from '@/features/auth/store'
 import ForbiddenDialog from '@/shared/components/ForbiddenDialog.vue'
-import { brand } from '@/shared/brand'
+import { brand, useBrandLogo } from '@/shared/brand'
+import { useMenuStore } from './menuStore'
 import { useMediaQuery } from './useMediaQuery'
 import ThemeSwitcher from './ThemeSwitcher.vue'
 import UserSettingsDialog from './UserSettingsDialog.vue'
@@ -25,7 +26,17 @@ import UserSettingsDialog from './UserSettingsDialog.vue'
 const router = useRouter()
 const route = useRoute()
 const auth = useAuthStore()
+const menu = useMenuStore()
 const { t } = useI18n()
+
+watch(
+  () => auth.user?.id,
+  (userId) => {
+    if (userId) menu.fetchPreference()
+    else menu.reset()
+  },
+  { immediate: true },
+)
 
 const isFullscreen = computed(
   () => route.meta.fullscreen === true || route.query.fullscreen === '1',
@@ -34,6 +45,8 @@ const isFullscreen = computed(
 const isDesktop = useMediaQuery('(min-width: 640px)')
 
 const displayName = computed(() => auth.user?.fullName || auth.user?.email || '')
+
+const { logoSrc, onLogoError } = useBrandLogo()
 
 const sidebarCollapsed = ref(false)
 const settingsOpen = ref(false)
@@ -78,13 +91,31 @@ async function onLogout() {
           :title="brand.name"
           :subtitle="displayName"
           :menu-items="headerMenu"
-        />
+        >
+          <template #prefix>
+            <img
+              v-if="logoSrc"
+              :src="logoSrc"
+              alt="Logo"
+              class="h-full w-full object-cover"
+              @error="onLogoError"
+            />
+            <div
+              v-else
+              class="flex h-full w-full items-center justify-center bg-surface-gray-4 text-ink-gray-7"
+            >
+              {{ brand.name.charAt(0).toUpperCase() }}
+            </div>
+          </template>
+        </SidebarHeader>
         <div class="flex-1 overflow-y-auto space-y-0.5 px-2 pb-2">
           <SidebarSection :label="t('menu.section')">
             <SidebarItem
-              :label="t('nav.dashboard')"
-              icon="lucide-house"
-              :route="{ name: 'Dashboard' }"
+              v-for="item in menu.items"
+              :key="item.key"
+              :label="t(item.labelKey)"
+              :icon="item.icon"
+              :route="item.route"
             />
           </SidebarSection>
           <SidebarSection v-if="auth.user?.appRole === 'admin'">
@@ -110,9 +141,11 @@ async function onLogout() {
     <template #nav>
       <MobileNav>
         <MobileNavItem
-          :label="t('nav.home')"
-          icon="lucide-house"
-          :route="{ name: 'Dashboard' }"
+          v-for="item in menu.items"
+          :key="item.key"
+          :label="t(item.mobileLabelKey ?? item.labelKey)"
+          :icon="item.icon"
+          :route="item.route"
         />
         <MobileNavItem
           v-if="auth.user?.appRole === 'admin'"

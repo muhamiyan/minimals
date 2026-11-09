@@ -156,6 +156,8 @@ Tidak ada CLI generator di project ini (berbeda dengan root `cells`).
 | POST | /api/v1/account/api-keys | Create API key (session) |
 | GET | /api/v1/account/api-keys | List API keys (session) |
 | DELETE | /api/v1/account/api-keys/:id | Revoke API key (session) |
+| GET | /api/v1/account/menu-preferences | Menu order/visibility (session) |
+| PUT | /api/v1/account/menu-preferences | Save menu order/visibility (session) |
 | GET | /api/v1/app/ping | Liveness of the read API (public) |
 | GET | /api/v1/app/users | Cross-service read API (internal token or admin) |
 | GET | /api/v1/app/roles | Cross-service read API (internal token or admin) |
@@ -167,6 +169,7 @@ Tidak ada CLI generator di project ini (berbeda dengan root `cells`).
 | POST | /api/v1/blog/posts | Create post (admin) |
 | PATCH | /api/v1/blog/posts/:slug | Update post (admin) |
 | DELETE | /api/v1/blog/posts/:slug | Delete post (admin) |
+| PUT | /api/v1/brand/logo | Set or clear the brand logo (admin, stored upload only) |
 | GET | /robots.txt | Crawler instructions, brand-driven (public) |
 | GET | /sitemap.xml | Canonical site URL for crawlers (public) |
 | GET | /health | Health check (public) |
@@ -367,6 +370,18 @@ src/
   `route.<Name>.*` di **kedua** locale.
 - **401 global**: interceptor fire event `auth:unauthorized` → router
   redirect. **Jangan** tangani 401 per-request.
+- **Async readiness gate di View**: template utama dirender hanya setelah
+  fetch backend selesai, cegah flash UI default. Pola kanonik per View:
+  `const gateReady = computed(...)` dari state store yang sudah ada
+  (tanpa ubah store/API), `onMounted` fetch jika belum terisi, lalu
+  `<Spinner v-if="!gateReady" />` + `<div v-else>...</div>`.
+  Contoh: Dashboard `auth.checked`; Setup
+  `setup.status !== null || setup.statusFailed`; Login
+  `auth.checked && auth.registrationMode !== null`; Register
+  `!!auth.user || auth.registrationMode !== null`. Wajib fail-safe:
+  error fetch tetap membuka gate (store harus set flag `checked`/
+  `statusFailed` di `finally`), jangan spinner selamanya. Jangan
+  tambah `gateReady` ke store kalau computed view cukup.
 - **Ikon**: `lucide-*` (string, via unplugin-icons). Shape:
   `<span class="lucide-log-in size-6" aria-hidden="true" />` atau
   `:icon-left="'lucide-log-in'"`.
@@ -428,10 +443,10 @@ Ini gotcha paling sering terlewat.
 13. **Migrasi on boot jalan di dalam `create_app()`**, sebelum
     `ensure_member_role()` — jangan panggil `run_migrations()` lagi di
     `run.py`, dan jangan seed sebelum migrasi.
-14. **Brand/SEO** — `<title>`, meta description, robots, canonical, OG di
-    `index.html` di-inject server-side (`app/infra/seo.py` →
-    `_apply_seo`); sumber kebenaran = tabel `settings`. `<title>` di
-    `frontend/index.html` hanya fallback dev. SPA membaca
+14. **Brand/SEO** — `<title>`, meta description, robots, canonical, OG,
+    favicon, dan `og:image` logo di `index.html` di-inject server-side
+    (`app/infra/seo.py` → `_apply_seo`); sumber kebenaran = tabel `settings`.
+    `<title>` di `frontend/index.html` hanya fallback dev. SPA membaca
     `window.brand`; `seo` tidak pernah jadi window global.
 
 ## Deployment
