@@ -1,16 +1,16 @@
-"""Todo services — business logic for organization todos."""
+"""Todo services — business logic for organization todo."""
 from __future__ import annotations
 
 from app.infra.audit import log as audit_log
-from app.todos.dto import TodoCreateIn, TodoUpdateIn
-from app.todos.models import Todo
-from app.todos.repositories import TodoRepository
+from app.todo.dto import TodoCreateIn, TodoUpdateIn
+from app.todo.models import Todo
+from app.todo.repositories import TodoRepository
 from framework.base import ServiceBase
 from framework.exceptions import NotFound
 
 
 class TodoService(ServiceBase[TodoRepository]):
-    """Business logic for org-shared todos."""
+    """Business logic for org-shared todo."""
 
     repository_class = TodoRepository
 
@@ -51,7 +51,7 @@ class TodoService(ServiceBase[TodoRepository]):
         audit_log(
             "todo_created",
             user_id=actor_id,
-            resource=f"todos/{todo.id}",
+            resource=f"todo/{todo.id}",
             details={"organization_id": org_id, "title": todo.title},
         )
         self._commit()
@@ -64,7 +64,7 @@ class TodoService(ServiceBase[TodoRepository]):
         audit_log(
             "todo_updated",
             user_id=actor_id,
-            resource=f"todos/{todo.id}",
+            resource=f"todo/{todo.id}",
             details={
                 "organization_id": todo.organization_id,
                 "changed": sorted(data),
@@ -77,7 +77,7 @@ class TodoService(ServiceBase[TodoRepository]):
         audit_log(
             "todo_deleted",
             user_id=actor_id,
-            resource=f"todos/{todo.id}",
+            resource=f"todo/{todo.id}",
             details={"organization_id": todo.organization_id, "title": todo.title},
         )
         self._repo.delete(todo)

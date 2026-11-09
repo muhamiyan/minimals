@@ -18,10 +18,10 @@ class Todo(db.Model):
     """A todo shared by every member of one organization.
 
     ``created_by`` is a bare user id (like ``organizations.created_by``):
-    removing a user must not delete the organization's todos.
+    removing a user must not delete the organization's todo.
     """
 
-    __tablename__ = "todos"
+    __tablename__ = "todo"
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_uuid)
     organization_id: Mapped[str] = mapped_column(

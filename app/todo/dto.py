@@ -1,4 +1,4 @@
-"""Todo input DTOs — validation for organization todos."""
+"""Todo input DTOs — validation for organization todo."""
 from __future__ import annotations
 
 from datetime import date

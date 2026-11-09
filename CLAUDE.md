@@ -86,7 +86,7 @@ di-inject ke `AccountService`. Referensi: `app/account/services.py` constructor.
 > [`TENANCY.md`](TENANCY.md) — maksud desain, dua konsep role (`app_role` vs
 > membership), matriks guard per endpoint, dan decision log yang sudah
 > disetujui. **Baca sebelum mengubah `app/tenancy/`, `app/billing/`,
-> `app/todos/`, atau `frontend/src/features/{tenancy,billing,todos}`.**
+> `app/todo/`, atau `frontend/src/features/{tenancy,billing,todo}`.**
 
 ### Base classes (dari `framework/base`)
 
@@ -184,10 +184,12 @@ Tidak ada CLI generator di project ini (berbeda dengan root `cells`).
 | PUT | /api/v1/tenancy/my-organizations/default | Set the caller's default organization (session) |
 | GET | /api/v1/tenancy/settings | Platform settings — member quota (superadmin) |
 | PUT | /api/v1/tenancy/settings | Update member quota, 0 = no limit (superadmin) |
-| GET | /api/v1/todos/organizations/:orgId | List organization todos (paginated, `?search=&completed=&page=&per_page=`), requires `todos` feature (superadmin or member) |
-| POST | /api/v1/todos/organizations/:orgId | Create a todo, requires `todos` feature (superadmin or member) |
-| PUT | /api/v1/todos/organizations/:orgId/:todoId | Update a todo, partial update, requires `todos` feature (superadmin or member) |
-| DELETE | /api/v1/todos/organizations/:orgId/:todoId | Delete a todo, requires `todos` feature (superadmin or member) |
+| GET | /api/v1/tenancy/settings/modes | Domain operational modes (session) |
+| PUT | /api/v1/tenancy/settings/domains/:domain | Set a domain operational mode (superadmin) |
+| GET | /api/v1/todo/organizations/:orgId | List organization todos (paginated, `?search=&completed=&page=&per_page=`), requires `todo` feature (superadmin or member) |
+| POST | /api/v1/todo/organizations/:orgId | Create a todo, requires `todo` feature (superadmin or member) |
+| PUT | /api/v1/todo/organizations/:orgId/:todoId | Update a todo, partial update, requires `todo` feature (superadmin or member) |
+| DELETE | /api/v1/todo/organizations/:orgId/:todoId | Delete a todo, requires `todo` feature (superadmin or member) |
 | GET | /api/v1/plans | List plans (paginated, `?search=&page=&per_page=`), optional `?tier=` filter (superadmin) |
 | GET | /api/v1/plans/features | Feature registry keys for the plan editor (superadmin) |
 | POST | /api/v1/plans | Create a plan (superadmin) |

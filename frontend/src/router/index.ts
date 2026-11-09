@@ -19,8 +19,8 @@ import { usePlansStore } from '@/features/plans/store'
 import { setupRoutes } from '@/features/setup/routes'
 import { tenancyRoutes } from '@/features/tenancy/routes'
 import { useTenancyStore } from '@/features/tenancy/store'
-import { todosRoutes } from '@/features/todos/routes'
-import { useTodosStore } from '@/features/todos/store'
+import { todoRoutes } from '@/features/todo/routes'
+import { useTodoStore } from '@/features/todo/store'
 import { brand } from '@/shared/brand'
 import { authGuard } from './guard'
 
@@ -32,7 +32,7 @@ const routes: RouteRecordRaw[] = [
     component: AppShell,
     children: [
       ...dashboardRoutes,
-      ...todosRoutes,
+      ...todoRoutes,
       ...tenancyRoutes,
       ...plansRoutes,
       ...billingRoutes,
@@ -86,7 +86,7 @@ window.addEventListener('auth:unauthorized', () => {
   useTenancyStore().resetMyOrgs()
   useBillingStore().reset()
   usePlansStore().reset()
-  useTodosStore().reset()
+  useTodoStore().reset()
   const current = router.currentRoute.value
   if (current.matched.length > 0 && current.meta.requiresAuth) {
     router.replace({ path: '/login', query: { redirect: current.fullPath } })

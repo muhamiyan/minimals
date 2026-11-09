@@ -7,7 +7,7 @@
     "plans": "Plans",
     "billing": "Billing",
     "infrastructure": "Infrastructure",
-    "todos": "To-dos"
+    "todo": "To-dos"
   },
   "menu": {
     "theme": "Theme",
@@ -88,7 +88,7 @@
     "plans": "Plans",
     "infrastructure": "Infrastructure",
     "billing": "Billing",
-    "todos": "To-dos"
+    "todo": "To-dos"
   },
   "route": {
     "Login": {
@@ -107,7 +107,7 @@
       "title": "Dashboard",
       "description": "Your account overview: profile and roles."
     },
-    "ToDos": {
+    "ToDo": {
       "title": "To-dos",
       "description": "Shared task list for the organization."
     },
@@ -406,7 +406,7 @@
       "advanced_reporting": "Advanced reporting",
       "priority_support": "Priority support",
       "custom_domain": "Custom domain",
-      "todos": "Organization to-dos"
+      "todo": "Organization to-dos"
     },
     "fields": {
       "name": "Name",
@@ -444,7 +444,7 @@
       "saveSettings": "Failed to save settings"
     },
     "domains": {
-      "todos": "To-dos",
+      "todo": "To-dos",
       "billing": "Billing",
       "plans": "Plans",
       "tenancy": "Tenancy",
@@ -563,7 +563,7 @@
       "checkNotFound": "Still no organization — create one or use an invite code"
     }
   },
-  "todos": {
+  "todo": {
     "new": "New todo",
     "searchPlaceholder": "Search todos…",
     "retry": "Retry",
