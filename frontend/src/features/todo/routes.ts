@@ -7,7 +7,7 @@ export const todoRoutes: RouteRecordRaw[] = [
     component: () => import('./views/ToDoView.vue'),
     meta: {
       requiresAuth: true,
-      title: 'To-dos',
+      title: 'Todo',
       description: 'Shared task list for the organization.',
     },
   },

@@ -1,4 +1,4 @@
-"""Tests for organization-shared todos — CRUD, filters, and feature gating."""
+"""Tests for organization-shared todo — CRUD, filters, and feature gating."""
 from __future__ import annotations
 
 from conftest import csrf_client

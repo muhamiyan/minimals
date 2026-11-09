@@ -371,7 +371,7 @@ tidak pernah diaktifkan otomatis. Subscription tanpa expiry (legacy /
 | Menu | Syarat |
 |---|---|
 | Organizations | owner di **org aktif** |
-| To-dos | **selalu tampil** — gate fitur ada di halaman, bukan di menu |
+| Todo | **selalu tampil** — gate fitur ada di halaman, bukan di menu |
 | Billing | owner di **org aktif** **atau** `appRole === 'superadmin'` |
 | Tenancy, Plans, Infrastructure | `appRole === 'superadmin'` |
 

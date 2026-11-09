@@ -7,7 +7,7 @@
     "plans": "Plans",
     "billing": "Billing",
     "infrastructure": "Infrastructure",
-    "todo": "To-dos"
+    "todo": "Todo"
   },
   "menu": {
     "theme": "Theme",
@@ -88,7 +88,7 @@
     "plans": "Plans",
     "infrastructure": "Infrastructure",
     "billing": "Billing",
-    "todo": "To-dos"
+    "todo": "Todo"
   },
   "route": {
     "Login": {
@@ -108,7 +108,7 @@
       "description": "Your account overview: profile and roles."
     },
     "ToDo": {
-      "title": "To-dos",
+      "title": "Todo",
       "description": "Shared task list for the organization."
     },
     "Onboarding": {
@@ -406,7 +406,7 @@
       "advanced_reporting": "Advanced reporting",
       "priority_support": "Priority support",
       "custom_domain": "Custom domain",
-      "todo": "Organization to-dos"
+      "todo": "Organization todo"
     },
     "fields": {
       "name": "Name",
@@ -444,7 +444,7 @@
       "saveSettings": "Failed to save settings"
     },
     "domains": {
-      "todo": "To-dos",
+      "todo": "Todo",
       "billing": "Billing",
       "plans": "Plans",
       "tenancy": "Tenancy",
@@ -565,11 +565,11 @@
   },
   "todo": {
     "new": "New todo",
-    "searchPlaceholder": "Search todos…",
+    "searchPlaceholder": "Search todo…",
     "retry": "Retry",
-    "noOrgFeature": "To-dos need an active organization — join or create one to use them.",
-    "empty": "No todos yet.",
-    "emptyFiltered": "No todos match your filters.",
+    "noOrgFeature": "Todo need an active organization — join or create one to use them.",
+    "empty": "No todo yet.",
+    "emptyFiltered": "No todo match your filters.",
     "filter": {
       "all": "All statuses",
       "open": "Open",
@@ -619,17 +619,17 @@
       "title": "Title is required"
     },
     "errors": {
-      "list": "Failed to load todos",
+      "list": "Failed to load todo",
       "save": "Failed to save todo",
       "delete": "Failed to delete todo"
     },
     "upsell": {
-      "title": "To-dos are not enabled",
-      "description": "The organization's plan does not include shared to-dos. Ask an administrator to enable this feature."
+      "title": "Todo are not enabled",
+      "description": "The organization's plan does not include shared todo. Ask an administrator to enable this feature."
     },
-    "maintenance": "To-dos are under maintenance.",
+    "maintenance": "Todo are under maintenance.",
     "maintenanceHint": "This feature is paused while the domain is in maintenance mode.",
-    "dev": "To-dos are in development.",
+    "dev": "Todo are in development.",
     "devHint": "This feature is work-in-progress — data may change without notice."
   },
   "infra": {
