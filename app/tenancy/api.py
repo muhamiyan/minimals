@@ -6,6 +6,7 @@ from flask_login import current_user, login_required
 
 from app.tenancy.dto import (
     DefaultOrgIn,
+    DomainModeUpdateIn,
     InviteCodeCreateIn,
     InviteRedeemIn,
     MemberAddIn,
@@ -102,13 +103,26 @@ def update_organization(org_id: str):
 
 
 # --- platform settings ---------------------------------------------------
+@bp.get("/settings/modes")
+@login_required
+def get_domain_modes():
+    """Operational mode per domain — readable by any signed-in user so every
+    tenant-facing page can show the right “why disabled” reason."""
+    return ok({"domainModes": TenancyService().get_domain_modes()})
+
+
 @bp.get("/settings")
 @login_required
 def get_settings():
     if denied := require_role("superadmin"):
         return denied
 
-    return ok(SettingsOut.build(TenancyService().get_members_limit()).to_dict())
+    svc = TenancyService()
+    return ok(
+        SettingsOut.build(
+            svc.get_members_limit(), svc.get_domain_modes()
+        ).to_dict()
+    )
 
 
 @bp.put("/settings")
@@ -118,8 +132,27 @@ def update_settings():
         return denied
 
     dto = SettingMembersLimitIn.validate(request.get_json(silent=True) or {})
-    limit = TenancyService().set_members_limit(dto, actor_id=current_user.id)
-    return ok(SettingsOut.build(limit).to_dict())
+    svc = TenancyService()
+    limit = svc.set_members_limit(dto, actor_id=current_user.id)
+    return ok(SettingsOut.build(limit, svc.get_domain_modes()).to_dict())
+
+
+@bp.put("/settings/domains/<domain>")
+@login_required
+def update_domain_mode(domain: str):
+    if denied := require_role("superadmin"):
+        return denied
+
+    from app.tenancy.services import DOMAIN_MODE_KEYS
+
+    if domain not in DOMAIN_MODE_KEYS:
+        from framework.api import error as _error
+
+        return _error("invalid_domain", 400)
+
+    dto = DomainModeUpdateIn.validate(request.get_json(silent=True) or {})
+    modes = TenancyService().set_domain_mode(domain, dto, actor_id=current_user.id)
+    return ok(SettingsOut.build(0, modes).to_dict())
 
 
 # --- subscription -------------------------------------------------------
