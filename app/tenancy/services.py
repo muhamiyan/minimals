@@ -14,6 +14,7 @@ from app.plans.models import DEFAULT_TIER
 from app.plans.repositories import PlanRepository
 from app.tenancy.dto import (
     DefaultOrgIn,
+    DomainModeUpdateIn,
     InviteCodeCreateIn,
     InviteRedeemIn,
     MemberAddIn,
@@ -57,6 +58,12 @@ MEMBERS_LIMIT_KEY = "members_limit"
 DEFAULT_MEMBERS_LIMIT = 0
 # Retries for the first-write race on the settings row (see set_members_limit).
 SETTINGS_ATTEMPTS = 3
+
+# Domain operational mode, stored per-domain as ``domain_mode_<name>`` rows.
+# Values are validated against DOMAIN_MODES in dto.py.
+DOMAIN_MODE_PREFIX = "domain_mode_"
+DOMAIN_MODE_KEYS = ("todos", "billing", "plans", "tenancy", "infra")
+DEFAULT_DOMAIN_MODE = "enabled"
 
 
 def _new_invite_code() -> str:
@@ -353,6 +360,39 @@ class TenancyService(ServiceBase[OrganizationRepository]):
             except Conflict:
                 continue
             return dto.members_limit
+        raise Conflict("settings_update_failed")
+
+    def get_domain_modes(self) -> dict[str, str]:
+        """Operational mode per domain; corrupt/missing rows degrade to enabled."""
+        from app.tenancy.dto import DOMAIN_MODES
+
+        result: dict[str, str] = {}
+        for name in DOMAIN_MODE_KEYS:
+            raw = self._settings.get_value(DOMAIN_MODE_PREFIX + name)
+            if raw in DOMAIN_MODES:
+                result[name] = raw
+            else:
+                result[name] = DEFAULT_DOMAIN_MODE
+        return result
+
+    def set_domain_mode(
+        self, domain: str, dto: DomainModeUpdateIn, *, actor_id: str
+    ) -> dict[str, str]:
+        """Set one domain's mode (superadmin). Validation happens in DTO."""
+        key = DOMAIN_MODE_PREFIX + domain
+        for _ in range(SETTINGS_ATTEMPTS):
+            self._settings.set_value(key, dto.mode)
+            audit_log(
+                "domain_mode_updated",
+                user_id=actor_id,
+                resource=f"tenancy/settings/domain:{domain}",
+                details={"mode": dto.mode},
+            )
+            try:
+                self._commit()
+            except Conflict:
+                continue
+            return self.get_domain_modes()
         raise Conflict("settings_update_failed")
 
     # --- members ------------------------------------------------------
