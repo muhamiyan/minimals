@@ -328,6 +328,7 @@ export const useBillingStore = defineStore('billing', () => {
     try {
       const { data } = await api.get<Paged<Invoice>>(
         `/billing/organizations/${orgId}/invoices`,
+        { params: { per_page: 5 } },
       )
       if (seq !== orgInvoicesSeq) return
       orgInvoices.value = data.items ?? []

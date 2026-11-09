@@ -48,6 +48,17 @@ const store = useTodosStore()
 
 const org = computed(() => tenancy.currentOrg)
 const featureOn = computed(() => tenancy.hasFeature('todos'))
+const domainMode = computed(() => tenancy.domainMode('todos'))
+const disabledReasonTitle = computed(() => {
+  if (domainMode.value === 'maintenance') return t('todos.maintenance')
+  if (domainMode.value === 'dev') return t('todos.dev')
+  return t('todos.upsell.title')
+})
+const disabledReasonHint = computed(() => {
+  if (domainMode.value === 'maintenance') return t('todos.maintenanceHint')
+  if (domainMode.value === 'dev') return t('todos.devHint')
+  return t('todos.upsell.description')
+})
 
 const status = ref<TodoStatusFilter>('all')
 const statusOptions = computed(() => [
@@ -76,6 +87,7 @@ function onStatusChange(value: SelectOptionValue | null | undefined): void {
 
 onMounted(() => {
   if (!tenancy.myOrgsLoaded) tenancy.fetchMyOrgs()
+  tenancy.fetchDomainModes()
 })
 
 // Feature flags resolve per organization: reset first so rows from the
@@ -217,8 +229,8 @@ async function confirmDelete(): Promise<void> {
       v-else-if="!featureOn"
       class="space-y-1 rounded-6 border border-outline-gray-1 bg-surface-elevation-2 p-6"
     >
-      <div class="text-base-medium text-ink-gray-8">{{ t('todos.upsell.title') }}</div>
-      <p class="text-p-sm text-ink-gray-5">{{ t('todos.upsell.description') }}</p>
+      <div class="text-base-medium text-ink-gray-8">{{ disabledReasonTitle }}</div>
+      <p class="text-p-sm text-ink-gray-5">{{ disabledReasonHint }}</p>
     </div>
 
     <template v-else>

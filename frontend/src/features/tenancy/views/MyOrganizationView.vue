@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 import { Badge, Button, ErrorMessage, PageHeader, Spinner } from 'frappe-ui'
@@ -12,14 +12,16 @@ import {
   ListRows,
 } from 'frappe-ui/list'
 
-import {
-  invoiceStatusLabel,
-  invoiceStatusTheme,
-  useBillingStore,
-} from '@/features/billing/store'
 import ListHead from '@/shared/components/ListHead.vue'
 import PageBreadcrumbs from '@/shared/components/PageBreadcrumbs.vue'
 import { formatDate, formatRupiah } from '@/shared/format'
+import InvoicePrintDialog from '@/features/billing/components/InvoicePrintDialog.vue'
+import {
+  invoiceStatusLabel,
+  invoiceStatusTheme,
+  type Invoice,
+  useBillingStore,
+} from '@/features/billing/store'
 
 import InviteCodesPanel from '../components/InviteCodesPanel.vue'
 import MembersPanel from '../components/MembersPanel.vue'
@@ -33,10 +35,10 @@ import {
   type Organization,
 } from '../store'
 
-// base: Invoice, Amount — md: + Period, Status
+// base: Invoice, Amount, Actions — md: + Period, Status
 const invoiceColumns: ListColumnsByBreakpoint = {
-  base: ['minmax(0,1fr)', '120px'],
-  md: ['minmax(0,1fr)', '130px', '120px', '100px'],
+  base: ['minmax(0,1fr)', '120px', '120px'],
+  md: ['minmax(0,1fr)', '130px', '120px', '100px', '120px'],
 }
 
 const route = useRoute()
@@ -55,6 +57,14 @@ const org = computed<Organization | null>(
 )
 
 const isOwner = computed(() => org.value?.myRole === 'owner')
+
+const printInvoice = ref<Invoice | null>(null)
+const printOpen = ref(false)
+
+function openPrint(invoice: Invoice): void {
+  printInvoice.value = invoice
+  printOpen.value = true
+}
 
 watch(
   () => org.value?.id,
@@ -174,6 +184,9 @@ watch(
               <ListHeaderCell class="hidden md:flex">
                 {{ t('billing.columns.status') }}
               </ListHeaderCell>
+              <ListHeaderCell class="justify-end">
+                <span class="sr-only">{{ t('billing.columns.actions') }}</span>
+              </ListHeaderCell>
             </ListHead>
             <ListRows :items="billing.orgInvoices" row-key="id" v-slot="{ item }">
               <ListRow>
@@ -202,6 +215,14 @@ watch(
                     :label="invoiceStatusLabel(item.status)"
                     :theme="invoiceStatusTheme(item.status)"
                     variant="subtle"
+                  />
+                </ListCell>
+                <ListCell class="justify-end">
+                  <Button
+                    icon="lucide-printer"
+                    :label="t('billing.actions.print')"
+                    variant="ghost"
+                    @click="openPrint(item)"
                   />
                 </ListCell>
               </ListRow>
@@ -245,5 +266,7 @@ watch(
         :route="{ name: 'MyOrganizations' }"
       />
     </div>
+
+    <InvoicePrintDialog v-model:open="printOpen" :invoice="printInvoice" />
   </div>
 </template>

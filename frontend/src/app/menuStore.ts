@@ -35,9 +35,19 @@ export const useMenuStore = defineStore('menu', () => {
 
   function allowed(item: NavItem): boolean {
     if (item.feature && !tenancy.hasFeature(item.feature)) return false
+    const isSuperadmin = auth.user?.appRole === 'superadmin'
+    // Domain mode only explains why a *feature* is disabled — it never
+    // hides the console menu from the superadmin who manages the plan.
+    // Superadmin bypasses mode; everyone else is hidden during maintenance.
+    if (
+      item.domain &&
+      !isSuperadmin &&
+      tenancy.domainMode(item.domain) === 'maintenance'
+    ) {
+      return false
+    }
     if (!item.gate) return true
     const isOwner = tenancy.currentOrg?.myRole === 'owner'
-    const isSuperadmin = auth.user?.appRole === 'superadmin'
     if (item.gate === 'owner') return isOwner
     if (item.gate === 'superadmin') return isSuperadmin
     return isSuperadmin || isOwner

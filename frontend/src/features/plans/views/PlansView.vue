@@ -28,7 +28,7 @@ import ListToolbar from '@/shared/components/ListToolbar.vue'
 import { useListControls } from '@/shared/composables/useListControls'
 import { formatDate, formatRupiah } from '@/shared/format'
 
-import { TIER_LABELS } from '@/features/tenancy/store'
+import { TIER_LABELS, useTenancyStore } from '@/features/tenancy/store'
 import { featureLabel } from '@/features/tenancy/validation'
 import {
   DURATION_UNITS,
@@ -46,12 +46,23 @@ const listColumns: ListColumnsByBreakpoint = {
 }
 
 const { t } = useI18n()
+const tenancy = useTenancyStore()
 const store = usePlansStore()
+const domainMode = computed(() => tenancy.domainMode('plans'))
+const isMaintenance = computed(() => domainMode.value === 'maintenance')
+const isDev = computed(() => domainMode.value === 'dev')
 
 const tierOptions = PLAN_TIERS.map((tier) => ({
   label: TIER_LABELS[tier] ?? tier,
   value: tier,
 }))
+
+const modeOptions = [
+  { label: 'Enabled', value: 'enabled' },
+  { label: 'Maintenance (features disabled)', value: 'maintenance' },
+  { label: 'Dev (work-in-progress)', value: 'dev' },
+]
+const modeInput = ref('enabled')
 const unitOptions = computed(() =>
   DURATION_UNITS.map((unit) => ({
     label: t(`plans.units.${unit}`),
@@ -90,11 +101,17 @@ const priceDescription = computed(() =>
     : t('plans.fields.priceProfessional'),
 )
 
+const MODE_DOMAINS = ['todos', 'billing', 'plans', 'tenancy', 'infra']
+
 function resetForm(): void {
   nameInput.value = ''
   durationInput.value = '1'
   priceInput.value = '0'
   featureToggles.value = {}
+  // Domain mode is GLOBAL per domain (not per-plan): the selected value
+  // is stored exactly under the domain that the disabled feature belongs
+  // to, and the list in the dialog reflects that global value on reopen.
+  modeInput.value = tenancy.domainMode('tenancy')
   nameError.value = ''
   durationError.value = ''
   priceError.value = ''
@@ -181,6 +198,17 @@ async function submit(): Promise<void> {
     : await store.createPlan(payload)
   if (!saved) return
 
+  // Domain mode is GLOBAL: pick a mode → it is stored under that
+  // domain key (tenancy → tenancy, todos → todos, etc.). Re-saving the
+  // same plan does not change its displayed mode unless the operator
+  // changed it here (idempotent).
+  const MODE_DOMAINS = ['todos', 'billing', 'plans', 'tenancy', 'infra']
+  const chosenMode = modeInput.value
+  if (MODE_DOMAINS.includes('tenancy') && chosenMode !== tenancy.domainMode('tenancy')) {
+    const ok = await tenancy.updateDomainMode('tenancy', chosenMode)
+    if (!ok) return
+  }
+
   formOpen.value = false
   toast.success(
     editing.value
@@ -212,6 +240,12 @@ async function confirmDelete(): Promise<void> {
 <template>
   <PageHeader>
     <PageBreadcrumbs />
+    <Badge
+      v-if="isDev"
+      :label="t('plans.dev')"
+      theme="violet"
+      variant="subtle"
+    />
     <Button
       :label="t('plans.new')"
       icon-left="lucide-plus"
@@ -419,6 +453,13 @@ async function confirmDelete(): Promise<void> {
               :label="featureLabel(key)"
             />
           </template>
+          <p class="text-p-xs text-ink-gray-5">{{ t('plans.domainModeDescription') }}</p>
+          <FormControl
+            v-model="modeInput"
+            type="select"
+            :label="t('plans.domainMode')"
+            :options="modeOptions"
+          />
         </div>
         <Switch
           v-model="form.isDefault"

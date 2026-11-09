@@ -10,6 +10,8 @@ export interface NavItem {
   gate?: 'superadmin' | 'owner' | 'superadminOrOwner'
   /** Feature flag evaluated in menuStore via tenancy.hasFeature(flag). */
   feature?: string
+  /** Domain key evaluated in menuStore via tenancy.domainMode(domain). */
+  domain?: string
 }
 
 export interface MenuPreference {
@@ -51,6 +53,7 @@ export const NAV_ITEMS: NavItem[] = [
     icon: 'lucide-layers',
     route: { name: 'Plans' },
     gate: 'superadmin',
+    domain: 'plans',
   },
   {
     key: 'Billing',
@@ -58,6 +61,7 @@ export const NAV_ITEMS: NavItem[] = [
     icon: 'lucide-credit-card',
     route: { name: 'Billing' },
     gate: 'superadminOrOwner',
+    domain: 'billing',
   },
   {
     key: 'Infrastructure',
@@ -65,6 +69,7 @@ export const NAV_ITEMS: NavItem[] = [
     icon: 'lucide-database',
     route: { name: 'Infrastructure' },
     gate: 'superadmin',
+    domain: 'infra',
   },
 ]
 

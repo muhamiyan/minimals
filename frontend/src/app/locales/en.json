@@ -204,6 +204,12 @@
     "new": "New plan",
     "retry": "Retry",
     "empty": "No plans yet.",
+    "maintenance": "Plans are under maintenance.",
+    "maintenanceHint": "The plan catalog is paused while this domain is in maintenance mode.",
+    "dev": "Plans are in development.",
+    "devHint": "This area is work-in-progress — data may change without notice.",
+    "domainMode": "Domain mode",
+    "domainModeDescription": "When a feature is off, this is the reason shown to users.",
     "default": "Default",
     "active": "Active",
     "inactive": "Inactive",
@@ -277,12 +283,25 @@
     "actions": {
       "settings": "Billing settings",
       "create": "Create invoice",
+      "print": "Print",
       "markPaid": "Mark paid",
       "void": "Void",
       "cancel": "Cancel",
       "save": "Save",
       "retry": "Retry"
     },
+    "print": {
+      "title": "Invoice {number}",
+      "organization": "Organization",
+      "tier": "Tier",
+      "currency": "Currency",
+      "issued": "Issued on",
+      "paid": "Paid on"
+    },
+    "maintenance": "Billing is under maintenance.",
+    "maintenanceHint": "Invoices are paused while this domain is in maintenance mode.",
+    "dev": "Billing is in development.",
+    "devHint": "This area is work-in-progress — data may change without notice.",
     "status": {
       "all": "All statuses",
       "issued": "Issued",
@@ -424,6 +443,13 @@
       "loadSettings": "Failed to load settings",
       "saveSettings": "Failed to save settings"
     },
+    "domains": {
+      "todos": "To-dos",
+      "billing": "Billing",
+      "plans": "Plans",
+      "tenancy": "Tenancy",
+      "infra": "Infrastructure"
+    },
     "myOrgs": {
       "organization": "Organization",
       "tier": "Tier",
@@ -457,7 +483,9 @@
       "membersLimit": "Max members per organization",
       "membersLimitDescription": "0 = no limit. Applies to every organization.",
       "invalidLimit": "Enter 0 (no limit) or a positive whole number",
-      "quotaUpdated": "Member quota updated"
+      "quotaUpdated": "Member quota updated",
+      "domainModeDescription": "enabled = fully available, maintenance = hidden from menu, dev = work-in-progress badge.",
+      "domainModeUpdated": "Domain modes updated"
     },
     "org": {
       "title": "Organization",
@@ -598,7 +626,11 @@
     "upsell": {
       "title": "To-dos are not enabled",
       "description": "The organization's plan does not include shared to-dos. Ask an administrator to enable this feature."
-    }
+    },
+    "maintenance": "To-dos are under maintenance.",
+    "maintenanceHint": "This feature is paused while the domain is in maintenance mode.",
+    "dev": "To-dos are in development.",
+    "devHint": "This feature is work-in-progress — data may change without notice."
   },
   "infra": {
     "db": {
