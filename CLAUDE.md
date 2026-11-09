@@ -364,6 +364,18 @@ src/
   `route.<Name>.*` di **kedua** locale.
 - **401 global**: interceptor fire event `auth:unauthorized` → router
   redirect. **Jangan** tangani 401 per-request.
+- **Async readiness gate di View**: template utama dirender hanya setelah
+  fetch backend selesai, cegah flash UI default. Pola kanonik per View:
+  `const gateReady = computed(...)` dari state store yang sudah ada
+  (tanpa ubah store/API), `onMounted` fetch jika belum terisi, lalu
+  `<Spinner v-if="!gateReady" />` + `<div v-else>...</div>`.
+  Contoh: Dashboard `auth.checked`; Setup
+  `setup.status !== null || setup.statusFailed`; Login
+  `auth.checked && auth.registrationMode !== null`; Register
+  `!!auth.user || auth.registrationMode !== null`. Wajib fail-safe:
+  error fetch tetap membuka gate (store harus set flag `checked`/
+  `statusFailed` di `finally`), jangan spinner selamanya. Jangan
+  tambah `gateReady` ke store kalau computed view cukup.
 - **Ikon**: `lucide-*` (string, via unplugin-icons). Shape:
   `<span class="lucide-log-in size-6" aria-hidden="true" />` atau
   `:icon-left="'lucide-log-in'"`.

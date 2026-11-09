@@ -1,12 +1,19 @@
 <script setup lang="ts">
+import { computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { Badge, PageHeader } from 'frappe-ui'
+import { Badge, PageHeader, Spinner } from 'frappe-ui'
 import PageBreadcrumbs from '@/shared/components/PageBreadcrumbs.vue'
 
 import { useAuthStore } from '@/features/auth/store'
 
 const auth = useAuthStore()
 const { t } = useI18n()
+
+const gateReady = computed(() => auth.checked)
+
+onMounted(async () => {
+  if (!auth.checked) await auth.fetchMe()
+})
 </script>
 
 <template>
@@ -14,7 +21,9 @@ const { t } = useI18n()
     <PageBreadcrumbs />
   </PageHeader>
 
-  <div class="mx-auto w-full max-w-6xl space-y-4 px-5 py-6">
+  <Spinner v-if="!gateReady" />
+
+  <div v-else class="mx-auto w-full max-w-6xl space-y-4 px-5 py-6">
     <div class="space-y-1 rounded-6 border border-outline-gray-1 bg-surface-elevation-2 p-5">
       <p class="text-p-sm text-ink-gray-5">{{ t('dash.welcomeBack') }}</p>
       <div class="text-xl-semibold text-ink-gray-8">
