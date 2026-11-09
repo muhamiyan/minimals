@@ -28,6 +28,7 @@ import PageBreadcrumbs from '@/shared/components/PageBreadcrumbs.vue'
 import ListFoot from '@/shared/components/ListFoot.vue'
 import ListHead from '@/shared/components/ListHead.vue'
 import ListToolbar from '@/shared/components/ListToolbar.vue'
+import InvoicePrintDialog from '../components/InvoicePrintDialog.vue'
 import { useListControls } from '@/shared/composables/useListControls'
 import { formatDate, formatRupiah } from '@/shared/format'
 
@@ -57,6 +58,9 @@ const router = useRouter()
 const { t } = useI18n()
 
 const isSuperadmin = computed(() => auth.user?.appRole === 'superadmin')
+const domainMode = computed(() => tenancy.domainMode('billing'))
+const isMaintenance = computed(() => domainMode.value === 'maintenance')
+const isDev = computed(() => domainMode.value === 'dev')
 
 const statusFilter = ref('')
 const orgFilter = ref('')
@@ -148,6 +152,15 @@ function onOrgFilter(value: SelectOptionValue | null | undefined): void {
   orgFilter.value = value ? String(value) : ''
   store.setPage(1)
   reload()
+}
+
+// --- print dialog --------------------------------------------------------
+const printInvoice = ref<Invoice | null>(null)
+const printOpen = ref(false)
+
+function openPrint(invoice: Invoice): void {
+  printInvoice.value = invoice
+  printOpen.value = true
 }
 
 // --- pay / void dialogs --------------------------------------------------
@@ -379,7 +392,13 @@ async function submitSettings(): Promise<void> {
 <template>
   <PageHeader>
     <PageBreadcrumbs />
-    <div v-if="isSuperadmin" class="flex items-center gap-2">
+    <Badge
+      v-if="isDev"
+      :label="t('billing.dev')"
+      theme="violet"
+      variant="subtle"
+    />
+    <div v-if="isSuperadmin && !isMaintenance" class="flex items-center gap-2">
       <Button
         :label="t('billing.actions.settings')"
         icon-left="lucide-settings"
@@ -474,25 +493,30 @@ async function submitSettings(): Promise<void> {
               </span>
             </ListCell>
             <ListCell class="hidden justify-end md:flex">
-              <div
-                v-if="isSuperadmin && item.status === 'issued'"
-                class="flex items-center justify-end gap-1"
-              >
+              <div class="flex items-center justify-end gap-1">
                 <Button
-                  icon="lucide-check"
-                  :label="t('billing.actions.markPaid')"
+                  icon="lucide-printer"
+                  :label="t('billing.actions.print')"
                   variant="ghost"
-                  :loading="store.actingId === item.id"
-                  @click="openPay(item)"
+                  @click="openPrint(item)"
                 />
-                <Button
-                  icon="lucide-ban"
-                  :label="t('billing.actions.void')"
-                  variant="ghost"
-                  theme="red"
-                  :loading="store.actingId === item.id"
-                  @click="openVoid(item)"
-                />
+                <template v-if="isSuperadmin && item.status === 'issued'">
+                  <Button
+                    icon="lucide-check"
+                    :label="t('billing.actions.markPaid')"
+                    variant="ghost"
+                    :loading="store.actingId === item.id"
+                    @click="openPay(item)"
+                  />
+                  <Button
+                    icon="lucide-ban"
+                    :label="t('billing.actions.void')"
+                    variant="ghost"
+                    theme="red"
+                    :loading="store.actingId === item.id"
+                    @click="openVoid(item)"
+                  />
+                </template>
               </div>
             </ListCell>
           </ListRow>
@@ -547,6 +571,8 @@ async function submitSettings(): Promise<void> {
       />
     </div>
   </div>
+
+  <InvoicePrintDialog v-model:open="printOpen" :invoice="printInvoice" />
 
   <Dialog
     v-model:open="payOpen"

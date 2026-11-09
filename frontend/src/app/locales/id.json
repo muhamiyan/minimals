@@ -204,6 +204,12 @@
     "new": "Paket baru",
     "retry": "Coba lagi",
     "empty": "Belum ada paket.",
+    "maintenance": "Paket sedang dalam pemeliharaan.",
+    "maintenanceHint": "Katalog paket dijeda selagi domain ini dalam mode pemeliharaan.",
+    "dev": "Paket sedang dalam pengembangan.",
+    "devHint": "Area ini sedang dalam pengerjaan — data dapat berubah tanpa pemberitahuan.",
+    "domainMode": "Mode domain",
+    "domainModeDescription": "Saat fitur nonaktif, ini adalah alasan yang ditampilkan ke pengguna.",
     "default": "Utama",
     "active": "Aktif",
     "inactive": "Nonaktif",
@@ -277,12 +283,25 @@
     "actions": {
       "settings": "Pengaturan penagihan",
       "create": "Buat faktur",
+      "print": "Cetak",
       "markPaid": "Tandai lunas",
       "void": "Batalkan",
       "cancel": "Batal",
       "save": "Simpan",
       "retry": "Coba lagi"
     },
+    "print": {
+      "title": "Faktur {number}",
+      "organization": "Organisasi",
+      "tier": "Tier",
+      "currency": "Mata uang",
+      "issued": "Tanggal terbit",
+      "paid": "Tanggal lunas"
+    },
+    "maintenance": "Penagihan sedang dalam pemeliharaan.",
+    "maintenanceHint": "Faktur dijeda selagi domain ini dalam mode pemeliharaan.",
+    "dev": "Penagihan sedang dalam pengembangan.",
+    "devHint": "Area ini sedang dalam pengerjaan — data dapat berubah tanpa pemberitahuan.",
     "status": {
       "all": "Semua status",
       "issued": "Terbit",
@@ -424,6 +443,13 @@
       "loadSettings": "Gagal memuat pengaturan",
       "saveSettings": "Gagal menyimpan pengaturan"
     },
+    "domains": {
+      "todos": "Tugas",
+      "billing": "Penagihan",
+      "plans": "Paket",
+      "tenancy": "Tenancy",
+      "infra": "Infrastruktur"
+    },
     "myOrgs": {
       "organization": "Organisasi",
       "tier": "Tier",
@@ -457,7 +483,9 @@
       "membersLimit": "Maksimal anggota per organisasi",
       "membersLimitDescription": "0 = tanpa batas. Berlaku untuk semua organisasi.",
       "invalidLimit": "Masukkan 0 (tanpa batas) atau bilangan bulat positif",
-      "quotaUpdated": "Kuota anggota diperbarui"
+      "quotaUpdated": "Kuota anggota diperbarui",
+      "domainModeDescription": "enabled = tersedia penuh, maintenance = disembunyikan dari menu, dev = lencana pengerjaan.",
+      "domainModeUpdated": "Mode domain diperbarui"
     },
     "org": {
       "title": "Organisasi",
@@ -598,7 +626,11 @@
     "upsell": {
       "title": "Tugas belum aktif",
       "description": "Paket organisasi ini tidak menyertakan tugas bersama. Minta administrator mengaktifkan fitur ini."
-    }
+    },
+    "maintenance": "Tugas sedang dalam pemeliharaan.",
+    "maintenanceHint": "Fitur ini dijeda selagi domain sedang dalam mode pemeliharaan.",
+    "dev": "Tugas sedang dalam pengembangan.",
+    "devHint": "Fitur ini sedang dalam pengerjaan — data dapat berubah tanpa pemberitahuan."
   },
   "infra": {
     "db": {

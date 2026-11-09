@@ -51,6 +51,7 @@ watch(
 // ask a second time, but features always depend on the settled org list.
 onMounted(async () => {
   if (!tenancy.myOrgsLoaded) await tenancy.fetchMyOrgs()
+  tenancy.fetchDomainModes()
   await tenancy.fetchActiveFeatures()
 })
 
