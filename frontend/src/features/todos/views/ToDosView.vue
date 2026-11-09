@@ -237,6 +237,7 @@ async function confirmDelete(): Promise<void> {
       <ListToolbar
         v-model:search="search"
         v-model:per-page="perPage"
+        :show-per-page="store.items.length > 0"
         :placeholder="t('todos.searchPlaceholder')"
       >
         <Select
