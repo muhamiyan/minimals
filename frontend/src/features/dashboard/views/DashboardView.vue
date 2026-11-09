@@ -20,7 +20,10 @@ const { t } = useI18n()
 const org = computed(() => tenancy.currentOrg)
 const advancedReporting = computed(() => tenancy.hasFeature('advanced_reporting'))
 
+const gateReady = computed(() => auth.checked)
+
 onMounted(() => {
+  if (!auth.checked) auth.fetchMe()
   if (!tenancy.myOrgs.length) tenancy.fetchMyOrgs()
   tenancy.fetchActiveFeatures()
 })
@@ -31,7 +34,9 @@ onMounted(() => {
     <PageBreadcrumbs />
   </PageHeader>
 
-  <div class="mx-auto w-full max-w-6xl space-y-4 px-5 py-6">
+  <Spinner v-if="!gateReady" />
+
+  <div v-else class="mx-auto w-full max-w-6xl space-y-4 px-5 py-6">
     <div class="space-y-1 rounded-6 border border-outline-gray-1 bg-surface-elevation-2 p-5">
       <p class="text-p-sm text-ink-gray-5">{{ t('dash.welcomeBack') }}</p>
       <div class="text-xl-semibold text-ink-gray-8">
