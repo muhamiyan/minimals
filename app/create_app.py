@@ -103,7 +103,7 @@ def create_app() -> Flask:
         from app.infra.roles import ensure_member_role
         from app.plans.models import Plan  # noqa: F401
         from app.plans.services import ensure_default_plans
-        from app.todos.models import Todo  # noqa: F401
+        from app.todo.models import Todo  # noqa: F401
 
         ensure_member_role()
         ensure_default_plans()
@@ -124,7 +124,7 @@ def create_app() -> Flask:
         from app.infra.uploads import bp as uploads_bp
         from app.plans import bp as plans_bp
         from app.tenancy import bp as tenancy_bp
-        from app.todos import bp as todos_bp
+        from app.todo import bp as todo_bp
 
         app.register_blueprint(health_bp)
         app.register_blueprint(csrf_bp)
@@ -135,7 +135,7 @@ def create_app() -> Flask:
         app.register_blueprint(account_api_key_bp)
         app.register_blueprint(account_preference_bp)
         app.register_blueprint(tenancy_bp)
-        app.register_blueprint(todos_bp)
+        app.register_blueprint(todo_bp)
         app.register_blueprint(billing_bp)
         app.register_blueprint(plans_bp)
         app.register_blueprint(infra_database_bp)

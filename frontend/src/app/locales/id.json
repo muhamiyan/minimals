@@ -7,7 +7,7 @@
     "plans": "Paket",
     "billing": "Penagihan",
     "infrastructure": "Infrastruktur",
-    "todos": "Tugas"
+    "todo": "Tugas"
   },
   "menu": {
     "theme": "Tema",
@@ -88,7 +88,7 @@
     "plans": "Paket",
     "infrastructure": "Infrastruktur",
     "billing": "Penagihan",
-    "todos": "Tugas"
+    "todo": "Tugas"
   },
   "route": {
     "Login": {
@@ -107,7 +107,7 @@
       "title": "Dasbor",
       "description": "Ringkasan akun Anda: profil dan peran."
     },
-    "ToDos": {
+    "ToDo": {
       "title": "Tugas",
       "description": "Daftar tugas bersama untuk organisasi."
     },
@@ -406,7 +406,7 @@
       "advanced_reporting": "Laporan lanjutan",
       "priority_support": "Dukungan prioritas",
       "custom_domain": "Domain kustom",
-      "todos": "Tugas organisasi"
+      "todo": "Tugas organisasi"
     },
     "fields": {
       "name": "Nama",
@@ -444,7 +444,7 @@
       "saveSettings": "Gagal menyimpan pengaturan"
     },
     "domains": {
-      "todos": "Tugas",
+      "todo": "Tugas",
       "billing": "Penagihan",
       "plans": "Paket",
       "tenancy": "Tenancy",
@@ -563,7 +563,7 @@
       "checkNotFound": "Belum ada organisasi — buat satu atau gunakan kode undangan"
     }
   },
-  "todos": {
+  "todo": {
     "new": "Tugas baru",
     "searchPlaceholder": "Cari tugas…",
     "retry": "Coba lagi",

@@ -19,7 +19,7 @@ import { useAuthStore } from '@/features/auth/store'
 import { useBillingStore } from '@/features/billing/store'
 import { usePlansStore } from '@/features/plans/store'
 import { useTenancyStore } from '@/features/tenancy/store'
-import { useTodosStore } from '@/features/todos/store'
+import { useTodoStore } from '@/features/todo/store'
 import ForbiddenDialog from '@/shared/components/ForbiddenDialog.vue'
 import { brand, useBrandLogo } from '@/shared/brand'
 import { useMenuStore } from './menuStore'
@@ -34,7 +34,7 @@ const menu = useMenuStore()
 const tenancy = useTenancyStore()
 const billing = useBillingStore()
 const plans = usePlansStore()
-const todos = useTodosStore()
+const todo = useTodoStore()
 const { t } = useI18n()
 
 watch(
@@ -126,7 +126,7 @@ async function onLogout() {
   tenancy.resetMyOrgs()
   billing.reset()
   plans.reset()
-  todos.reset()
+  todo.reset()
   await router.replace('/login')
 }
 </script>

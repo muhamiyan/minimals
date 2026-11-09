@@ -55,7 +55,7 @@ class TestSeededDefaults:
             "priority_support": True,
             "custom_domain": True,
         }
-        assert "todos" not in professional["features"]
+        assert "todo" not in professional["features"]
 
     def test_tier_filter(self, superadmin):
         items = _plans(superadmin, tier="professional")
@@ -70,7 +70,7 @@ class TestSeededDefaults:
                 "advanced_reporting",
                 "priority_support",
                 "custom_domain",
-                "todos",
+                "todo",
             ]
         }
 

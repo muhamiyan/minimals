@@ -62,7 +62,7 @@ SETTINGS_ATTEMPTS = 3
 # Domain operational mode, stored per-domain as ``domain_mode_<name>`` rows.
 # Values are validated against DOMAIN_MODES in dto.py.
 DOMAIN_MODE_PREFIX = "domain_mode_"
-DOMAIN_MODE_KEYS = ("todos", "billing", "plans", "tenancy", "infra")
+DOMAIN_MODE_KEYS = ("todo", "billing", "plans", "tenancy", "infra")
 DEFAULT_DOMAIN_MODE = "enabled"
 
 

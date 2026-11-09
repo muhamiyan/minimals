@@ -11,7 +11,7 @@ FEATURE_KEYS: tuple[str, ...] = (
     "advanced_reporting",
     "priority_support",
     "custom_domain",
-    "todos",
+    "todo",
 )
 
 # Flags the Professional tier implied before plans became editable. Kept

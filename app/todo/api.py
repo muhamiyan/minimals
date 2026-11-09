@@ -1,13 +1,13 @@
-"""Todo HTTP endpoints — organization-shared todos, gated by the plan flag."""
+"""Todo HTTP endpoints — organization-shared todo, gated by the plan flag."""
 from __future__ import annotations
 
 from flask import request
 from flask_login import current_user, login_required
 
 from app.tenancy.guards import require_feature
-from app.todos.dto import TodoCreateIn, TodoListIn, TodoUpdateIn
-from app.todos.presenters import TodoOut
-from app.todos.services import TodoService
+from app.todo.dto import TodoCreateIn, TodoListIn, TodoUpdateIn
+from app.todo.presenters import TodoOut
+from app.todo.services import TodoService
 from framework.api import (
     BlueprintFactory,
     PageIn,
@@ -18,13 +18,13 @@ from framework.api import (
     paginated_response,
 )
 
-bp = BlueprintFactory("todos", __name__, url_prefix="/api/v1/todos")
+bp = BlueprintFactory("todo", __name__, url_prefix="/api/v1/todo")
 
 
 @bp.get("/organizations/<org_id>")
 @login_required
-def list_todos(org_id: str):
-    if denied := require_feature(org_id, "todos"):
+def list_todo(org_id: str):
+    if denied := require_feature(org_id, "todo"):
         return denied
 
     filters = TodoListIn.validate(request.args)
@@ -43,7 +43,7 @@ def list_todos(org_id: str):
 @bp.post("/organizations/<org_id>")
 @login_required
 def create_todo(org_id: str):
-    if denied := require_feature(org_id, "todos"):
+    if denied := require_feature(org_id, "todo"):
         return denied
 
     dto = TodoCreateIn.validate(request.get_json(silent=True) or {})
@@ -54,7 +54,7 @@ def create_todo(org_id: str):
 @bp.put("/organizations/<org_id>/<todo_id>")
 @login_required
 def update_todo(org_id: str, todo_id: str):
-    if denied := require_feature(org_id, "todos"):
+    if denied := require_feature(org_id, "todo"):
         return denied
 
     dto = TodoUpdateIn.validate(request.get_json(silent=True) or {})
@@ -67,7 +67,7 @@ def update_todo(org_id: str, todo_id: str):
 @bp.delete("/organizations/<org_id>/<todo_id>")
 @login_required
 def delete_todo(org_id: str, todo_id: str):
-    if denied := require_feature(org_id, "todos"):
+    if denied := require_feature(org_id, "todo"):
         return denied
 
     svc = TodoService()

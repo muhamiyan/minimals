@@ -248,7 +248,7 @@ class TestFeatureFlags:
         with app.app_context():
             svc = TenancyService()
             assert svc.has_feature(org_id, "priority_support") is True
-            assert svc.has_feature(org_id, "todos") is False
+            assert svc.has_feature(org_id, "todo") is False
             assert svc.has_feature(org_id, "nonexistent") is False
 
     def test_has_feature_explicit_override(self, superadmin, app):
@@ -278,7 +278,7 @@ class TestFeatureFlags:
         assert features["priority_support"] is True
         assert features["advanced_reporting"] is True
         assert features["custom_domain"] is True
-        assert features["todos"] is False
+        assert features["todo"] is False
 
     def test_registry_keys_resolved_for_community(self, superadmin, app):
         from app.tenancy.services import TenancyService
@@ -290,7 +290,7 @@ class TestFeatureFlags:
             "advanced_reporting": False,
             "priority_support": False,
             "custom_domain": False,
-            "todos": False,
+            "todo": False,
         }
 
     def test_unknown_override_keys_are_not_resolved(self, superadmin, app):
@@ -346,7 +346,7 @@ class TestFeatureFlags:
                 "advanced_reporting": True,
                 "priority_support": False,
                 "custom_domain": False,
-                "todos": False,
+                "todo": False,
             }
 
         superadmin.put(

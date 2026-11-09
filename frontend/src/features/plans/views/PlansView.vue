@@ -105,7 +105,7 @@ const priceDescription = computed(() =>
     : t('plans.fields.priceProfessional'),
 )
 
-const MODE_DOMAINS = ['todos', 'billing', 'plans', 'tenancy', 'infra']
+const MODE_DOMAINS = ['todo', 'billing', 'plans', 'tenancy', 'infra']
 
 function resetForm(): void {
   nameInput.value = ''
@@ -203,10 +203,10 @@ async function submit(): Promise<void> {
   if (!saved) return
 
   // Domain mode is GLOBAL: pick a mode → it is stored under that
-  // domain key (tenancy → tenancy, todos → todos, etc.). Re-saving the
+  // domain key (tenancy → tenancy, todo → todo, etc.). Re-saving the
   // same plan does not change its displayed mode unless the operator
   // changed it here (idempotent).
-  const MODE_DOMAINS = ['todos', 'billing', 'plans', 'tenancy', 'infra']
+  const MODE_DOMAINS = ['todo', 'billing', 'plans', 'tenancy', 'infra']
   const chosenMode = modeInput.value
   if (MODE_DOMAINS.includes('tenancy') && chosenMode !== tenancy.domainMode('tenancy')) {
     const ok = await tenancy.updateDomainMode('tenancy', chosenMode)

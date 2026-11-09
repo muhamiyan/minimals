@@ -28,10 +28,10 @@ export const NAV_ITEMS: NavItem[] = [
     route: { name: 'Dashboard' },
   },
   {
-    key: 'ToDos',
-    labelKey: 'nav.todos',
+    key: 'ToDo',
+    labelKey: 'nav.todo',
     icon: 'lucide-list-todo',
-    route: { name: 'ToDos' },
+    route: { name: 'ToDo' },
   },
   {
     key: 'MyOrganizations',

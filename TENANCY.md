@@ -1,8 +1,8 @@
 # TENANCY.md — Arsitektur, Maksud & Keputusan Desain
 
 > Dokumen **intent** untuk domain tenancy + billing (`app/tenancy/`,
-> `app/plans/`, `app/billing/`, `app/todos/`, frontend
-> `features/{tenancy,plans,billing,todos}`)
+> `app/plans/`, `app/billing/`, `app/todo/`, frontend
+> `features/{tenancy,plans,billing,todo}`)
 > supaya agent tidak salah paham saat menyentuh kode. **Kalau kode dan dokumen
 > ini bertentangan → kode yang menang**, lalu perbarui dokumen ini.
 >
@@ -126,7 +126,7 @@ Konstanta:
 | `SUB_STATUSES` | `("trial", "active", "expired", "cancelled")` | `app/tenancy/models.py` |
 | `MEMBER_ROLES` | `("owner", "member")` | `app/tenancy/models.py` |
 | `INVOICE_STATUSES` | `("issued", "paid", "void")` | `app/billing/models.py` |
-| `FEATURE_KEYS` | `("advanced_reporting", "priority_support", "custom_domain", "todos")` — registry fitur | `app/plans/features.py` |
+| `FEATURE_KEYS` | `("advanced_reporting", "priority_support", "custom_domain", "todo")` — registry fitur | `app/plans/features.py` |
 | `DEFAULT_PROFESSIONAL_FEATURES` | 3 flag legacy (`advanced_reporting`, `priority_support`, `custom_domain`) — seed/migrasi **tidak** memberi fitur baru; fitur baru opt-in | `app/plans/features.py` |
 | `DUE_AFTER_DAYS` | `14` | `app/billing/services.py` |
 | `GENERATION_ATTEMPTS` | `3` | `app/billing/services.py` |
@@ -139,7 +139,7 @@ Konstanta:
 
 Migrasi: `0001_initial.py` (milik **master** — jangan disentuh di feature
 branch), `0002_tenancy.py`, `0003_billing.py`, `0004_plans.py`,
-`0005_todos.py`.
+`0005_todo.py`.
 
 ---
 
@@ -186,14 +186,14 @@ boleh, tuple = response yang langsung di-return.
 | `PUT /:id` | `require_role("superadmin")` | parsial; tier terkunci bila plan default / dipakai subscription |
 | `DELETE /:id` | `require_role("superadmin")` | 422 default_plan_cannot_be_deleted · 422 plan_in_use |
 
-### ToDos (`/api/v1/todos/*`)
+### ToDo (`/api/v1/todo/*`)
 
 | Endpoint | Guard | Catatan |
 |---|---|---|
-| `GET /organizations/:id` | `require_feature(org_id, "todos")` | paginated (`items,total,page,perPage`); filter `?search=` (judul) + `?completed=` |
-| `POST /organizations/:id` | `require_feature(org_id, "todos")` | 201 |
-| `PUT /organizations/:id/:todoId` | `require_feature(org_id, "todos")` | parsial; `description`/`dueDate` null = clear; todo org lain → 404 `todo_not_found` |
-| `DELETE /organizations/:id/:todoId` | `require_feature(org_id, "todos")` | 204 |
+| `GET /organizations/:id` | `require_feature(org_id, "todo")` | paginated (`items,total,page,perPage`); filter `?search=` (judul) + `?completed=` |
+| `POST /organizations/:id` | `require_feature(org_id, "todo")` | 201 |
+| `PUT /organizations/:id/:todoId` | `require_feature(org_id, "todo")` | parsial; `description`/`dueDate` null = clear; todo org lain → 404 `todo_not_found` |
+| `DELETE /organizations/:id/:todoId` | `require_feature(org_id, "todo")` | 204 |
 
 Semua member org berbagi satu daftar (org-shared). `require_feature` sudah
 mencakup akses org (401/404/403) lalu menambah 403 `feature_not_enabled`.
@@ -245,7 +245,7 @@ GET /organizations/:id/features → resolve_features(org_id):
 - Fitur = properti **subscription org**, bukan orang.
 - Superadmin membypass **membership**, tidak pernah **subscription** — fitur
   mati = mati untuk semua orang.
-- **`todos` off by default.** Seed dan migrasi memakai
+- **`todo` off by default.** Seed dan migrasi memakai
   `DEFAULT_PROFESSIONAL_FEATURES` (3 flag legacy), bukan seluruh
   `FEATURE_KEYS`; superadmin mengaktifkannya per plan di Plans console.
 
@@ -450,18 +450,18 @@ dan expiry opsional. Mengosongkan expiry = term baru (lihat §6). Daftar plan
 diambil dari katalog penuh (`/plans?per_page=200`, terpisah dari state list
 console); plan yang sedang terpasang tetap tampil walau katalog gagal dimuat.
 
-**ToDos (`ToDosView.vue`)** — menu selalu tampil (keputusan user):
+**ToDo (`ToDoView.vue`)** — menu selalu tampil (keputusan user):
 
 ```
 tanpa org aktif        → pesan; tidak ada request list
 features loading       → Spinner
 features error         → ErrorMessage + Retry (fetchActiveFeatures ulang)
-flag `todos` off       → kartu upsell; TIDAK ada tombol New
-flag `todos` on        → list org-shared: search judul, filter status
+flag `todo` off       → kartu upsell; TIDAK ada tombol New
+flag `todo` on        → list org-shared: search judul, filter status
                          all/open/done, pagination, dialog create/edit/delete
 ```
 
-- Store `features/todos` di-reset saat org berganti, logout, dan 401 — list
+- Store `features/todo` di-reset saat org berganti, logout, dan 401 — list
   org lama tidak boleh tampil walau sesaat.
 - Backend tetap sumber kebenaran: flag off → `403 feature_not_enabled`.
 - `created_by` dicatat backend (audit); list tidak menampilkan identitas
@@ -575,8 +575,8 @@ flag `todos` on        → list org-shared: search judul, filter status
 | Sesi aktif org | Logout/401 menghapus pilihan active → login berikutnya mulai dari `default_org_id`; reload tab tetap mempertahankan pilihan |
 | Gate per org aktif | Nav owner, filter Billing, dan `/billing` `ownerOnly` dievaluasi dari `currentOrg.myRole`; non-owner diarahkan ke `/`; superadmin bypass |
 | Billing owner | Owner melihat invoice org-org yang dia owner-i; filter awal org aktif; switch ke org non-owner redirect ke Dashboard |
-| ToDos | Fitur registry `todos`, **off by default** (tidak di-backfill ke plan lama); workspace **org-shared** — semua member CRUD, `created_by` audit tanpa FK |
-| ToDos UI | Menu selalu tampil; flag off → kartu upsell; backend tetap 403 `feature_not_enabled` |
+| ToDo | Fitur registry `todo`, **off by default** (tidak di-backfill ke plan lama); workspace **org-shared** — semua member CRUD, `created_by` audit tanpa FK |
+| ToDo UI | Menu selalu tampil; flag off → kartu upsell; backend tetap 403 `feature_not_enabled` |
 
 ---
 
@@ -588,7 +588,7 @@ flag `todos` on        → list org-shared: search judul, filter status
 | `tests/test_guards.py` | 404-sebelum-403, probe, membership sebelum feature |
 | `tests/test_billing.py` | plan-driven amount/duration, amount kustom (create/pay), invoice community Rp 0, invoice lifecycle, `TestConcurrency` (retry numbering + conditional transition), owner invoice access |
 | `tests/test_plans.py` | seed default per tier, CRUD guard (superadmin), validasi tier/harga/durasi, default swap, tier lock, hapus default/in-use, wiring subscription → plan |
-| `tests/test_todos.py` | guard (401/403 forbidden/403 feature_not_enabled/404), CRUD org-shared (superadmin + member), validasi title/dueDate/empty update, search + filter `completed` + pagination, isolasi lintas org → 404 |
+| `tests/test_todo.py` | guard (401/403 forbidden/403 feature_not_enabled/404), CRUD org-shared (superadmin + member), validasi title/dueDate/empty update, search + filter `completed` + pagination, isolasi lintas org → 404 |
 | `tests/test_docs.py` | README ↔ `url_map` sinkron |
 
 **Frontend:** tidak ada unit test; verifikasi = `yarn typecheck` + `yarn build`.
