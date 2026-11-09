@@ -62,6 +62,16 @@ const domainMode = computed(() => tenancy.domainMode('billing'))
 const isMaintenance = computed(() => domainMode.value === 'maintenance')
 const isDev = computed(() => domainMode.value === 'dev')
 
+// Gate: nothing below renders until the caller can actually read the
+// invoice list (myOrgs for owners, features for tenant users) and the
+// domain mode is known. Otherwise the page flashes the wrong UI —
+// e.g. an upsell banner before the feature check resolves.
+const gateReady = computed(() => {
+  const orgGate = isSuperadmin.value || tenancy.myOrgsLoaded
+  const modeGate = tenancy.domainMode('billing') !== '' || tenancy.myOrgsLoaded
+  return orgGate && modeGate
+})
+
 const statusFilter = ref('')
 const orgFilter = ref('')
 
@@ -415,7 +425,14 @@ async function submitSettings(): Promise<void> {
     </div>
   </PageHeader>
 
-  <div class="mx-auto w-full max-w-6xl space-y-3 px-5 py-6">
+  <div
+    v-if="!gateReady"
+    class="flex justify-center rounded-6 border border-outline-gray-1 bg-surface-elevation-2 py-10"
+  >
+    <Spinner />
+  </div>
+
+  <div v-else class="mx-auto w-full max-w-6xl space-y-3 px-5 py-6">
     <ListToolbar
       v-model:search="search"
       v-model:per-page="perPage"

@@ -60,6 +60,12 @@ const disabledReasonHint = computed(() => {
   return t('todos.upsell.description')
 })
 
+// Gate: show nothing until features+mode are known (no flash of the
+// default upsell banner before the checks resolve).
+const gateReady = computed(
+  () => tenancy.myOrgsLoaded && (tenancy.activeFeaturesLoading === false),
+)
+
 const status = ref<TodoStatusFilter>('all')
 const statusOptions = computed(() => [
   { label: t('todos.filter.all'), value: 'all' },
@@ -188,7 +194,7 @@ async function confirmDelete(): Promise<void> {
   <PageHeader>
     <PageBreadcrumbs />
     <Button
-      v-if="featureOn"
+      v-if="featureOn && gateReady"
       :label="t('todos.new')"
       icon-left="lucide-plus"
       variant="solid"
@@ -196,6 +202,13 @@ async function confirmDelete(): Promise<void> {
       @click="openCreate"
     />
   </PageHeader>
+
+  <div
+    v-if="!gateReady"
+    class="flex justify-center rounded-6 border border-outline-gray-1 bg-surface-elevation-2 py-10"
+  >
+    <Spinner />
+  </div>
 
   <div class="mx-auto w-full max-w-6xl space-y-3 px-5 py-6">
     <div

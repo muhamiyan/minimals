@@ -52,6 +52,10 @@ const domainMode = computed(() => tenancy.domainMode('plans'))
 const isMaintenance = computed(() => domainMode.value === 'maintenance')
 const isDev = computed(() => domainMode.value === 'dev')
 
+// Gate: Plans is superadmin-only; render only once mode is known so
+// the catalog never flashes the default before the real mode arrives.
+const gateReady = computed(() => tenancy.myOrgsLoaded || tenancy.domainMode('plans') !== '')
+
 const tierOptions = PLAN_TIERS.map((tier) => ({
   label: TIER_LABELS[tier] ?? tier,
   value: tier,
@@ -255,7 +259,14 @@ async function confirmDelete(): Promise<void> {
     />
   </PageHeader>
 
-  <div class="mx-auto w-full max-w-6xl space-y-3 px-5 py-6">
+  <div
+    v-if="!gateReady"
+    class="flex justify-center rounded-6 border border-outline-gray-1 bg-surface-elevation-2 py-10"
+  >
+    <Spinner />
+  </div>
+
+  <div v-else class="mx-auto w-full max-w-6xl space-y-3 px-5 py-6">
     <ListToolbar
       v-model:search="search"
       v-model:per-page="perPage"
