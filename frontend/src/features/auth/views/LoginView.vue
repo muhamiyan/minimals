@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { Button, ErrorMessage, FormControl, toast } from 'frappe-ui'
+import { Button, ErrorMessage, FormControl, Spinner, toast } from 'frappe-ui'
 
 import { useAuthStore } from '../store'
 import { brand, useBrandLogo } from '@/shared/brand'
@@ -19,7 +19,12 @@ const password = ref('')
 const submitting = ref(false)
 
 const errorMessage = computed(() => auth.error)
+const gateReady = computed(() => auth.checked && auth.registrationMode !== null)
 const disabled = computed(() => submitting.value || !identifier.value.trim() || !password.value)
+
+onMounted(async () => {
+  await auth.fetchRegistrationMode()
+})
 
 async function onSubmit() {
   if (disabled.value) return
@@ -46,7 +51,11 @@ async function onSubmit() {
   <div
     class="flex min-h-screen items-center justify-center bg-surface-base p-4 text-ink-gray-8"
   >
-    <div class="w-full max-w-sm rounded-6 border border-outline-gray-1 bg-surface-elevation-2 p-6">
+    <Spinner v-if="!gateReady" />
+    <div
+      v-else
+      class="w-full max-w-sm rounded-6 border border-outline-gray-1 bg-surface-elevation-2 p-6"
+    >
       <form class="space-y-4" @submit.prevent="onSubmit">
         <div class="flex flex-col items-center gap-1.5 text-center">
           <div
