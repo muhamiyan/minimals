@@ -11,7 +11,9 @@ import {
 } from 'frappe-ui/list'
 
 import ListHead from '@/shared/components/ListHead.vue'
+import ListRowOpenButton from '@/shared/components/ListRowOpenButton.vue'
 import { formatDate } from '@/shared/format'
+import { LIST_ROW_SURFACE_CLASS } from '@/shared/listRow'
 
 import { MEMBER_ROLES, roleLabel, useTenancyStore } from '../store'
 
@@ -121,16 +123,21 @@ onBeforeUnmount(() => {
     />
   </div>
 
-  <div v-if="store.inviteCodesLoading" class="flex justify-center py-6">
-    <Spinner />
-  </div>
-  <ErrorMessage v-else-if="store.inviteCodesError" :message="store.inviteCodesError" />
+  <div>
+    <div v-if="store.inviteCodesLoading" class="flex justify-center py-10">
+      <Spinner />
+    </div>
+    <ErrorMessage v-else-if="store.inviteCodesError" :message="store.inviteCodesError" />
 
-  <div
-    v-else-if="hasCodes"
-    class="overflow-hidden rounded-6 border border-outline-gray-1"
-  >
-    <List class="list-row-px-3" :columns="codeColumns">
+    <div
+      v-else-if="!hasCodes"
+      class="flex flex-col items-center gap-2 py-10 text-center"
+    >
+      <span class="lucide-key-round size-8 text-ink-gray-4" aria-hidden="true" />
+      <p class="text-p-sm text-ink-gray-5">{{ t('tenancy.invites.empty') }}</p>
+    </div>
+
+    <List v-else class="list-row-px-3" :columns="codeColumns">
       <ListHead>
         <ListHeaderCell>{{ t('tenancy.invites.columnCode') }}</ListHeaderCell>
         <ListHeaderCell>{{ t('tenancy.fields.role') }}</ListHeaderCell>
@@ -142,14 +149,19 @@ onBeforeUnmount(() => {
         </ListHeaderCell>
       </ListHead>
       <ListRows :items="store.inviteCodes" row-key="id" v-slot="{ item }">
-        <ListRow>
+        <ListRow :class="LIST_ROW_SURFACE_CLASS">
           <ListCell class="min-w-0">
+            <ListRowOpenButton
+              :label="`${t('tenancy.invites.copyCode')}: ${item.code}`"
+              @click="copyCode(item.code)"
+            />
             <div class="flex min-w-0 items-center gap-2">
               <code class="truncate text-base-medium text-ink-gray-8">{{ item.code }}</code>
               <Button
                 icon="lucide-copy"
                 :label="t('tenancy.invites.copyCode')"
                 variant="ghost"
+                class="relative"
                 @click="copyCode(item.code)"
               />
             </div>
@@ -170,6 +182,7 @@ onBeforeUnmount(() => {
               :label="t('tenancy.invites.revoke')"
               variant="ghost"
               theme="red"
+              class="relative"
               @click="confirmRevoke(item.id, item.code)"
             />
           </ListCell>
@@ -177,6 +190,4 @@ onBeforeUnmount(() => {
       </ListRows>
     </List>
   </div>
-
-  <p v-else class="text-p-sm text-ink-gray-5">{{ t('tenancy.invites.empty') }}</p>
 </template>

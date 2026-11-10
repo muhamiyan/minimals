@@ -26,9 +26,11 @@ import {
 import PageBreadcrumbs from '@/shared/components/PageBreadcrumbs.vue'
 import ListFoot from '@/shared/components/ListFoot.vue'
 import ListHead from '@/shared/components/ListHead.vue'
+import ListRowOpenButton from '@/shared/components/ListRowOpenButton.vue'
 import ListToolbar from '@/shared/components/ListToolbar.vue'
 import { useListControls } from '@/shared/composables/useListControls'
 import { formatDate } from '@/shared/format'
+import { LIST_ROW_SURFACE_CLASS } from '@/shared/listRow'
 
 import { useTenancyStore } from '@/features/tenancy/store'
 import {
@@ -203,32 +205,20 @@ async function confirmDelete(): Promise<void> {
     />
   </PageHeader>
 
-  <div
-    v-if="!gateReady"
-    class="flex justify-center rounded-6 border border-outline-gray-1 bg-surface-elevation-2 py-10"
-  >
+  <div v-if="!gateReady" class="flex justify-center py-10">
     <Spinner />
   </div>
 
-  <div class="mx-auto w-full max-w-6xl space-y-3 px-5 py-6">
-    <div
-      v-if="!org"
-      class="rounded-6 border border-outline-gray-1 bg-surface-elevation-2 px-5 py-10 text-center text-p-sm text-ink-gray-5"
-    >
+  <div v-else class="mx-auto w-full max-w-6xl space-y-3 px-5 py-6">
+    <div v-if="!org" class="py-10 text-center text-p-sm text-ink-gray-5">
       {{ t('todo.noOrgFeature') }}
     </div>
 
-    <div
-      v-else-if="tenancy.activeFeaturesLoading"
-      class="flex justify-center rounded-6 border border-outline-gray-1 bg-surface-elevation-2 py-10"
-    >
+    <div v-else-if="tenancy.activeFeaturesLoading" class="flex justify-center py-10">
       <Spinner />
     </div>
 
-    <div
-      v-else-if="tenancy.activeFeaturesError"
-      class="space-y-4 rounded-6 border border-outline-gray-1 bg-surface-elevation-2 p-5"
-    >
+    <div v-else-if="tenancy.activeFeaturesError" class="space-y-4">
       <ErrorMessage :message="tenancy.activeFeaturesError" />
       <Button
         :label="t('todo.retry')"
@@ -261,13 +251,36 @@ async function confirmDelete(): Promise<void> {
         />
       </ListToolbar>
 
-      <ErrorMessage v-if="store.error" :message="store.error" />
+      <ErrorMessage
+        v-if="store.error || store.listError"
+        :message="store.error || store.listError"
+      />
 
-      <div
-        v-if="store.items.length"
-        class="overflow-hidden rounded-6 border border-outline-gray-1 bg-surface-elevation-2"
-      >
-        <List class="list-row-px-3" :columns="listColumns">
+      <div>
+        <div v-if="store.loading" class="flex justify-center py-10">
+          <Spinner />
+        </div>
+
+        <div v-else-if="store.listError" class="flex justify-center py-8">
+          <Button
+            :label="t('todo.retry')"
+            variant="outline"
+            icon-left="lucide-refresh-cw"
+            @click="reload"
+          />
+        </div>
+
+        <div
+          v-else-if="!store.items.length"
+          class="flex flex-col items-center gap-2 py-10 text-center"
+        >
+          <span class="lucide-list-todo size-8 text-ink-gray-4" aria-hidden="true" />
+          <p class="text-p-sm text-ink-gray-5">
+            {{ isFiltered ? t('todo.emptyFiltered') : t('todo.empty') }}
+          </p>
+        </div>
+
+        <List v-else class="list-row-px-3" :columns="listColumns">
           <ListHead>
             <ListHeaderCell>{{ t('todo.columns.title') }}</ListHeaderCell>
             <ListHeaderCell>{{ t('todo.columns.status') }}</ListHeaderCell>
@@ -277,8 +290,12 @@ async function confirmDelete(): Promise<void> {
             </ListHeaderCell>
           </ListHead>
           <ListRows :items="store.items" row-key="id" v-slot="{ item }">
-            <ListRow>
+            <ListRow :class="LIST_ROW_SURFACE_CLASS">
               <ListCell class="min-w-0">
+                <ListRowOpenButton
+                  :label="`${t('todo.edit.title')}: ${item.title}`"
+                  @click="openEdit(item)"
+                />
                 <div class="min-w-0">
                   <div
                     class="truncate text-base-medium"
@@ -308,12 +325,14 @@ async function confirmDelete(): Promise<void> {
                   <Button
                     icon="lucide-check"
                     variant="ghost"
+                    class="relative"
                     :label="item.completed ? t('todo.actions.reopen') : t('todo.actions.complete')"
                     @click="toggle(item)"
                   />
                   <Button
                     icon="lucide-pencil"
                     variant="ghost"
+                    class="relative"
                     :label="t('todo.actions.edit')"
                     @click="openEdit(item)"
                   />
@@ -321,6 +340,7 @@ async function confirmDelete(): Promise<void> {
                     icon="lucide-trash-2"
                     variant="ghost"
                     theme="red"
+                    class="relative"
                     :label="t('todo.actions.delete')"
                     @click="openDelete(item)"
                   />
@@ -330,27 +350,12 @@ async function confirmDelete(): Promise<void> {
           </ListRows>
         </List>
         <ListFoot
+          v-if="!store.loading && !store.listError && store.items.length"
           :total="store.total"
           :page="store.page"
           :per-page="perPage"
           @update:page="goToPage"
         />
-      </div>
-
-      <div
-        v-else-if="store.loading"
-        class="flex justify-center rounded-6 border border-outline-gray-1 bg-surface-elevation-2 py-10"
-      >
-        <Spinner />
-      </div>
-
-      <div
-        v-else
-        class="rounded-6 border border-outline-gray-1 bg-surface-elevation-2 px-5 py-10 text-center"
-      >
-        <p class="text-p-sm text-ink-gray-5">
-          {{ isFiltered ? t('todo.emptyFiltered') : t('todo.empty') }}
-        </p>
       </div>
     </template>
   </div>

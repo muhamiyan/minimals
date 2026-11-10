@@ -14,6 +14,8 @@ import {
 
 import PageBreadcrumbs from '@/shared/components/PageBreadcrumbs.vue'
 import ListHead from '@/shared/components/ListHead.vue'
+import ListRowOpenButton from '@/shared/components/ListRowOpenButton.vue'
+import { LIST_ROW_SURFACE_CLASS } from '@/shared/listRow'
 
 import {
   statusLabel,
@@ -71,15 +73,22 @@ onMounted(() => {
   <div class="mx-auto w-full max-w-6xl space-y-3 px-5 py-6">
     <ErrorMessage v-if="store.myOrgsError" :message="store.myOrgsError" />
 
-    <div v-if="store.myOrgsLoading && !store.myOrgs.length" class="flex justify-center py-16">
-      <Spinner />
-    </div>
+    <div>
+      <div v-if="store.myOrgsLoading" class="flex justify-center py-10">
+        <Spinner />
+      </div>
 
-    <div
-      v-else-if="store.myOrgs.length"
-      class="overflow-hidden rounded-6 border border-outline-gray-1 bg-surface-elevation-2"
-    >
-      <List class="list-row-px-3" :columns="orgColumns">
+      <div
+        v-else-if="!store.myOrgs.length"
+        class="flex flex-col items-center gap-2 py-10 text-center"
+      >
+        <span class="lucide-building-2 size-8 text-ink-gray-4" aria-hidden="true" />
+        <p class="text-p-sm text-ink-gray-5">
+          {{ t('tenancy.myOrgs.emptyOnboarding') }}
+        </p>
+      </div>
+
+      <List v-else class="list-row-px-3" :columns="orgColumns">
         <ListHead>
           <ListHeaderCell>{{ t('tenancy.myOrgs.organization') }}</ListHeaderCell>
           <ListHeaderCell class="hidden md:flex">{{ t('tenancy.myOrgs.tier') }}</ListHeaderCell>
@@ -90,8 +99,12 @@ onMounted(() => {
           </ListHeaderCell>
         </ListHead>
         <ListRows :items="store.myOrgs" row-key="id" v-slot="{ item }">
-          <ListRow>
+          <ListRow :class="LIST_ROW_SURFACE_CLASS">
             <ListCell class="min-w-0">
+              <ListRowOpenButton
+                :label="`${t('tenancy.myOrgs.open')}: ${item.name}`"
+                @click="openOrg(item)"
+              />
               <div class="min-w-0">
                 <div class="flex items-center gap-2">
                   <div class="min-w-0 flex-1 truncate text-base-medium text-ink-gray-8">
@@ -133,6 +146,7 @@ onMounted(() => {
                 v-else
                 :label="t('tenancy.myOrgs.makeDefault')"
                 variant="outline"
+                class="relative"
                 :loading="switchingId === item.id"
                 @click="makeDefault(item.id)"
               />
@@ -142,21 +156,13 @@ onMounted(() => {
                 icon="lucide-chevron-right"
                 :label="t('tenancy.myOrgs.open')"
                 variant="ghost"
+                class="relative"
                 @click="openOrg(item)"
               />
             </ListCell>
           </ListRow>
         </ListRows>
       </List>
-    </div>
-
-    <div
-      v-else
-      class="rounded-6 border border-outline-gray-1 bg-surface-elevation-2 px-5 py-10 text-center"
-    >
-      <p class="text-p-sm text-ink-gray-5">
-        {{ t('tenancy.myOrgs.emptyOnboarding') }}
-      </p>
     </div>
   </div>
 </template>

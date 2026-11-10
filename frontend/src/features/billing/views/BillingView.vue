@@ -27,10 +27,12 @@ import {
 import PageBreadcrumbs from '@/shared/components/PageBreadcrumbs.vue'
 import ListFoot from '@/shared/components/ListFoot.vue'
 import ListHead from '@/shared/components/ListHead.vue'
+import ListRowOpenButton from '@/shared/components/ListRowOpenButton.vue'
 import ListToolbar from '@/shared/components/ListToolbar.vue'
 import InvoicePrintDialog from '../components/InvoicePrintDialog.vue'
 import { useListControls } from '@/shared/composables/useListControls'
 import { formatDate, formatRupiah } from '@/shared/format'
+import { LIST_ROW_SURFACE_CLASS } from '@/shared/listRow'
 
 import { useAuthStore } from '@/features/auth/store'
 import { TIER_LABELS, useTenancyStore } from '@/features/tenancy/store'
@@ -425,10 +427,7 @@ async function submitSettings(): Promise<void> {
     </div>
   </PageHeader>
 
-  <div
-    v-if="!gateReady"
-    class="flex justify-center rounded-6 border border-outline-gray-1 bg-surface-elevation-2 py-10"
-  >
+  <div v-if="!gateReady" class="flex justify-center py-10">
     <Spinner />
   </div>
 
@@ -455,11 +454,43 @@ async function submitSettings(): Promise<void> {
 
     <ErrorMessage v-if="store.listError" :message="store.listError" />
 
-    <div
-      v-if="store.items.length"
-      class="overflow-hidden rounded-6 border border-outline-gray-1 bg-surface-elevation-2"
-    >
-      <List class="list-row-px-3" :columns="listColumns">
+    <div>
+      <div v-if="store.listLoading" class="flex justify-center py-10">
+        <Spinner />
+      </div>
+
+      <div v-else-if="store.listError" class="flex justify-center py-8">
+        <Button
+          :label="t('billing.actions.retry')"
+          variant="outline"
+          icon-left="lucide-refresh-cw"
+          @click="reload"
+        />
+      </div>
+
+      <div
+        v-else-if="!store.items.length"
+        class="flex flex-col items-center gap-2 py-10 text-center"
+      >
+        <span class="lucide-receipt-text size-8 text-ink-gray-4" aria-hidden="true" />
+        <p class="text-p-sm text-ink-gray-5">
+          {{
+            search || statusFilter || orgFilter
+              ? t('billing.empty.filtered')
+              : t('billing.empty.none')
+          }}
+        </p>
+        <Button
+          v-if="isSuperadmin && !search && !statusFilter && !orgFilter"
+          :label="t('billing.actions.create')"
+          icon-left="lucide-plus"
+          variant="solid"
+          theme="gray"
+          @click="openCreate"
+        />
+      </div>
+
+      <List v-else class="list-row-px-3" :columns="listColumns">
         <ListHead>
           <ListHeaderCell>{{ t('billing.columns.invoice') }}</ListHeaderCell>
           <ListHeaderCell class="hidden md:flex">
@@ -477,8 +508,12 @@ async function submitSettings(): Promise<void> {
           </ListHeaderCell>
         </ListHead>
         <ListRows :items="store.items" row-key="id" v-slot="{ item }">
-          <ListRow>
+          <ListRow :class="LIST_ROW_SURFACE_CLASS">
             <ListCell class="min-w-0">
+              <ListRowOpenButton
+                :label="`${t('billing.actions.print')}: ${item.number}`"
+                @click="openPrint(item)"
+              />
               <div class="min-w-0">
                 <div class="truncate text-base-medium text-ink-gray-8">
                   {{ item.number }}
@@ -516,6 +551,7 @@ async function submitSettings(): Promise<void> {
                   icon="lucide-printer"
                   :label="t('billing.actions.print')"
                   variant="ghost"
+                  class="relative"
                   @click="openPrint(item)"
                 />
                 <template v-if="isSuperadmin && item.status === 'issued'">
@@ -523,6 +559,7 @@ async function submitSettings(): Promise<void> {
                     icon="lucide-check"
                     :label="t('billing.actions.markPaid')"
                     variant="ghost"
+                    class="relative"
                     :loading="store.actingId === item.id"
                     @click="openPay(item)"
                   />
@@ -531,6 +568,7 @@ async function submitSettings(): Promise<void> {
                     :label="t('billing.actions.void')"
                     variant="ghost"
                     theme="red"
+                    class="relative"
                     :loading="store.actingId === item.id"
                     @click="openVoid(item)"
                   />
@@ -541,51 +579,11 @@ async function submitSettings(): Promise<void> {
         </ListRows>
       </List>
       <ListFoot
+        v-if="!store.listLoading && !store.listError && store.items.length"
         :total="store.total"
         :page="store.page"
         :per-page="perPage"
         @update:page="goToPage"
-      />
-    </div>
-
-    <div
-      v-else-if="store.listLoading"
-      class="flex justify-center rounded-6 border border-outline-gray-1 bg-surface-elevation-2 py-10"
-    >
-      <Spinner />
-    </div>
-
-    <div
-      v-else-if="store.listError"
-      class="flex justify-center rounded-6 border border-outline-gray-1 bg-surface-elevation-2 py-8"
-    >
-      <Button
-        :label="t('billing.actions.retry')"
-        variant="outline"
-        icon-left="lucide-refresh-cw"
-        @click="reload"
-      />
-    </div>
-
-    <div
-      v-else
-      class="rounded-6 border border-outline-gray-1 bg-surface-elevation-2 px-5 py-10 text-center"
-    >
-      <p class="text-p-sm text-ink-gray-5">
-        {{
-          search || statusFilter || orgFilter
-            ? t('billing.empty.filtered')
-            : t('billing.empty.none')
-        }}
-      </p>
-      <Button
-        v-if="isSuperadmin && !search && !statusFilter && !orgFilter"
-        class="mt-4"
-        :label="t('billing.actions.create')"
-        icon-left="lucide-plus"
-        variant="solid"
-        theme="gray"
-        @click="openCreate"
       />
     </div>
   </div>
