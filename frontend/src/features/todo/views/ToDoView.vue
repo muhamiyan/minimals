@@ -389,8 +389,16 @@ async function confirmDelete(): Promise<void> {
             :label="t('todo.fields.dueDate')"
             clearable
           />
-          <div class="flex items-center">
-            <Switch v-model="form.completed" :label="t('todo.fields.completed')" />
+          <div class="space-y-1.5">
+            <label
+              for="todo-completed"
+              class="block text-sm leading-tighter text-ink-gray-6"
+            >
+              {{ t('todo.fields.completed') }}
+            </label>
+            <div class="flex h-7 items-center">
+              <Switch id="todo-completed" v-model="form.completed" />
+            </div>
           </div>
         </div>
       </form>
