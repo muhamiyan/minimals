@@ -116,6 +116,37 @@ def test_update_user_rejects_invalid_app_role(admin, member):
     assert set(response.get_json()) == {"message"}
 
 
+def test_admin_cannot_grant_superadmin(admin, member):
+    member_id = find_user(admin, "member")["id"]
+
+    response = admin.patch(
+        f"/api/v1/account/users/{member_id}", json={"appRole": "superadmin"}
+    )
+    assert response.status_code == 403
+    assert response.get_json() == {"message": "superadmin_only"}
+    assert find_user(admin, "member")["appRole"] == "user"
+
+
+def test_admin_cannot_edit_superadmin_account(admin, superadmin):
+    root_id = superadmin.get("/api/v1/auth/me").get_json()["id"]
+
+    response = admin.patch(
+        f"/api/v1/account/users/{root_id}", json={"fullName": "Hijacked"}
+    )
+    assert response.status_code == 403
+    assert response.get_json() == {"message": "superadmin_only"}
+
+
+def test_superadmin_can_grant_superadmin(superadmin, member):
+    member_id = member.get("/api/v1/auth/me").get_json()["id"]
+
+    response = superadmin.patch(
+        f"/api/v1/account/users/{member_id}", json={"appRole": "superadmin"}
+    )
+    assert response.status_code == 200, response.get_json()
+    assert response.get_json()["appRole"] == "superadmin"
+
+
 @pytest.mark.parametrize(
     "payload",
     [

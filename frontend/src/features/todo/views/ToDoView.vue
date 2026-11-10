@@ -32,7 +32,7 @@ import { formatDate } from '@/shared/format'
 
 import { useTenancyStore } from '@/features/tenancy/store'
 import {
-  useTodosStore,
+  useTodoStore,
   type Todo,
   type TodoStatusFilter,
 } from '../store'
@@ -44,16 +44,33 @@ const listColumns: ListColumnsByBreakpoint = {
 
 const { t } = useI18n()
 const tenancy = useTenancyStore()
-const store = useTodosStore()
+const store = useTodoStore()
 
 const org = computed(() => tenancy.currentOrg)
-const featureOn = computed(() => tenancy.hasFeature('todos'))
+const featureOn = computed(() => tenancy.hasFeature('todo'))
+const domainMode = computed(() => tenancy.domainMode('todo'))
+const disabledReasonTitle = computed(() => {
+  if (domainMode.value === 'maintenance') return t('todo.maintenance')
+  if (domainMode.value === 'dev') return t('todo.dev')
+  return t('todo.upsell.title')
+})
+const disabledReasonHint = computed(() => {
+  if (domainMode.value === 'maintenance') return t('todo.maintenanceHint')
+  if (domainMode.value === 'dev') return t('todo.devHint')
+  return t('todo.upsell.description')
+})
+
+// Gate: show nothing until features+mode are known (no flash of the
+// default upsell banner before the checks resolve).
+const gateReady = computed(
+  () => tenancy.myOrgsLoaded && (tenancy.activeFeaturesLoading === false),
+)
 
 const status = ref<TodoStatusFilter>('all')
 const statusOptions = computed(() => [
-  { label: t('todos.filter.all'), value: 'all' },
-  { label: t('todos.filter.open'), value: 'open' },
-  { label: t('todos.filter.done'), value: 'done' },
+  { label: t('todo.filter.all'), value: 'all' },
+  { label: t('todo.filter.open'), value: 'open' },
+  { label: t('todo.filter.done'), value: 'done' },
 ])
 
 const { search, perPage, reload, goToPage } = useListControls({
@@ -76,6 +93,7 @@ function onStatusChange(value: SelectOptionValue | null | undefined): void {
 
 onMounted(() => {
   if (!tenancy.myOrgsLoaded) tenancy.fetchMyOrgs()
+  tenancy.fetchDomainModes()
 })
 
 // Feature flags resolve per organization: reset first so rows from the
@@ -86,14 +104,14 @@ watch(
     store.reset()
     if (!orgId) return
     await tenancy.fetchActiveFeatures()
-    if (tenancy.hasFeature('todos')) reload()
+    if (tenancy.hasFeature('todo')) reload()
   },
   { immediate: true },
 )
 
 async function retryFeatures(): Promise<void> {
   await tenancy.fetchActiveFeatures()
-  if (tenancy.hasFeature('todos')) {
+  if (tenancy.hasFeature('todo')) {
     store.setPage(1)
     reload()
   }
@@ -130,7 +148,7 @@ function openEdit(todo: Todo): void {
 async function submit(): Promise<void> {
   if (store.saving || !org.value) return
   const title = form.value.title.trim()
-  titleError.value = title ? '' : t('todos.validation.title')
+  titleError.value = title ? '' : t('todo.validation.title')
   if (titleError.value) return
 
   const payload = {
@@ -145,7 +163,7 @@ async function submit(): Promise<void> {
   if (!saved) return
 
   formOpen.value = false
-  toast.success(editing.value ? t('todos.updated') : t('todos.created'))
+  toast.success(editing.value ? t('todo.updated') : t('todo.created'))
 }
 
 async function toggle(todo: Todo): Promise<void> {
@@ -168,7 +186,7 @@ async function confirmDelete(): Promise<void> {
   const done = await store.remove(org.value.id, deleteTarget.value.id)
   if (!done) return
   deleteOpen.value = false
-  toast.success(t('todos.delete.done'))
+  toast.success(t('todo.delete.done'))
 }
 </script>
 
@@ -176,8 +194,8 @@ async function confirmDelete(): Promise<void> {
   <PageHeader>
     <PageBreadcrumbs />
     <Button
-      v-if="featureOn"
-      :label="t('todos.new')"
+      v-if="featureOn && gateReady"
+      :label="t('todo.new')"
       icon-left="lucide-plus"
       variant="solid"
       theme="gray"
@@ -185,12 +203,19 @@ async function confirmDelete(): Promise<void> {
     />
   </PageHeader>
 
+  <div
+    v-if="!gateReady"
+    class="flex justify-center rounded-6 border border-outline-gray-1 bg-surface-elevation-2 py-10"
+  >
+    <Spinner />
+  </div>
+
   <div class="mx-auto w-full max-w-6xl space-y-3 px-5 py-6">
     <div
       v-if="!org"
       class="rounded-6 border border-outline-gray-1 bg-surface-elevation-2 px-5 py-10 text-center text-p-sm text-ink-gray-5"
     >
-      {{ t('todos.noOrg') }}
+      {{ t('todo.noOrgFeature') }}
     </div>
 
     <div
@@ -206,7 +231,7 @@ async function confirmDelete(): Promise<void> {
     >
       <ErrorMessage :message="tenancy.activeFeaturesError" />
       <Button
-        :label="t('todos.retry')"
+        :label="t('todo.retry')"
         variant="outline"
         icon-left="lucide-refresh-cw"
         @click="retryFeatures"
@@ -217,15 +242,16 @@ async function confirmDelete(): Promise<void> {
       v-else-if="!featureOn"
       class="space-y-1 rounded-6 border border-outline-gray-1 bg-surface-elevation-2 p-6"
     >
-      <div class="text-base-medium text-ink-gray-8">{{ t('todos.upsell.title') }}</div>
-      <p class="text-p-sm text-ink-gray-5">{{ t('todos.upsell.description') }}</p>
+      <div class="text-base-medium text-ink-gray-8">{{ disabledReasonTitle }}</div>
+      <p class="text-p-sm text-ink-gray-5">{{ disabledReasonHint }}</p>
     </div>
 
     <template v-else>
       <ListToolbar
         v-model:search="search"
         v-model:per-page="perPage"
-        :placeholder="t('todos.searchPlaceholder')"
+        :show-per-page="store.items.length > 0"
+        :placeholder="t('todo.searchPlaceholder')"
       >
         <Select
           :model-value="status"
@@ -243,11 +269,11 @@ async function confirmDelete(): Promise<void> {
       >
         <List class="list-row-px-3" :columns="listColumns">
           <ListHead>
-            <ListHeaderCell>{{ t('todos.columns.title') }}</ListHeaderCell>
-            <ListHeaderCell>{{ t('todos.columns.status') }}</ListHeaderCell>
-            <ListHeaderCell class="hidden md:flex">{{ t('todos.columns.due') }}</ListHeaderCell>
+            <ListHeaderCell>{{ t('todo.columns.title') }}</ListHeaderCell>
+            <ListHeaderCell>{{ t('todo.columns.status') }}</ListHeaderCell>
+            <ListHeaderCell class="hidden md:flex">{{ t('todo.columns.due') }}</ListHeaderCell>
             <ListHeaderCell class="justify-end">
-              <span class="sr-only">{{ t('todos.columns.actions') }}</span>
+              <span class="sr-only">{{ t('todo.columns.actions') }}</span>
             </ListHeaderCell>
           </ListHead>
           <ListRows :items="store.items" row-key="id" v-slot="{ item }">
@@ -267,7 +293,7 @@ async function confirmDelete(): Promise<void> {
               </ListCell>
               <ListCell>
                 <Badge
-                  :label="item.completed ? t('todos.status.done') : t('todos.status.open')"
+                  :label="item.completed ? t('todo.status.done') : t('todo.status.open')"
                   :theme="item.completed ? 'green' : 'amber'"
                   variant="subtle"
                 />
@@ -282,20 +308,20 @@ async function confirmDelete(): Promise<void> {
                   <Button
                     icon="lucide-check"
                     variant="ghost"
-                    :label="item.completed ? t('todos.actions.reopen') : t('todos.actions.complete')"
+                    :label="item.completed ? t('todo.actions.reopen') : t('todo.actions.complete')"
                     @click="toggle(item)"
                   />
                   <Button
                     icon="lucide-pencil"
                     variant="ghost"
-                    :label="t('todos.actions.edit')"
+                    :label="t('todo.actions.edit')"
                     @click="openEdit(item)"
                   />
                   <Button
                     icon="lucide-trash-2"
                     variant="ghost"
                     theme="red"
-                    :label="t('todos.actions.delete')"
+                    :label="t('todo.actions.delete')"
                     @click="openDelete(item)"
                   />
                 </div>
@@ -323,7 +349,7 @@ async function confirmDelete(): Promise<void> {
         class="rounded-6 border border-outline-gray-1 bg-surface-elevation-2 px-5 py-10 text-center"
       >
         <p class="text-p-sm text-ink-gray-5">
-          {{ isFiltered ? t('todos.emptyFiltered') : t('todos.empty') }}
+          {{ isFiltered ? t('todo.emptyFiltered') : t('todo.empty') }}
         </p>
       </div>
     </template>
@@ -331,7 +357,7 @@ async function confirmDelete(): Promise<void> {
 
   <Dialog
     v-model:open="formOpen"
-    :title="editing ? t('todos.edit.title') : t('todos.create.title')"
+    :title="editing ? t('todo.edit.title') : t('todo.create.title')"
     icon="lucide-list-todo"
     size="md"
   >
@@ -340,26 +366,26 @@ async function confirmDelete(): Promise<void> {
         <ErrorMessage v-if="store.error" :message="store.error" />
         <FormControl
           v-model="form.title"
-          :label="t('todos.fields.title')"
-          :placeholder="t('todos.fields.titlePlaceholder')"
+          :label="t('todo.fields.title')"
+          :placeholder="t('todo.fields.titlePlaceholder')"
           required
           :error="titleError"
         />
         <FormControl
           v-model="form.description"
           type="textarea"
-          :label="t('todos.fields.description')"
-          :placeholder="t('todos.fields.descriptionPlaceholder')"
+          :label="t('todo.fields.description')"
+          :placeholder="t('todo.fields.descriptionPlaceholder')"
         />
         <div class="grid gap-4 sm:grid-cols-2">
           <FormControl
             v-model="form.dueDate"
             type="date"
-            :label="t('todos.fields.dueDate')"
+            :label="t('todo.fields.dueDate')"
             clearable
           />
           <div class="flex items-center">
-            <Switch v-model="form.completed" :label="t('todos.fields.completed')" />
+            <Switch v-model="form.completed" :label="t('todo.fields.completed')" />
           </div>
         </div>
       </form>
@@ -372,7 +398,7 @@ async function confirmDelete(): Promise<void> {
           @click="formOpen = false"
         />
         <Button
-          :label="editing ? t('todos.edit.submit') : t('todos.create.submit')"
+          :label="editing ? t('todo.edit.submit') : t('todo.create.submit')"
           variant="solid"
           theme="gray"
           :loading="store.saving"
@@ -384,13 +410,13 @@ async function confirmDelete(): Promise<void> {
 
   <Dialog
     v-model:open="deleteOpen"
-    :title="t('todos.delete.title')"
+    :title="t('todo.delete.title')"
     icon="lucide-trash-2"
     size="sm"
   >
     <div class="space-y-4">
       <p v-if="deleteTarget" class="text-p-sm text-ink-gray-6">
-        {{ t('todos.delete.question', { title: deleteTarget.title }) }}
+        {{ t('todo.delete.question', { title: deleteTarget.title }) }}
       </p>
       <ErrorMessage v-if="store.error" :message="store.error" />
     </div>
@@ -402,7 +428,7 @@ async function confirmDelete(): Promise<void> {
           @click="close()"
         />
         <Button
-          :label="t('todos.delete.confirm')"
+          :label="t('todo.delete.confirm')"
           variant="solid"
           theme="red"
           :loading="Boolean(store.deletingId)"

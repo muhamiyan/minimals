@@ -1,4 +1,4 @@
-"""todos
+"""todo
 
 Revision ID: 0005
 Revises: 0004
@@ -20,7 +20,7 @@ def upgrade() -> None:
     # Client-side ``default=`` columns get no server_default, matching the
     # model so both schema paths agree.
     op.create_table(
-        "todos",
+        "todo",
         sa.Column("id", sa.String(length=36), primary_key=True),
         sa.Column(
             "organization_id",
@@ -46,9 +46,9 @@ def upgrade() -> None:
             server_default=sa.func.now(),
         ),
     )
-    op.create_index("ix_todos_organization_id", "todos", ["organization_id"])
+    op.create_index("ix_todo_organization_id", "todo", ["organization_id"])
 
 
 def downgrade() -> None:
-    op.drop_index("ix_todos_organization_id", table_name="todos")
-    op.drop_table("todos")
+    op.drop_index("ix_todo_organization_id", table_name="todo")
+    op.drop_table("todo")

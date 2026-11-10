@@ -40,13 +40,16 @@ lalu keluar dengan status 0 — aman dijalankan berulang.
 
 | Prompt | Default | Catatan |
 |---|---|---|
-| Database engine | `mariadb` | `mariadb` \| `sqlite` \| `postgresql` |
-| Host | `localhost` | |
+| Database engine | `mariadb` | `mariadb` \| `sqlite` \| `turso` \| `postgresql` |
+| Host | `localhost` | Hanya untuk `mariadb` / `postgresql` |
 | Port | `3306` / `5432` | Mengikuti engine |
 | Database name | — | Nama database yang sudah dibuat |
 | Database user | — | User yang punya akses ke database itu |
 | Database password | — | Tidak ditampilkan |
 | SQLite path | `data/app.db` | Hanya untuk engine `sqlite`; kosongkan untuk default |
+| Turso database URL | — | Hanya untuk engine `turso`; format `libsql://...` |
+| Turso auth token | — | Tidak ditampilkan |
+| Local replica path | `data/turso.db` | Hanya untuk `turso`; kosongkan untuk default |
 | Admin email | — | |
 | Admin username | dari email | Kosongkan untuk memakai bagian lokal email |
 | Full name | — | |

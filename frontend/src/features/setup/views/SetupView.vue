@@ -7,6 +7,7 @@ import {
   ErrorMessage,
   FormControl,
   Select,
+  Spinner,
   toast,
   type SelectOptionValue,
 } from 'frappe-ui'
@@ -25,6 +26,7 @@ const { t, locale } = useI18n()
 
 const step = ref(1)
 const done = ref<SetupResult | null>(null)
+const gateReady = computed(() => setup.status !== null || setup.statusFailed)
 
 const engine = ref<string | number>('sqlite')
 const path = ref('')
@@ -33,6 +35,9 @@ const port = ref('')
 const database = ref('')
 const dbUsername = ref('')
 const dbPassword = ref('')
+const tursoUrl = ref('')
+const tursoToken = ref('')
+const tursoPath = ref('')
 const testing = ref(false)
 const testedUrl = ref<string | null>(null)
 
@@ -53,6 +58,7 @@ const engineOptions = [
   { label: 'SQLite', value: 'sqlite' },
   { label: 'MariaDB', value: 'mariadb' },
   { label: 'PostgreSQL', value: 'postgresql' },
+  { label: 'Turso', value: 'turso' },
 ]
 
 const langOptions = [
@@ -70,6 +76,7 @@ const stepLabel = computed(
 )
 
 const isSqlite = computed(() => engine.value === 'sqlite')
+const isTurso = computed(() => engine.value === 'turso')
 
 const passwordChecks = computed(() => checkPassword(adminPassword.value))
 const passwordValid = computed(() => isPasswordValid(adminPassword.value))
@@ -121,6 +128,14 @@ const alertDescription = computed(() =>
 function dbConfig() {
   if (isSqlite.value) {
     return { engine: 'sqlite', path: path.value.trim() || undefined }
+  }
+  if (isTurso.value) {
+    return {
+      engine: 'turso',
+      url: tursoUrl.value.trim() || undefined,
+      authToken: tursoToken.value || undefined,
+      path: tursoPath.value.trim() || undefined,
+    }
   }
   return {
     engine: String(engine.value),
@@ -199,7 +214,11 @@ onMounted(async () => {
 
 <template>
   <div class="flex min-h-screen items-center justify-center bg-surface-base p-4 text-ink-gray-8">
-    <div class="w-full max-w-md rounded-6 border border-outline-gray-1 bg-surface-elevation-2 p-6">
+    <Spinner v-if="!gateReady" />
+    <div
+      v-else
+      class="w-full max-w-md rounded-6 border border-outline-gray-1 bg-surface-elevation-2 p-6"
+    >
       <div v-if="done" class="space-y-4 text-center">
         <div class="flex justify-center">
           <div class="rounded-full bg-surface-gray-2 p-3 text-ink-green-6">
@@ -253,6 +272,28 @@ onMounted(async () => {
               v-model="path"
               :label="t('setup.dbPath')"
               :placeholder="t('setup.dbPathPlaceholder')"
+            />
+          </template>
+
+          <template v-else-if="isTurso">
+            <FormControl
+              v-model="tursoUrl"
+              :label="t('setup.tursoUrl')"
+              placeholder="libsql://db-name-org.turso.io"
+              required
+            />
+            <FormControl
+              v-model="tursoToken"
+              type="password"
+              :label="t('setup.tursoToken')"
+              placeholder="eyJ..."
+              autocomplete="off"
+              required
+            />
+            <FormControl
+              v-model="tursoPath"
+              :label="t('setup.tursoPath')"
+              placeholder="absolute path for embedded replica, e.g. /app/data/replica.db (optional)"
             />
           </template>
 

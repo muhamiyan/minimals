@@ -155,7 +155,7 @@ onMounted(() => {
       class="rounded-6 border border-outline-gray-1 bg-surface-elevation-2 px-5 py-10 text-center"
     >
       <p class="text-p-sm text-ink-gray-5">
-        {{ t('tenancy.myOrgs.empty') }}
+        {{ t('tenancy.myOrgs.emptyOnboarding') }}
       </p>
     </div>
   </div>

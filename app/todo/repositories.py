@@ -1,13 +1,13 @@
-"""Todo repositories — query layer for organization todos."""
+"""Todo repositories — query layer for organization todo."""
 from __future__ import annotations
 
-from app.todos.models import Todo
+from app.todo.models import Todo
 from framework.base import RepositoryBase
 from framework.extensions import db
 
 
 class TodoRepository(RepositoryBase[Todo]):
-    """Query layer for todos."""
+    """Query layer for todo."""
 
     model = Todo
 

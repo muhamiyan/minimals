@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
+import { dbErrorMessage } from '@/features/infra/store'
 import { api, getErrorMessage } from '@/shared/api'
 import { i18n } from '@/app/i18n'
 
@@ -19,6 +20,8 @@ export interface DbConfig {
   username?: string
   password?: string
   path?: string
+  url?: string
+  authToken?: string
 }
 
 export interface SetupAdmin {
@@ -46,6 +49,17 @@ export const useSetupStore = defineStore('setup', () => {
   const error = ref('')
   const statusFailed = ref(false)
 
+  /**
+   * The setup flow hits the same `db_error_key()` keys as the infra console
+   * ("Db unreachable"), so reuse its curated wording over the generic
+   * humanizer.
+   */
+  function dbErrorMessageOrFallback(e: unknown, fallback: string): string {
+    const key = (e as { response?: { data?: { message?: unknown } } })?.response
+      ?.data?.message
+    return (typeof key === 'string' ? dbErrorMessage(key) : null) ?? getErrorMessage(e, fallback)
+  }
+
   async function fetchStatus(): Promise<void> {
     try {
       const { data } = await api.get('/setup/status')
@@ -64,7 +78,7 @@ export const useSetupStore = defineStore('setup', () => {
       const { data } = await api.post('/setup/db-test', cfg)
       return data.url as string
     } catch (e: any) {
-      error.value = getErrorMessage(e, i18n.global.t('setup.connectionFailed'))
+      error.value = dbErrorMessageOrFallback(e, i18n.global.t('setup.connectionFailed'))
       return null
     }
   }
@@ -80,7 +94,7 @@ export const useSetupStore = defineStore('setup', () => {
       const { data } = await api.post('/setup', { db: cfg, brand, admin, lang })
       return data
     } catch (e: any) {
-      error.value = getErrorMessage(e, i18n.global.t('setup.setupFailed'))
+      error.value = dbErrorMessageOrFallback(e, i18n.global.t('setup.setupFailed'))
       return null
     }
   }

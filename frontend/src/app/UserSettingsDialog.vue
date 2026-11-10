@@ -3,6 +3,7 @@ import { computed, ref, shallowRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import {
   Avatar,
+  Badge,
   Button,
   SettingsBody,
   SettingsContent,
@@ -21,6 +22,7 @@ import {
 import type { DropInfo, MoveContext, TreeNode } from 'frappe-ui'
 
 import { useAuthStore } from '@/features/auth/store'
+import { useTenancyStore } from '@/features/tenancy/store'
 import { api, getErrorMessage } from '@/shared/api'
 import { brand, setBrandLogo, useBrandLogo } from '@/shared/brand'
 import LogoCropper from './LogoCropper.vue'
@@ -30,10 +32,15 @@ import ThemeSwitcher from './ThemeSwitcher.vue'
 const open = defineModel<boolean>('open', { default: false })
 const activeTab = defineModel<string>('tab', { default: 'profile' })
 
-const emit = defineEmits<{ logout: [] }>()
+const props = withDefaults(defineProps<{ showOrganizations?: boolean }>(), {
+  showOrganizations: false,
+})
+
+const emit = defineEmits<{ logout: []; switchOrg: [orgId: string] }>()
 
 const { t, locale } = useI18n()
 const auth = useAuthStore()
+const tenancy = useTenancyStore()
 const menu = useMenuStore()
 
 const user = computed(() => auth.user)
@@ -66,6 +73,12 @@ const memberSince = computed(() => {
     new Date(created),
   )
 })
+
+function roleLabel(role: string | null | undefined): string {
+  if (role === 'owner') return t('orgSwitcher.owner')
+  if (role === 'member') return t('orgSwitcher.member')
+  return ''
+}
 
 const menuBusy = computed(() => menu.saving || !menu.loaded)
 
@@ -202,6 +215,15 @@ async function removeLogo() {
 watch([open, activeTab], ([isOpen, tab]) => {
   if (!isOpen || tab !== 'brand') pendingLogoFile.value = null
 })
+
+watch(
+  () => [props.showOrganizations, tenancy.myOrgs.length] as const,
+  ([show, count]) => {
+    if (activeTab.value === 'organizations' && (!show || count === 0)) {
+      activeTab.value = 'profile'
+    }
+  },
+)
 </script>
 
 <template>
@@ -230,6 +252,18 @@ watch([open, activeTab], ([isOpen, tab]) => {
         </SettingsNavItem>
       </SettingsNavGroup>
 
+      <SettingsNavGroup
+        v-if="showOrganizations && tenancy.myOrgs.length"
+        :label="t('settings.nav.organization')"
+      >
+        <SettingsNavItem value="organizations">
+          <template #prefix>
+            <span class="lucide-building size-4 text-ink-gray-6" />
+          </template>
+          {{ t('orgSwitcher.switch') }}
+        </SettingsNavItem>
+      </SettingsNavGroup>
+
       <SettingsNavGroup v-if="isAdmin" :label="t('settings.nav.app')">
         <SettingsNavItem value="brand">
           <template #prefix>
@@ -247,7 +281,7 @@ watch([open, activeTab], ([isOpen, tab]) => {
             <Button
               variant="ghost"
               icon-left="lucide-x"
-              :aria-label="t('shared.close')"
+              :label="t('shared.close')"
               class="sm:hidden"
               @click="open = false"
             />
@@ -302,7 +336,7 @@ watch([open, activeTab], ([isOpen, tab]) => {
             <Button
               variant="ghost"
               icon-left="lucide-x"
-              :aria-label="t('shared.close')"
+              :label="t('shared.close')"
               class="sm:hidden"
               @click="open = false"
             />
@@ -352,7 +386,7 @@ watch([open, activeTab], ([isOpen, tab]) => {
             <Button
               variant="ghost"
               icon-left="lucide-x"
-              :aria-label="t('shared.close')"
+              :label="t('shared.close')"
               class="sm:hidden"
               @click="open = false"
             />
@@ -405,13 +439,70 @@ watch([open, activeTab], ([isOpen, tab]) => {
         </SettingsBody>
       </SettingsPanel>
 
+      <SettingsPanel value="organizations">
+        <SettingsHeader
+          class="settings-header"
+          :title="t('orgSwitcher.switch')"
+        >
+          <template #actions>
+            <Button
+              variant="ghost"
+              icon-left="lucide-x"
+              :label="t('shared.close')"
+              class="sm:hidden"
+              @click="open = false"
+            />
+          </template>
+        </SettingsHeader>
+        <SettingsBody class="settings-body">
+          <p class="mt-6 text-p-sm leading-5 text-ink-gray-5">
+            {{ t('settings.organization.description') }}
+          </p>
+
+          <div
+            class="mt-4 divide-y divide-outline-gray-1 overflow-hidden rounded-6 border border-outline-gray-1"
+          >
+            <button
+              v-for="org in tenancy.myOrgs"
+              :key="org.id"
+              type="button"
+              class="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-surface-gray-2"
+              :class="org.id === tenancy.currentOrg?.id ? 'bg-surface-gray-2' : ''"
+              @click="emit('switchOrg', org.id)"
+            >
+              <span
+                class="lucide-building size-4 shrink-0 text-ink-gray-6"
+                aria-hidden="true"
+              />
+              <span class="min-w-0 flex-1">
+                <span class="block truncate text-base-medium text-ink-gray-8">
+                  {{ org.name }}
+                </span>
+                <span
+                  v-if="roleLabel(org.myRole)"
+                  class="block text-p-xs text-ink-gray-5"
+                >
+                  {{ roleLabel(org.myRole) }}
+                </span>
+              </span>
+              <Badge
+                v-if="org.id === tenancy.currentOrg?.id"
+                :label="t('tenancy.myOrgs.current')"
+                theme="green"
+                variant="subtle"
+              />
+            </button>
+          </div>
+        </SettingsBody>
+      </SettingsPanel>
+
       <SettingsPanel value="brand">
         <SettingsHeader class="settings-header" :title="t('settings.brand.title')">
           <template #actions>
             <Button
               variant="ghost"
               icon-left="lucide-x"
-              :aria-label="t('shared.close')"
+              :label="t('shared.close')"
               class="sm:hidden"
               @click="open = false"
             />

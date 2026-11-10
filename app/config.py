@@ -34,8 +34,22 @@ def _database_url() -> str:
     return uri
 
 
+def _engine_options(uri: str) -> dict:
+    from framework.infra.config import _engine_options as _base
+
+    opts = dict(_base(uri))
+    if uri and uri.startswith("sqlite+libsql"):
+        from app.infra.db_bootstrap import libsql_connect_args
+
+        ca = libsql_connect_args(uri)
+        if ca:
+            opts["connect_args"] = ca
+    return opts
+
+
 class Config(BaseConfig):
     SQLALCHEMY_DATABASE_URI = _database_url()
+    SQLALCHEMY_ENGINE_OPTIONS = _engine_options(SQLALCHEMY_DATABASE_URI)
 
     STATIC_FOLDER = str(BASE_DIR / "static")
     UPLOAD_FOLDER = str(BASE_DIR / "static" / "uploads")

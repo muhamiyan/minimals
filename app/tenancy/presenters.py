@@ -188,10 +188,19 @@ class SettingsOut(PresenterBase):
     """Platform settings response — the superadmin console's quota form."""
 
     members_limit: int = PresenterBase.field(0, alias="membersLimit")
+    domain_modes: dict | None = PresenterBase.field(None, alias="domainModes")
 
     @classmethod
-    def build(cls, members_limit: int) -> SettingsOut:
-        return cls(members_limit=members_limit)
+    def build(cls, members_limit: int, domain_modes: dict | None = None) -> SettingsOut:
+        modes = domain_modes or {}
+        # Only surface domainModes once a non-default mode has been set;
+        # the historical {"membersLimit": N} shape is kept before that.
+        if all(v == "enabled" for v in modes.values()):
+            modes = {}
+        return cls(
+            members_limit=members_limit,
+            domain_modes=modes or None,
+        )
 
 
 __all__ = [

@@ -1,13 +1,13 @@
 import type { RouteRecordRaw } from 'vue-router'
 
-export const todosRoutes: RouteRecordRaw[] = [
+export const todoRoutes: RouteRecordRaw[] = [
   {
-    path: 'todos',
-    name: 'ToDos',
-    component: () => import('./views/ToDosView.vue'),
+    path: 'todo',
+    name: 'ToDo',
+    component: () => import('./views/ToDoView.vue'),
     meta: {
       requiresAuth: true,
-      title: 'To-dos',
+      title: 'Todo',
       description: 'Shared task list for the organization.',
     },
   },

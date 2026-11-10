@@ -48,7 +48,7 @@ def upload_name_from_url(url: str) -> str | None:
 @bp.post("")
 @login_required
 def upload_image():
-    if denied := require_role("admin"):
+    if denied := require_role("admin", "superadmin"):
         return denied
 
     upload = (request.files or {}).get("file")
@@ -79,7 +79,7 @@ def upload_image():
 @bp.delete("/<string:name>")
 @login_required
 def delete_image(name: str):
-    if denied := require_role("admin"):
+    if denied := require_role("admin", "superadmin"):
         return denied
 
     if not _valid_name(name):

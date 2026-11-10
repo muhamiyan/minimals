@@ -678,14 +678,40 @@ export const useTenancyStore = defineStore('tenancy', () => {
   }
 
   // --- platform settings (superadmin) ------------------------------------
+  // Domain operational mode: enabled | maintenance | dev.
+  // Absent on the wire until a mode has been set (exclude_none).
+  const domainModes = ref<Record<string, string>>({})
+  let domainModesInFlight: Promise<void> | null = null
+
+  /** Readable by any signed-in user; fills `domainModes` for mode-aware UI. */
+  function fetchDomainModes(): Promise<void> {
+    if (domainModesInFlight) return domainModesInFlight
+    domainModesInFlight = (async () => {
+      try {
+        const { data } = await api.get<{ domainModes?: Record<string, string> }>(
+          '/tenancy/settings/modes',
+        )
+        domainModes.value = data.domainModes ?? {}
+      } catch {
+        domainModes.value = {}
+      } finally {
+        domainModesInFlight = null
+      }
+    })()
+    return domainModesInFlight
+  }
+
   /** Always fetches fresh: another admin may have changed the quota. */
   async function fetchSettings(): Promise<number | null> {
     settingsLoading.value = true
     settingsError.value = ''
     settingsSaveError.value = ''
     try {
-      const { data } = await api.get<{ membersLimit: number }>('/tenancy/settings')
+      const { data } = await api.get<{ membersLimit: number; domainModes?: Record<string, string> }>(
+        '/tenancy/settings',
+      )
       settingsMembersLimit.value = data.membersLimit
+      domainModes.value = data.domainModes ?? {}
       return data.membersLimit
     } catch (e: any) {
       settingsError.value = getErrorMessage(e, i18n.global.t('tenancy.errors.loadSettings'))
@@ -699,10 +725,34 @@ export const useTenancyStore = defineStore('tenancy', () => {
     settingsSaveError.value = ''
     settingsSaving.value = true
     try {
-      const { data } = await api.put<{ membersLimit: number }>('/tenancy/settings', {
-        membersLimit,
-      })
+      const { data } = await api.put<{ membersLimit: number; domainModes?: Record<string, string> }>(
+        '/tenancy/settings',
+        { membersLimit },
+      )
       settingsMembersLimit.value = data.membersLimit
+      domainModes.value = data.domainModes ?? domainModes.value
+      return true
+    } catch (e: any) {
+      settingsSaveError.value = getErrorMessage(e, i18n.global.t('tenancy.errors.saveSettings'))
+      return false
+    } finally {
+      settingsSaving.value = false
+    }
+  }
+
+  function domainMode(domain: string): string {
+    return domainModes.value[domain] ?? 'enabled'
+  }
+
+  async function updateDomainMode(domain: string, mode: string): Promise<boolean> {
+    settingsSaveError.value = ''
+    settingsSaving.value = true
+    try {
+      const { data } = await api.put<{ membersLimit: number; domainModes?: Record<string, string> }>(
+        `/tenancy/settings/domains/${domain}`,
+        { mode },
+      )
+      domainModes.value = data.domainModes ?? {}
       return true
     } catch (e: any) {
       settingsSaveError.value = getErrorMessage(e, i18n.global.t('tenancy.errors.saveSettings'))
@@ -837,6 +887,9 @@ export const useTenancyStore = defineStore('tenancy', () => {
     settingsError,
     settingsSaving,
     settingsSaveError,
+    domainModes,
+    domainMode,
+    updateDomainMode,
     activeFeatures,
     activeFeaturesLoading,
     activeFeaturesError,
@@ -864,6 +917,7 @@ export const useTenancyStore = defineStore('tenancy', () => {
     revokeInviteCode,
     fetchSettings,
     updateMembersLimit,
+    fetchDomainModes,
     fetchActiveFeatures,
     hasFeature,
     resetMyOrgs,

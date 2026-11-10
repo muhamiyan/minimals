@@ -28,6 +28,7 @@ import PageBreadcrumbs from '@/shared/components/PageBreadcrumbs.vue'
 import ListFoot from '@/shared/components/ListFoot.vue'
 import ListHead from '@/shared/components/ListHead.vue'
 import ListToolbar from '@/shared/components/ListToolbar.vue'
+import InvoicePrintDialog from '../components/InvoicePrintDialog.vue'
 import { useListControls } from '@/shared/composables/useListControls'
 import { formatDate, formatRupiah } from '@/shared/format'
 
@@ -57,6 +58,19 @@ const router = useRouter()
 const { t } = useI18n()
 
 const isSuperadmin = computed(() => auth.user?.appRole === 'superadmin')
+const domainMode = computed(() => tenancy.domainMode('billing'))
+const isMaintenance = computed(() => domainMode.value === 'maintenance')
+const isDev = computed(() => domainMode.value === 'dev')
+
+// Gate: nothing below renders until the caller can actually read the
+// invoice list (myOrgs for owners, features for tenant users) and the
+// domain mode is known. Otherwise the page flashes the wrong UI —
+// e.g. an upsell banner before the feature check resolves.
+const gateReady = computed(() => {
+  const orgGate = isSuperadmin.value || tenancy.myOrgsLoaded
+  const modeGate = tenancy.domainMode('billing') !== '' || tenancy.myOrgsLoaded
+  return orgGate && modeGate
+})
 
 const statusFilter = ref('')
 const orgFilter = ref('')
@@ -148,6 +162,15 @@ function onOrgFilter(value: SelectOptionValue | null | undefined): void {
   orgFilter.value = value ? String(value) : ''
   store.setPage(1)
   reload()
+}
+
+// --- print dialog --------------------------------------------------------
+const printInvoice = ref<Invoice | null>(null)
+const printOpen = ref(false)
+
+function openPrint(invoice: Invoice): void {
+  printInvoice.value = invoice
+  printOpen.value = true
 }
 
 // --- pay / void dialogs --------------------------------------------------
@@ -379,7 +402,13 @@ async function submitSettings(): Promise<void> {
 <template>
   <PageHeader>
     <PageBreadcrumbs />
-    <div v-if="isSuperadmin" class="flex items-center gap-2">
+    <Badge
+      v-if="isDev"
+      :label="t('billing.dev')"
+      theme="violet"
+      variant="subtle"
+    />
+    <div v-if="isSuperadmin && !isMaintenance" class="flex items-center gap-2">
       <Button
         :label="t('billing.actions.settings')"
         icon-left="lucide-settings"
@@ -396,10 +425,18 @@ async function submitSettings(): Promise<void> {
     </div>
   </PageHeader>
 
-  <div class="mx-auto w-full max-w-6xl space-y-3 px-5 py-6">
+  <div
+    v-if="!gateReady"
+    class="flex justify-center rounded-6 border border-outline-gray-1 bg-surface-elevation-2 py-10"
+  >
+    <Spinner />
+  </div>
+
+  <div v-else class="mx-auto w-full max-w-6xl space-y-3 px-5 py-6">
     <ListToolbar
       v-model:search="search"
       v-model:per-page="perPage"
+      :show-per-page="store.items.length > 0"
       :placeholder="t('billing.filter.search')"
     >
       <Select
@@ -474,25 +511,30 @@ async function submitSettings(): Promise<void> {
               </span>
             </ListCell>
             <ListCell class="hidden justify-end md:flex">
-              <div
-                v-if="isSuperadmin && item.status === 'issued'"
-                class="flex items-center justify-end gap-1"
-              >
+              <div class="flex items-center justify-end gap-1">
                 <Button
-                  icon="lucide-check"
-                  :label="t('billing.actions.markPaid')"
+                  icon="lucide-printer"
+                  :label="t('billing.actions.print')"
                   variant="ghost"
-                  :loading="store.actingId === item.id"
-                  @click="openPay(item)"
+                  @click="openPrint(item)"
                 />
-                <Button
-                  icon="lucide-ban"
-                  :label="t('billing.actions.void')"
-                  variant="ghost"
-                  theme="red"
-                  :loading="store.actingId === item.id"
-                  @click="openVoid(item)"
-                />
+                <template v-if="isSuperadmin && item.status === 'issued'">
+                  <Button
+                    icon="lucide-check"
+                    :label="t('billing.actions.markPaid')"
+                    variant="ghost"
+                    :loading="store.actingId === item.id"
+                    @click="openPay(item)"
+                  />
+                  <Button
+                    icon="lucide-ban"
+                    :label="t('billing.actions.void')"
+                    variant="ghost"
+                    theme="red"
+                    :loading="store.actingId === item.id"
+                    @click="openVoid(item)"
+                  />
+                </template>
               </div>
             </ListCell>
           </ListRow>
@@ -547,6 +589,8 @@ async function submitSettings(): Promise<void> {
       />
     </div>
   </div>
+
+  <InvoicePrintDialog v-model:open="printOpen" :invoice="printInvoice" />
 
   <Dialog
     v-model:open="payOpen"

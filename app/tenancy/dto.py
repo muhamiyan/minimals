@@ -160,8 +160,30 @@ class SettingMembersLimitIn(DTOBase):
     members_limit: int = DTOBase.field(..., alias="membersLimit", ge=0, le=1_000_000)
 
 
+# Domain mode: which operational stage a domain is in.
+#   enabled     — fully available to its normal audience
+#   maintenance — page 503-style maintenance message (tulis diblokir di backend)
+#   dev         — work-in-progress badge (tulis tetap jalan; UI menandai)
+DOMAIN_MODES = ("enabled", "maintenance", "dev")
+
+
+class DomainModeUpdateIn(DTOBase):
+    """Validate a partial domain-mode update (one domain per call)."""
+
+    mode: str = DTOBase.field(..., max_length=20)
+
+    @field_validator("mode")
+    @classmethod
+    def validate_mode(cls, v: str) -> str:
+        v = v.strip().lower()
+        if v not in DOMAIN_MODES:
+            raise ValueError("invalid_mode")
+        return v
+
+
 __all__ = [
     "DefaultOrgIn",
+    "DomainModeUpdateIn",
     "InviteCodeCreateIn",
     "InviteRedeemIn",
     "MemberAddIn",

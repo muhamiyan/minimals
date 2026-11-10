@@ -50,7 +50,14 @@ def get_engine():
             return current_app.extensions["migrate"].db.engine
     except (RuntimeError, KeyError):
         pass
-    return create_engine(database_url, poolclass=pool.NullPool)
+    connect_args = {}
+    if database_url and database_url.startswith("sqlite+libsql"):
+        from app.infra.db_bootstrap import libsql_connect_args
+
+        connect_args = libsql_connect_args(database_url)
+    return create_engine(
+        database_url, poolclass=pool.NullPool, connect_args=connect_args
+    )
 
 
 def run_migrations_offline() -> None:

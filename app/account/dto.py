@@ -5,7 +5,7 @@ from pydantic import field_validator, model_validator
 
 from framework.base import DTOBase
 
-VALID_APP_ROLES = ("user", "admin")
+VALID_APP_ROLES = ("user", "admin", "superadmin")
 
 
 class UserUpdateIn(DTOBase):

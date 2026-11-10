@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, h, ref, watch } from 'vue'
+import { computed, h, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import {
@@ -16,6 +16,10 @@ import {
 } from 'frappe-ui'
 
 import { useAuthStore } from '@/features/auth/store'
+import { useBillingStore } from '@/features/billing/store'
+import { usePlansStore } from '@/features/plans/store'
+import { useTenancyStore } from '@/features/tenancy/store'
+import { useTodoStore } from '@/features/todo/store'
 import ForbiddenDialog from '@/shared/components/ForbiddenDialog.vue'
 import { brand, useBrandLogo } from '@/shared/brand'
 import { useMenuStore } from './menuStore'
@@ -27,6 +31,10 @@ const router = useRouter()
 const route = useRoute()
 const auth = useAuthStore()
 const menu = useMenuStore()
+const tenancy = useTenancyStore()
+const billing = useBillingStore()
+const plans = usePlansStore()
+const todo = useTodoStore()
 const { t } = useI18n()
 
 watch(
@@ -37,6 +45,15 @@ watch(
   },
   { immediate: true },
 )
+
+// AppShell only wraps authenticated routes, so this is safe to fire once here.
+// The router guard may have already loaded myOrgs (onboarding gate) — don't
+// ask a second time, but features always depend on the settled org list.
+onMounted(async () => {
+  if (!tenancy.myOrgsLoaded) await tenancy.fetchMyOrgs()
+  tenancy.fetchDomainModes()
+  await tenancy.fetchActiveFeatures()
+})
 
 const isFullscreen = computed(
   () => route.meta.fullscreen === true || route.query.fullscreen === '1',
@@ -57,26 +74,59 @@ function openSettings(tab: 'profile' | 'preferences' = 'profile') {
   settingsOpen.value = true
 }
 
-const headerMenu = computed(() => [
-  {
-    group: t('menu.theme'),
-    options: [
-      {
-        label: t('menu.theme'),
-        slots: { label: () => h(ThemeSwitcher) },
-      },
-    ],
-  },
-  {
-    label: t('menu.settings'),
-    icon: 'lucide-settings',
-    onClick: () => openSettings(),
-  },
-  { label: t('menu.logout'), icon: 'lucide-log-out', onClick: onLogout },
-])
+function orgRoleLabel(role: string | null | undefined): string {
+  if (role === 'owner') return t('orgSwitcher.owner')
+  if (role === 'member') return t('orgSwitcher.member')
+  return ''
+}
+
+async function switchOrg(orgId: string): Promise<void> {
+  if (orgId === tenancy.currentOrg?.id) return
+  if (!tenancy.setActiveOrg(orgId)) return
+  tenancy.fetchActiveFeatures()
+  if (route.name === 'MyOrganization') {
+    await router.push({ name: 'MyOrganization', params: { orgId } })
+  }
+}
+
+async function onSwitchOrg(orgId: string): Promise<void> {
+  settingsOpen.value = false
+  await switchOrg(orgId)
+}
+
+const headerMenu = computed(() => {
+  const orgs = tenancy.myOrgs.map((org) => ({
+    label: org.name,
+    description: orgRoleLabel(org.myRole),
+    selected: org.id === tenancy.currentOrg?.id,
+    onClick: () => switchOrg(org.id),
+  }))
+  return [
+    {
+      group: t('menu.theme'),
+      options: [
+        {
+          label: t('menu.theme'),
+          slots: { label: () => h(ThemeSwitcher) },
+        },
+      ],
+    },
+    ...(orgs.length ? [{ group: t('orgSwitcher.title'), options: orgs }] : []),
+    {
+      label: t('menu.settings'),
+      icon: 'lucide-settings',
+      onClick: () => openSettings(),
+    },
+    { label: t('menu.logout'), icon: 'lucide-log-out', onClick: onLogout },
+  ]
+})
 
 async function onLogout() {
   await auth.logout()
+  tenancy.resetMyOrgs()
+  billing.reset()
+  plans.reset()
+  todo.reset()
   await router.replace('/login')
 }
 </script>
@@ -160,6 +210,8 @@ async function onLogout() {
   <UserSettingsDialog
     v-model:open="settingsOpen"
     v-model:tab="settingsTab"
+    :show-organizations="!isDesktop"
+    @switch-org="onSwitchOrg"
     @logout="onLogout"
   />
   <ForbiddenDialog />

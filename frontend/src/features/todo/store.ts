@@ -38,7 +38,7 @@ interface Paged<T> {
   perPage: number
 }
 
-export const useTodosStore = defineStore('todos', () => {
+export const useTodoStore = defineStore('todo', () => {
   const items = ref<Todo[]>([])
   const total = ref(0)
   const page = ref(1)
@@ -50,7 +50,7 @@ export const useTodosStore = defineStore('todos', () => {
   let lastQuery: TodoQuery = { search: '', perPage: 20, completed: 'all' }
 
   function baseUrl(orgId: string): string {
-    return `/todos/organizations/${orgId}`
+    return `/todo/organizations/${orgId}`
   }
 
   async function list(orgId: string, query?: TodoQuery): Promise<void> {
@@ -74,7 +74,7 @@ export const useTodosStore = defineStore('todos', () => {
       page.value = data.page ?? page.value
     } catch (e: any) {
       if (seq !== listSeq) return
-      error.value = getErrorMessage(e, i18n.global.t('todos.errors.list'))
+      error.value = getErrorMessage(e, i18n.global.t('todo.errors.list'))
     } finally {
       if (seq === listSeq) loading.value = false
     }
@@ -94,7 +94,7 @@ export const useTodosStore = defineStore('todos', () => {
       await list(orgId)
       return data
     } catch (e: any) {
-      error.value = getErrorMessage(e, i18n.global.t('todos.errors.save'))
+      error.value = getErrorMessage(e, i18n.global.t('todo.errors.save'))
       return null
     } finally {
       saving.value = false
@@ -113,7 +113,7 @@ export const useTodosStore = defineStore('todos', () => {
       await list(orgId)
       return data
     } catch (e: any) {
-      error.value = getErrorMessage(e, i18n.global.t('todos.errors.save'))
+      error.value = getErrorMessage(e, i18n.global.t('todo.errors.save'))
       return null
     } finally {
       saving.value = false
@@ -132,7 +132,7 @@ export const useTodosStore = defineStore('todos', () => {
       }
       return true
     } catch (e: any) {
-      error.value = getErrorMessage(e, i18n.global.t('todos.errors.delete'))
+      error.value = getErrorMessage(e, i18n.global.t('todo.errors.delete'))
       return false
     } finally {
       deletingId.value = null

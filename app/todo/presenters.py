@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 
-from app.todos.models import Todo
+from app.todo.models import Todo
 from framework.base import PresenterBase
 
 
