@@ -8,6 +8,7 @@ import {
 
 import { i18n } from '@/app/i18n'
 import AppShell from '@/app/AppShell.vue'
+import { accountRoutes } from '@/features/account/routes'
 import { authRoutes } from '@/features/auth/routes'
 import { useAuthStore } from '@/features/auth/store'
 import { dashboardRoutes } from '@/features/dashboard/routes'
@@ -21,7 +22,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/',
     component: AppShell,
-    children: [...dashboardRoutes],
+    children: [...dashboardRoutes, ...accountRoutes],
   },
   { path: '/:pathMatch(.*)*', redirect: '/' },
 ]

@@ -1,7 +1,8 @@
 {
   "nav": {
     "home": "Home",
-    "dashboard": "Dashboard"
+    "dashboard": "Dashboard",
+    "users": "Users"
   },
   "menu": {
     "theme": "Theme",
@@ -65,7 +66,8 @@
     }
   },
   "crumb": {
-    "dashboard": "Dashboard"
+    "dashboard": "Dashboard",
+    "users": "Users"
   },
   "route": {
     "Login": {
@@ -83,6 +85,10 @@
     "Dashboard": {
       "title": "Dashboard",
       "description": "Your account overview: profile and roles."
+    },
+    "Users": {
+      "title": "Users",
+      "description": "User administration: roles, status, and groups."
     }
   },
   "field": {
@@ -117,6 +123,34 @@
       "length": "At least 8 characters"
     }
   },
+  "account": {
+    "searchUsers": "Search users…",
+    "noUsers": "No users yet.",
+    "noUsersFound": "No users match your search.",
+    "columns": {
+      "user": "User",
+      "appRole": "App role",
+      "roles": "Groups",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "editUser": "Edit user",
+    "fullName": "Full name",
+    "appRole": "App role",
+    "roleUser": "User",
+    "roleAdmin": "Admin",
+    "roleNames": "Groups",
+    "rolesPlaceholder": "Select groups…",
+    "statusActive": "Active",
+    "statusInactive": "Inactive",
+    "isActive": "Active",
+    "saveChanges": "Save changes",
+    "userUpdated": "User updated.",
+    "errors": {
+      "loadUsersFailed": "Couldn't load users.",
+      "updateUserFailed": "Couldn't update the user."
+    }
+  },
   "shared": {
     "search": "Search…",
     "perPage": "{n} / page",
@@ -126,7 +160,9 @@
     "ok": "OK",
     "close": "Close",
     "forbiddenTitle": "Access denied",
-    "forbiddenMessage": "This page requires administrator privileges. Your account is registered as a regular user. Contact an administrator to get access."
+    "forbiddenMessage": "This page requires administrator privileges. Your account is registered as a regular user. Contact an administrator to get access.",
+    "noResults": "No results found",
+    "cancel": "Cancel"
   },
   "dash": {
     "welcomeBack": "Welcome back",
