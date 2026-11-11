@@ -40,15 +40,6 @@ export interface UserUpdatePayload {
   roleNames?: string[]
 }
 
-export interface UserCreatePayload {
-  email: string
-  username: string
-  password: string
-  fullName: string
-  appRole: string
-  roleNames: string[]
-}
-
 export const useAccountStore = defineStore('account', () => {
   const items = ref<AdminUser[]>([])
   const total = ref(0)
@@ -58,13 +49,6 @@ export const useAccountStore = defineStore('account', () => {
   const error = ref('')
   const roles = ref<AccountRole[]>([])
   const rolesLoaded = ref(false)
-
-  async function fetchUserTotal(): Promise<number> {
-    const { data } = await api.get<UserPage>('/account/users', {
-      params: { page: 1, per_page: 1 },
-    })
-    return data.total ?? 0
-  }
 
   async function fetchUsers(query: UserQuery = {}): Promise<boolean> {
     loading.value = true
@@ -122,22 +106,6 @@ export const useAccountStore = defineStore('account', () => {
     }
   }
 
-  async function createUser(
-    payload: UserCreatePayload,
-  ): Promise<AdminUser | null> {
-    error.value = ''
-    try {
-      const { data } = await api.post<AdminUser>('/account/users', payload)
-      return data
-    } catch (e: any) {
-      error.value = getErrorMessage(
-        e,
-        i18n.global.t('account.errors.createUserFailed'),
-      )
-      return null
-    }
-  }
-
   return {
     items,
     total,
@@ -146,10 +114,8 @@ export const useAccountStore = defineStore('account', () => {
     loading,
     error,
     roles,
-    fetchUserTotal,
     fetchUsers,
     fetchRoles,
-    createUser,
     updateUser,
   }
 })

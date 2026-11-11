@@ -1,4 +1,4 @@
----
+﻿---
 name: polish
 description: >-
   Kanon cosmetics & presentasi untuk UI Minimals (Vue 3 + frappe-ui

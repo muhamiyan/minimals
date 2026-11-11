@@ -2,17 +2,16 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import {
+  Button,
   Dialog,
   ErrorMessage,
   MultiSelect,
-  Password,
   Select,
   Switch,
   TextInput,
   toast,
 } from 'frappe-ui'
 
-import PasswordRules from '@/shared/components/PasswordRules.vue'
 import { useAccountStore, type AdminUser } from '../store'
 
 const props = defineProps<{
@@ -27,11 +26,6 @@ const emit = defineEmits<{
 const store = useAccountStore()
 const { t } = useI18n()
 
-const isCreate = computed(() => props.user === null)
-
-const email = ref('')
-const username = ref('')
-const password = ref('')
 const fullName = ref('')
 const appRole = ref('user')
 const isActive = ref(true)
@@ -39,22 +33,17 @@ const roleNames = ref<string[]>([])
 const saving = ref(false)
 const error = ref('')
 
-function resetForm() {
-  const user = props.user
-  email.value = ''
-  username.value = ''
-  password.value = ''
-  fullName.value = user?.fullName ?? ''
-  appRole.value = user?.appRole ?? 'user'
-  isActive.value = user?.isActive ?? true
-  roleNames.value = [...(user?.roles ?? [])]
-  error.value = ''
-}
-
-watch(() => props.user, resetForm, { immediate: true })
-watch(open, (isOpen) => {
-  if (isOpen) resetForm()
-})
+watch(
+  () => props.user,
+  (user) => {
+    fullName.value = user?.fullName ?? ''
+    appRole.value = user?.appRole ?? 'user'
+    isActive.value = user?.isActive ?? true
+    roleNames.value = [...(user?.roles ?? [])]
+    error.value = ''
+  },
+  { immediate: true },
+)
 
 onMounted(() => store.fetchRoles())
 
@@ -75,7 +64,7 @@ const actions = computed(() => [
     onClick: ({ close }: { close: () => void }) => close(),
   },
   {
-    label: isCreate.value ? t('account.createUser') : t('account.saveChanges'),
+    label: t('account.saveChanges'),
     variant: 'solid' as const,
     loading: saving.value,
     onClick: async () => {
@@ -85,88 +74,34 @@ const actions = computed(() => [
 ])
 
 async function onSave() {
+  if (!props.user) return
   saving.value = true
   error.value = ''
-
-  if (props.user) {
-    const updated = await store.updateUser(props.user.id, {
-      fullName: fullName.value.trim(),
-      appRole: appRole.value,
-      isActive: isActive.value,
-      roleNames: [...roleNames.value],
-    })
-    saving.value = false
-    if (!updated) {
-      error.value = store.error
-      return
-    }
-    toast.success(t('account.userUpdated'))
-  } else {
-    const created = await store.createUser({
-      email: email.value.trim(),
-      username: username.value.trim(),
-      password: password.value,
-      fullName: fullName.value.trim(),
-      appRole: appRole.value,
-      roleNames: [...roleNames.value],
-    })
-    saving.value = false
-    if (!created) {
-      error.value = store.error
-      return
-    }
-    toast.success(t('account.userCreated'))
+  const updated = await store.updateUser(props.user.id, {
+    fullName: fullName.value.trim(),
+    appRole: appRole.value,
+    isActive: isActive.value,
+    roleNames: [...roleNames.value],
+  })
+  saving.value = false
+  if (!updated) {
+    error.value = store.error
+    return
   }
-
+  toast.success(t('account.userUpdated'))
   open.value = false
   emit('saved')
 }
 </script>
 
 <template>
-  <Dialog
-    v-model:open="open"
-    :title="isCreate ? t('account.addUser') : t('account.editUser')"
-    :icon="isCreate ? 'lucide-user-plus' : 'lucide-user-pen'"
-    :actions="actions"
-  >
+  <Dialog v-model:open="open" :title="t('account.editUser')" icon="lucide-user-pen" :actions="actions">
     <div class="space-y-4">
       <ErrorMessage v-if="error" :message="error" />
 
       <TextInput
-        v-if="isCreate"
-        v-model="email"
-        :label="t('field.email')"
-        type="email"
-        placeholder="abdulah@example.com"
-        required
-        autocomplete="off"
-      />
-
-      <TextInput
-        v-if="isCreate"
-        v-model="username"
-        :label="t('field.username')"
-        placeholder="abdulah"
-        required
-        autocomplete="off"
-      />
-
-      <Password
-        v-if="isCreate"
-        v-model="password"
-        :label="t('field.password')"
-        placeholder="••••••••"
-        required
-        autocomplete="new-password"
-      />
-
-      <PasswordRules :password="password" />
-
-      <TextInput
         v-model="fullName"
         :label="t('account.fullName')"
-        placeholder="Abdullah"
         required
       />
 
@@ -183,11 +118,7 @@ async function onSave() {
         :placeholder="t('account.rolesPlaceholder')"
       />
 
-      <Switch
-        v-if="!isCreate"
-        v-model="isActive"
-        :label="t('account.isActive')"
-      />
+      <Switch v-model="isActive" :label="t('account.isActive')" />
     </div>
   </Dialog>
 </template>

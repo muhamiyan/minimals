@@ -8,21 +8,11 @@ import {
 
 import { i18n } from '@/app/i18n'
 import AppShell from '@/app/AppShell.vue'
+import { accountRoutes } from '@/features/account/routes'
 import { authRoutes } from '@/features/auth/routes'
 import { useAuthStore } from '@/features/auth/store'
-import { billingRoutes } from '@/features/billing/routes'
-import { useBillingStore } from '@/features/billing/store'
 import { dashboardRoutes } from '@/features/dashboard/routes'
-import { infraRoutes } from '@/features/infra/routes'
-import { planRoutes } from '@/features/plan/routes'
-import { plansRoutes } from '@/features/plans/routes'
-import { usePlansStore } from '@/features/plans/store'
-import { usePlanStore } from '@/features/plan/store'
 import { setupRoutes } from '@/features/setup/routes'
-import { tenancyRoutes } from '@/features/tenancy/routes'
-import { useTenancyStore } from '@/features/tenancy/store'
-import { todoRoutes } from '@/features/todo/routes'
-import { useTodoStore } from '@/features/todo/store'
 import { brand } from '@/shared/brand'
 import { authGuard } from './guard'
 
@@ -32,15 +22,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/',
     component: AppShell,
-    children: [
-      ...dashboardRoutes,
-      ...todoRoutes,
-      ...tenancyRoutes,
-      ...planRoutes,
-      ...plansRoutes,
-      ...billingRoutes,
-      ...infraRoutes,
-    ],
+    children: [...dashboardRoutes, ...accountRoutes],
   },
   { path: '/:pathMatch(.*)*', redirect: '/' },
 ]
@@ -84,13 +66,6 @@ window.addEventListener('auth:unauthorized', () => {
   const auth = useAuthStore()
   auth.user = null
   auth.checked = true
-  // The session is over: tenant state (and the stored organization choice)
-  // must not survive into the next sign-in.
-  useTenancyStore().resetMyOrgs()
-  useBillingStore().reset()
-  usePlansStore().reset()
-  usePlanStore().reset()
-  useTodoStore().reset()
   const current = router.currentRoute.value
   if (current.matched.length > 0 && current.meta.requiresAuth) {
     router.replace({ path: '/login', query: { redirect: current.fullPath } })

@@ -6,12 +6,7 @@ export interface NavItem {
   mobileLabelKey?: string
   icon: string
   route: RouteDestination
-  /** Role gate evaluated in menuStore against auth + org membership. */
-  gate?: 'superadmin' | 'owner' | 'superadminOrOwner'
-  /** Feature flag evaluated in menuStore via tenancy.hasFeature(flag). */
-  feature?: string
-  /** Domain key evaluated in menuStore via tenancy.domainMode(domain). */
-  domain?: string
+  requireAdmin?: boolean
 }
 
 export interface MenuPreference {
@@ -28,56 +23,11 @@ export const NAV_ITEMS: NavItem[] = [
     route: { name: 'Dashboard' },
   },
   {
-    key: 'ToDo',
-    labelKey: 'nav.todo',
-    icon: 'lucide-list-todo',
-    route: { name: 'ToDo' },
-  },
-  {
-    key: 'MyOrganizations',
-    labelKey: 'nav.organizations',
-    icon: 'lucide-building',
-    route: { name: 'MyOrganizations' },
-    gate: 'owner',
-  },
-  {
-    key: 'Plan',
-    labelKey: 'nav.plan',
-    icon: 'lucide-package',
-    route: { name: 'Plan' },
-    gate: 'owner',
-    domain: 'plans',
-  },
-  {
-    key: 'Tenancy',
-    labelKey: 'nav.tenancy',
-    icon: 'lucide-building-2',
-    route: { name: 'Tenancy' },
-    gate: 'superadmin',
-  },
-  {
-    key: 'Plans',
-    labelKey: 'nav.plans',
-    icon: 'lucide-layers',
-    route: { name: 'Plans' },
-    gate: 'superadmin',
-    domain: 'plans',
-  },
-  {
-    key: 'Billing',
-    labelKey: 'nav.billing',
-    icon: 'lucide-credit-card',
-    route: { name: 'Billing' },
-    gate: 'superadminOrOwner',
-    domain: 'billing',
-  },
-  {
-    key: 'Infrastructure',
-    labelKey: 'nav.infrastructure',
-    icon: 'lucide-database',
-    route: { name: 'Infrastructure' },
-    gate: 'superadmin',
-    domain: 'infra',
+    key: 'Users',
+    labelKey: 'nav.users',
+    icon: 'lucide-users',
+    route: { name: 'Users' },
+    requireAdmin: true,
   },
 ]
 
