@@ -100,6 +100,10 @@ class PlanService(ServiceBase[PlanRepository]):
         super().__init__(repo)
         self._subs = subs or SubscriptionRepository()
 
+    def catalog(self) -> list[Plan]:
+        """The full plan catalog for the self-service plan page."""
+        return self._repo.list_all()
+
     def list_plans(
         self,
         *,

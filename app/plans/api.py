@@ -39,6 +39,14 @@ def list_features():
     )
 
 
+@bp.get("/catalog")
+@login_required
+def list_catalog():
+    return ok(
+        {"items": [PlanOut.from_plan(p).to_dict() for p in PlanService().catalog()]}
+    )
+
+
 @bp.get("")
 @login_required
 def list_plans():

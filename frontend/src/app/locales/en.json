@@ -5,6 +5,7 @@
     "organizations": "Organizations",
     "tenancy": "Tenancy",
     "plans": "Plans",
+    "plan": "Plan",
     "billing": "Billing",
     "infrastructure": "Infrastructure",
     "todo": "Todo"
@@ -134,6 +135,10 @@
     "Plans": {
       "title": "Plans",
       "description": "Plan catalog: tiers, terms, prices, and defaults."
+    },
+    "Plan": {
+      "title": "Plan",
+      "description": "Choose or switch the organization's plan."
     },
     "Billing": {
       "title": "Billing",
@@ -287,6 +292,23 @@
       "create": "Failed to create plan",
       "update": "Failed to update plan",
       "delete": "Failed to delete plan"
+    }
+  },
+  "plan": {
+    "currentPlan": "Current plan",
+    "unavailable": "Unavailable",
+    "select": "Select plan",
+    "confirmTitle": "Request switch to {name}?",
+    "confirmBody": "An invoice for {price} will be created. {name} becomes your organization's plan once the invoice is paid — your current plan stays active until then.",
+    "confirm": "Create invoice",
+    "switchRequested": "Invoice {number} created — the plan applies after payment",
+    "pendingSwitch": "Switch to {name} is pending payment of invoice {number}.",
+    "pendingSwitchGeneric": "A plan switch is pending payment of invoice {number}.",
+    "viewBilling": "View billing",
+    "empty": "No plans are available yet.",
+    "errors": {
+      "load": "Failed to load the plan catalog",
+      "switch": "Failed to request the plan switch"
     }
   },
   "billing": {

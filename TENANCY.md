@@ -173,7 +173,8 @@ boleh, tuple = response yang langsung di-return.
 | `POST /invoices` | `require_role("superadmin")` | Invoice manual: `organizationId` + `periodStart` (+ `amount` opsional); default = harga configured tier |
 | `GET /invoices/:id` | `require_org_role(invoice.organization_id, "owner")` | owner bisa baca invoice org-nya |
 | `POST /invoices/:id/pay`, `POST /invoices/:id/void` | `require_role("superadmin")` | owner **tidak** boleh tandai bayar; pay menerima `amount` opsional |
-| `GET /organizations/:id/invoices` (paginated) | `require_org_role(org_id, "owner")` | juga memicu generate utk org itu |
+| `GET /organizations/:id/invoices` (paginated) | `require_org_role(org_id, "owner")` | juga memicu generate utk org itu; `?status=` filter (`issued`/`paid`/`void`, lainnya → 400 `invalid_status`) |
+| `POST /organizations/:id/plan-switch` | `require_org_role(org_id, "owner")` | self-service switch: **buat invoice**, plan baru berlaku saat paid (lihat §6) |
 | `GET/PUT /settings` | `require_role("superadmin")` | trial days + invoice lead days; PUT parsial |
 
 ### Plans (`/api/v1/plans/*`)
@@ -181,7 +182,8 @@ boleh, tuple = response yang langsung di-return.
 | Endpoint | Guard | Catatan |
 |---|---|---|
 | `GET ""` | `require_role("superadmin")` | katalog paginated (`items,total,page,perPage`); filter opsional `?tier=` + `?search=` (nama) |
-| `GET /features` | `require_role("superadmin")` | daftar key registry fitur (untuk editor) |
+| `GET /catalog` | `@login_required` | seluruh katalog (aktif + non-aktif) untuk halaman `/plan`; `{"items": [...PlanOut]}` |
+| `GET /features` | `require_role("superadmin")` | `{"features": [...], "categories": [{"key", "features": [...]}]}`, label via locale `plans.featureCategories.*` |
 | `POST ""` | `require_role("superadmin")` | community wajib `price`; professional boleh kosong = faktur manual; `features` divalidasi terhadap registry |
 | `PUT /:id` | `require_role("superadmin")` | parsial; tier terkunci bila plan default / dipakai subscription |
 | `DELETE /:id` | `require_role("superadmin")` | 422 default_plan_cannot_be_deleted · 422 plan_in_use |
@@ -278,6 +280,33 @@ boot). `expires_on = now + settings.billing_trial_days` (default 30 hari,
 periode billing selaras dengan masa berlaku). Dengan `expiresOn` eksplisit,
 tanggal disimpan apa adanya dan `started_on` tidak berubah.
 
+**Self-service switch (`POST /billing/organizations/:id/plan-switch`):** owner org
+memilih plan baru dari `/plan` tanpa lewat superadmin. Guard
+`require_org_role(org_id, "owner")` (superadmin boleh bypass). Body hanya
+`planId` — `status`, `featureFlags`, `expiresOn` tidak bisa dikirim. Plan
+non-aktif → 422 `plan_inactive`; plan yang sama dengan subscription aktif
+→ 422 `plan_already_current`; plan tanpa harga (manual) → 422
+`plan_not_self_serviceable`; sudah ada switch yang belum dibayar → 422
+`plan_switch_pending` (hanya satu pending per org; superadmin void untuk
+membatalkan).
+
+Switch **tidak menyentuh subscription** — owner hanya **membuat invoice**
+yang ditandai `plan_id` (period = term plan target dari sekarang, amount =
+harga plan target). Plan baru **tidak berlaku sampai invoice itu dibayar**:
+di `mark_paid`, subscription pindah plan (`plan_id`, `started_on` =
+`period_start`, `expires_on` = `period_end`, anchor term baru) dan
+**stop-over aktif**: `expired` → `active`; `cancelled`/`trial` tetap
+(bayar hanya mengangkat `expired`, bukan `cancelled`). Jika plan target
+hilang/dinonaktifkan sebelum paid → invoice tetap `paid`, plan tidak
+berubah, audit `plan_switch_skipped`. Per-org `feature_flags`-override
+dipertahankan. Audit `plan_switch_requested` saat invoice dibuat dan
+`subscription_plan_switch` saat paid.
+Halaman `/plan` menampilkan seluruh katalog (termasuk non-aktif, non-selectable)
+lewat `GET /plans/catalog` (`@login_required`, `{"items": [...]}`); selama
+ada switch pending, halaman menampilkan banner dan kartu non-selectable.
+Invoice switch terdeteksi lewat `planId` (additive di `InvoiceOut`,
+`exclude_none` — invoice biasa tidak punya key ini).
+
 **Billing settings:** `GET/PUT /billing/settings` hanya menyimpan `trialDays`
 dan `invoiceLeadDays`. `PUT` bersifat **parsial** — minimal satu field; field
 yang tidak dikirim tidak berubah. Harga & durasi milik plan, bukan settings.
@@ -336,7 +365,10 @@ pay/void bersamaan tidak pernah menimpa dua kali.
 `expires_on`): `expires_on = max(expires_on, invoice.period_end)`; status
 `expired` kembali `active` bila hasilnya masih di masa depan. `cancelled`
 tidak pernah diaktifkan otomatis. Subscription tanpa expiry (legacy /
-`trialDays=0`) tidak disentuh.
+`trialDays=0`) tidak disentuh. **Pengecualian:** invoice switch (`plan_id`
+≠ NULL) menggantikan seluruh term — `started_on = period_start`,
+`expires_on = period_end` (bukan max), plan subscription berpindah,
+`expired` → `active`; `cancelled` tetap.
 
 **Keputusan yang sudah disetujui:**
 

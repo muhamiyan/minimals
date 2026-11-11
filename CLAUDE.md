@@ -191,16 +191,18 @@ Tidak ada CLI generator di project ini (berbeda dengan root `cells`).
 | PUT | /api/v1/todo/organizations/:orgId/:todoId | Update a todo, partial update, requires `todo` feature (superadmin or member) |
 | DELETE | /api/v1/todo/organizations/:orgId/:todoId | Delete a todo, requires `todo` feature (superadmin or member) |
 | GET | /api/v1/plans | List plans (paginated, `?search=&page=&per_page=`), optional `?tier=` filter (superadmin) |
-| GET | /api/v1/plans/features | Feature registry keys for the plan editor (superadmin) |
+| GET | /api/v1/plans/catalog | Plan catalog, active + inactive, for the self-service plan page (session) |
+| GET | /api/v1/plans/features | Feature registry keys + categories for the plan editor (superadmin) |
 | POST | /api/v1/plans | Create a plan (superadmin) |
 | PUT | /api/v1/plans/:id | Update a plan, partial update (superadmin) |
 | DELETE | /api/v1/plans/:id | Delete an unused plan (superadmin) |
 | GET | /api/v1/billing/invoices | List invoices (superadmin or org owner, paginated) |
 | POST | /api/v1/billing/invoices | Create an invoice manually (superadmin) |
+| POST | /api/v1/billing/organizations/:id/plan-switch | Create the invoice that a self-service plan switch is paid with; applies when paid (owner) |
 | GET | /api/v1/billing/invoices/:id | Fetch invoice (superadmin or org owner) |
 | POST | /api/v1/billing/invoices/:id/pay | Mark invoice paid (superadmin) |
 | POST | /api/v1/billing/invoices/:id/void | Void invoice (superadmin) |
-| GET | /api/v1/billing/organizations/:id/invoices | List organization invoices (superadmin or org owner) |
+| GET | /api/v1/billing/organizations/:id/invoices | List organization invoices (superadmin or org owner, paginated, `?status=` filter) |
 | GET | /api/v1/billing/settings | Billing settings: trial, renewal lead (superadmin) |
 | PUT | /api/v1/billing/settings | Update billing settings, partial update (superadmin) |
 | GET | /api/v1/infra/database | Active DB engine + Turso sync status (superadmin) |

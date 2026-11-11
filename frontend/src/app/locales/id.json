@@ -5,6 +5,7 @@
     "organizations": "Organisasi",
     "tenancy": "Tenancy",
     "plans": "Paket",
+    "plan": "Paket",
     "billing": "Penagihan",
     "infrastructure": "Infrastruktur",
     "todo": "Tugas"
@@ -133,7 +134,11 @@
     },
     "Plans": {
       "title": "Paket",
-      "description": "Katalog paket: tier, durasi, harga, dan paket utama."
+      "description": "Katalog paket: tier, masa, harga, dan default."
+    },
+    "Plan": {
+      "title": "Paket",
+      "description": "Pilih atau ganti paket organisasi."
     },
     "Billing": {
       "title": "Penagihan",
@@ -289,6 +294,23 @@
       "delete": "Gagal menghapus paket"
     }
   },
+  "plan": {
+    "currentPlan": "Paket aktif",
+    "unavailable": "Tidak tersedia",
+    "select": "Pilih paket",
+    "confirmTitle": "Minta ganti ke {name}?",
+    "confirmBody": "Faktur senilai {price} akan dibuat. {name} menjadi paket organisasi setelah faktur dibayar — paket saat ini tetap aktif sampai saat itu.",
+    "confirm": "Buat faktur",
+    "switchRequested": "Faktur {number} dibuat — paket berlaku setelah dibayar",
+    "pendingSwitch": "Pergantian ke {name} menunggu pembayaran faktur {number}.",
+    "pendingSwitchGeneric": "Pergantian paket menunggu pembayaran faktur {number}.",
+    "viewBilling": "Lihat tagihan",
+    "empty": "Belum ada paket yang tersedia.",
+    "errors": {
+      "load": "Gagal memuat katalog paket",
+      "switch": "Gagal meminta pergantian paket"
+    }
+  },
   "billing": {
     "actions": {
       "settings": "Pengaturan penagihan",
@@ -394,7 +416,7 @@
     "subscription": {
       "title": "Langganan",
       "description": "Paket, status, dan masa berlaku organisasi ini.",
-      "plan": "Paket",
+    "plan": "Upgrade Paket",
       "manual": "Faktur manual",
       "status": "Status",
       "expiresOn": "Berlaku hingga",

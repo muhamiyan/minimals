@@ -14,8 +14,10 @@ import { billingRoutes } from '@/features/billing/routes'
 import { useBillingStore } from '@/features/billing/store'
 import { dashboardRoutes } from '@/features/dashboard/routes'
 import { infraRoutes } from '@/features/infra/routes'
+import { planRoutes } from '@/features/plan/routes'
 import { plansRoutes } from '@/features/plans/routes'
 import { usePlansStore } from '@/features/plans/store'
+import { usePlanStore } from '@/features/plan/store'
 import { setupRoutes } from '@/features/setup/routes'
 import { tenancyRoutes } from '@/features/tenancy/routes'
 import { useTenancyStore } from '@/features/tenancy/store'
@@ -34,6 +36,7 @@ const routes: RouteRecordRaw[] = [
       ...dashboardRoutes,
       ...todoRoutes,
       ...tenancyRoutes,
+      ...planRoutes,
       ...plansRoutes,
       ...billingRoutes,
       ...infraRoutes,
@@ -86,6 +89,7 @@ window.addEventListener('auth:unauthorized', () => {
   useTenancyStore().resetMyOrgs()
   useBillingStore().reset()
   usePlansStore().reset()
+  usePlanStore().reset()
   useTodoStore().reset()
   const current = router.currentRoute.value
   if (current.matched.length > 0 && current.meta.requiresAuth) {

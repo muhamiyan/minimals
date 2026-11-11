@@ -32,6 +32,8 @@ class InvoiceOut(PresenterBase):
     issued_on: str | None = PresenterBase.field(None, alias="issuedOn")
     due_on: str | None = PresenterBase.field(None, alias="dueOn")
     paid_on: str | None = PresenterBase.field(None, alias="paidOn")
+    # Absent on ordinary invoices; present on self-service switch invoices.
+    plan_id: str | None = PresenterBase.field(None, alias="planId")
 
     @classmethod
     def from_invoice(

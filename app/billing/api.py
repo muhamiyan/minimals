@@ -9,6 +9,7 @@ from app.billing.dto import (
     InvoiceCreateIn,
     InvoiceListQueryIn,
     InvoicePayIn,
+    PlanSwitchIn,
 )
 from app.billing.models import INVOICE_STATUSES
 from app.billing.presenters import BillingSettingsOut, InvoiceOut
@@ -130,6 +131,18 @@ def void_invoice(invoice_id: str):
     return ok(_serialize(svc, invoice))
 
 
+@bp.post("/organizations/<org_id>/plan-switch")
+@login_required
+def request_plan_switch(org_id: str):
+    if denied := require_org_role(org_id, "owner"):
+        return denied
+
+    dto = PlanSwitchIn.validate(request.get_json(silent=True) or {})
+    svc = BillingService()
+    invoice = svc.request_plan_switch(org_id, dto, actor_id=current_user.id)
+    return created(_serialize(svc, invoice))
+
+
 # --- per-organization ---------------------------------------------------
 @bp.get("/organizations/<org_id>/invoices")
 @login_required
@@ -138,9 +151,13 @@ def organization_invoices(org_id: str):
         return denied
 
     page = PageIn.validate(request.args)
+    status = request.args.get("status") or None
+    if status is not None and status not in INVOICE_STATUSES:
+        return error("invalid_status", 400)
+
     svc = BillingService()
     items, total = svc.list_org_invoices(
-        org_id, page=page.page, per_page=page.per_page
+        org_id, page=page.page, per_page=page.per_page, status=status
     )
     names = svc.organization_names([org_id])
     payloads = [

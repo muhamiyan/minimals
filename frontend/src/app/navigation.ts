@@ -41,6 +41,14 @@ export const NAV_ITEMS: NavItem[] = [
     gate: 'owner',
   },
   {
+    key: 'Plan',
+    labelKey: 'nav.plan',
+    icon: 'lucide-package',
+    route: { name: 'Plan' },
+    gate: 'owner',
+    domain: 'plans',
+  },
+  {
     key: 'Tenancy',
     labelKey: 'nav.tenancy',
     icon: 'lucide-building-2',

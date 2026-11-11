@@ -72,6 +72,12 @@ class InvoiceCreateIn(DTOBase):
         return v
 
 
+class PlanSwitchIn(DTOBase):
+    """A self-service switch request — plan only, never status/expiry."""
+
+    plan_id: str = DTOBase.field(..., alias="planId", max_length=36)
+
+
 class BillingSettingsIn(DTOBase):
     """Validate a partial billing settings update.
 
@@ -94,4 +100,10 @@ class BillingSettingsIn(DTOBase):
         return self
 
 
-__all__ = ["BillingSettingsIn", "InvoiceCreateIn", "InvoiceListQueryIn", "InvoicePayIn"]
+__all__ = [
+    "BillingSettingsIn",
+    "InvoiceCreateIn",
+    "InvoiceListQueryIn",
+    "InvoicePayIn",
+    "PlanSwitchIn",
+]

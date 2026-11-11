@@ -36,6 +36,10 @@ class Invoice(db.Model):
     status: Mapped[str] = mapped_column(
         String(20), nullable=False, default="issued", index=True,
     )
+    # Target plan when this invoice was created by a self-service switch
+    # request — the subscription moves to that plan once the invoice is
+    # paid. Null for ordinary renewal/manual invoices.
+    plan_id: Mapped[str | None] = mapped_column(String(36), nullable=True)
 
     period_start: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     period_end: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)

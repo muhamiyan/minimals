@@ -12,6 +12,7 @@ import {
 
 import { useAuthStore } from '@/features/auth/store'
 import { useBillingStore } from '@/features/billing/store'
+import { usePlanStore } from '@/features/plan/store'
 import { usePlansStore } from '@/features/plans/store'
 import { useTenancyStore } from '@/features/tenancy/store'
 import { useTodoStore } from '@/features/todo/store'
@@ -35,6 +36,7 @@ const menu = useMenuStore()
 const tenancy = useTenancyStore()
 const billing = useBillingStore()
 const plans = usePlansStore()
+const plan = usePlanStore()
 const todo = useTodoStore()
 const { t } = useI18n()
 
@@ -146,6 +148,7 @@ async function onLogout() {
   tenancy.resetMyOrgs()
   billing.reset()
   plans.reset()
+  plan.reset()
   todo.reset()
   await router.replace('/login')
 }
