@@ -71,7 +71,13 @@ class TestSeededDefaults:
                 "priority_support",
                 "custom_domain",
                 "todo",
-            ]
+            ],
+            "categories": [
+                {"key": "insights", "features": ["advanced_reporting"]},
+                {"key": "support", "features": ["priority_support"]},
+                {"key": "platform", "features": ["custom_domain"]},
+                {"key": "productivity", "features": ["todo"]},
+            ],
         }
 
 

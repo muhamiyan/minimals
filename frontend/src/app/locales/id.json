@@ -265,6 +265,16 @@
     },
     "featuresTitle": "Fitur",
     "featuresDescription": "Fitur yang diberikan ke organisasi selama paket ini aktif.",
+    "featuresCounter": "{count} dari {total} aktif",
+    "featuresSearchPlaceholder": "Filter fitur…",
+    "featuresEmptySearch": "Tidak ada fitur cocok dengan “{search}”",
+    "featureCategories": {
+      "insights": "Analisis",
+      "support": "Dukungan",
+      "platform": "Platform",
+      "productivity": "Produktivitas",
+      "other": "Lainnya"
+    },
     "validation": {
       "name": "Nama wajib diisi",
       "duration": "Masukkan bilangan bulat antara 1 dan 3650",

@@ -265,6 +265,16 @@
     },
     "featuresTitle": "Features",
     "featuresDescription": "Flags granted to organizations while this plan is active.",
+    "featuresCounter": "{count} of {total} active",
+    "featuresSearchPlaceholder": "Filter features…",
+    "featuresEmptySearch": "No features match “{search}”",
+    "featureCategories": {
+      "insights": "Insights",
+      "support": "Support",
+      "platform": "Platform",
+      "productivity": "Productivity",
+      "other": "Other"
+    },
     "validation": {
       "name": "Name is required",
       "duration": "Enter a whole number between 1 and 3650",

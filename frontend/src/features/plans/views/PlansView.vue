@@ -10,6 +10,7 @@ import {
   PageHeader,
   Spinner,
   Switch,
+  TextInput,
   toast,
 } from 'frappe-ui'
 import type { ListColumnsByBreakpoint } from 'frappe-ui/list'
@@ -31,7 +32,7 @@ import { formatDate, formatRupiah } from '@/shared/format'
 import { LIST_ROW_SURFACE_CLASS } from '@/shared/listRow'
 
 import { TIER_LABELS, useTenancyStore } from '@/features/tenancy/store'
-import { featureLabel } from '@/features/tenancy/validation'
+import { featureLabel, humanize } from '@/features/tenancy/validation'
 import {
   DURATION_UNITS,
   PLAN_TIERS,
@@ -47,7 +48,7 @@ const listColumns: ListColumnsByBreakpoint = {
   lg: ['minmax(0,1fr)', '110px', '120px', '120px', '140px', '90px'],
 }
 
-const { t } = useI18n()
+const { t, te } = useI18n()
 const tenancy = useTenancyStore()
 const store = usePlansStore()
 const domainMode = computed(() => tenancy.domainMode('plans'))
@@ -95,6 +96,34 @@ const nameInput = ref('')
 const durationInput = ref('1')
 const priceInput = ref('0')
 const featureToggles = ref<Record<string, boolean>>({})
+const featureSearch = ref('')
+const visibleFeatureKeys = computed(() => store.featureCategories.flatMap((group) => group.features))
+const activeFeatureCount = computed(
+  () => visibleFeatureKeys.value.filter((key) => featureToggles.value[key] === true).length,
+)
+function matchesFeatureQuery(key: string, query: string): boolean {
+  return (
+    featureLabel(key).toLowerCase().includes(query) ||
+    key.toLowerCase().includes(query)
+  )
+}
+
+const featureGroups = computed(() => {
+  const query = featureSearch.value.trim().toLowerCase()
+  return store.featureCategories
+    .map((group) => ({
+      key: group.key,
+      keys: query
+        ? group.features.filter((key) => matchesFeatureQuery(key, query))
+        : [...group.features],
+    }))
+    .filter((group) => group.keys.length > 0)
+})
+
+function featureCategoryLabel(key: string): string {
+  const i18nKey = `plans.featureCategories.${key}`
+  return te(i18nKey) ? t(i18nKey) : humanize(key)
+}
 const nameError = ref('')
 const durationError = ref('')
 const priceError = ref('')
@@ -114,6 +143,7 @@ function resetForm(): void {
   durationInput.value = '1'
   priceInput.value = '0'
   featureToggles.value = {}
+  featureSearch.value = ''
   // Domain mode is GLOBAL per domain (not per-plan): the selected value
   // is stored exactly under the domain that the disabled feature belongs
   // to, and the list in the dialog reflects that global value on reopen.
@@ -444,23 +474,55 @@ async function confirmDelete(): Promise<void> {
           :required="isCommunity"
           :error="priceError"
         />
-        <div class="space-y-3 rounded-6 border border-outline-gray-1 p-3">
-          <div class="space-y-1">
-            <div class="text-p-sm text-ink-gray-7">
-              {{ t('plans.featuresTitle') }}
+        <div class="space-y-3 border-t border-outline-gray-1 pt-4">
+          <div class="flex items-start justify-between gap-2">
+            <div class="space-y-1">
+              <div class="text-p-sm text-ink-gray-7">
+                {{ t('plans.featuresTitle') }}
+              </div>
+              <p class="text-p-xs text-ink-gray-5">
+                {{ t('plans.featuresDescription') }}
+              </p>
             </div>
-            <p class="text-p-xs text-ink-gray-5">
-              {{ t('plans.featuresDescription') }}
-            </p>
+            <span
+              v-if="visibleFeatureKeys.length"
+              class="whitespace-nowrap tabular-nums text-p-xs text-ink-gray-5"
+            >
+              {{
+                t('plans.featuresCounter', {
+                  count: activeFeatureCount,
+                  total: visibleFeatureKeys.length,
+                })
+              }}
+            </span>
           </div>
           <ErrorMessage v-if="store.featureKeysError" :message="store.featureKeysError" />
           <template v-else>
-            <Switch
-              v-for="key in store.featureKeys"
-              :key="key"
-              v-model="featureToggles[key]"
-              :label="featureLabel(key)"
+            <TextInput
+              v-model="featureSearch"
+              type="search"
+              :placeholder="t('plans.featuresSearchPlaceholder')"
+              class="w-full"
             />
+            <div class="max-h-64 space-y-3 overflow-y-auto pr-1">
+              <div v-for="group in featureGroups" :key="group.key" class="space-y-1">
+                <div class="text-p-xs text-ink-gray-5">
+                  {{ featureCategoryLabel(group.key) }}
+                </div>
+                <Switch
+                  v-for="key in group.keys"
+                  :key="key"
+                  v-model="featureToggles[key]"
+                  :label="featureLabel(key)"
+                />
+              </div>
+              <p
+                v-if="!featureGroups.length && featureSearch.trim()"
+                class="py-2 text-p-xs text-ink-gray-5"
+              >
+                {{ t('plans.featuresEmptySearch', { search: featureSearch.trim() }) }}
+              </p>
+            </div>
           </template>
           <p class="text-p-xs text-ink-gray-5">{{ t('plans.domainModeDescription') }}</p>
           <FormControl
@@ -470,18 +532,20 @@ async function confirmDelete(): Promise<void> {
             :options="modeOptions"
           />
         </div>
-        <Switch
-          v-model="form.isDefault"
-          :label="t('plans.fields.isDefault')"
-          :description="t('plans.fields.isDefaultDescription')"
-          :disabled="isDefaultPlan"
-        />
-        <Switch
-          v-model="form.isActive"
-          :label="t('plans.fields.isActive')"
-          :description="t('plans.fields.isActiveDescription')"
-          :disabled="isDefaultPlan"
-        />
+        <div class="space-y-4 border-t border-outline-gray-1 pt-4">
+          <Switch
+            v-model="form.isDefault"
+            :label="t('plans.fields.isDefault')"
+            :description="t('plans.fields.isDefaultDescription')"
+            :disabled="isDefaultPlan"
+          />
+          <Switch
+            v-model="form.isActive"
+            :label="t('plans.fields.isActive')"
+            :description="t('plans.fields.isActiveDescription')"
+            :disabled="isDefaultPlan"
+          />
+        </div>
       </form>
     </template>
     <template #actions>
