@@ -3,10 +3,12 @@ import { defineStore } from 'pinia'
 
 import { i18n } from '@/app/i18n'
 import { api, getErrorMessage } from '@/shared/api'
+import { useAuthStore } from '@/features/auth/store'
 import {
   orderedNavItems,
   visibleNavItems,
   type MenuPreference,
+  type NavItem,
 } from './navigation'
 
 const ENDPOINT = '/account/menu-preferences'
@@ -27,8 +29,15 @@ export const useMenuStore = defineStore('menu', () => {
   let confirmed: MenuPreference = { order: [], hidden: [] }
   let generation = 0
 
-  const allItems = computed(() => orderedNavItems(order.value))
-  const items = computed(() => visibleNavItems(order.value, hidden.value))
+  const auth = useAuthStore()
+  const isAdmin = computed(() => auth.user?.appRole === 'admin')
+  const visibleForRole = (items: NavItem[]) =>
+    items.filter((item) => !item.requireAdmin || isAdmin.value)
+
+  const allItems = computed(() => visibleForRole(orderedNavItems(order.value)))
+  const items = computed(() =>
+    visibleForRole(visibleNavItems(order.value, hidden.value)),
+  )
 
   function apply(preference: MenuPreference) {
     order.value = [...preference.order]

@@ -1,7 +1,8 @@
 {
   "nav": {
     "home": "Beranda",
-    "dashboard": "Dasbor"
+    "dashboard": "Dasbor",
+    "users": "Pengguna"
   },
   "menu": {
     "theme": "Tema",
@@ -65,7 +66,8 @@
     }
   },
   "crumb": {
-    "dashboard": "Dasbor"
+    "dashboard": "Dasbor",
+    "users": "Pengguna"
   },
   "route": {
     "Login": {
@@ -83,6 +85,10 @@
     "Dashboard": {
       "title": "Dasbor",
       "description": "Ringkasan akun Anda: profil dan peran."
+    },
+    "Users": {
+      "title": "Pengguna",
+      "description": "Administrasi pengguna: peran, status, dan grup."
     }
   },
   "field": {
@@ -117,6 +123,34 @@
       "length": "Minimal 8 karakter"
     }
   },
+  "account": {
+    "searchUsers": "Cari pengguna…",
+    "noUsers": "Belum ada pengguna.",
+    "noUsersFound": "Tidak ada pengguna yang cocok.",
+    "columns": {
+      "user": "Pengguna",
+      "appRole": "Peran app",
+      "roles": "Grup",
+      "status": "Status",
+      "actions": "Aksi"
+    },
+    "editUser": "Edit pengguna",
+    "fullName": "Nama lengkap",
+    "appRole": "Peran app",
+    "roleUser": "Pengguna",
+    "roleAdmin": "Admin",
+    "roleNames": "Grup",
+    "rolesPlaceholder": "Pilih grup…",
+    "statusActive": "Aktif",
+    "statusInactive": "Nonaktif",
+    "isActive": "Aktif",
+    "saveChanges": "Simpan perubahan",
+    "userUpdated": "Pengguna diperbarui.",
+    "errors": {
+      "loadUsersFailed": "Gagal memuat pengguna.",
+      "updateUserFailed": "Gagal memperbarui pengguna."
+    }
+  },
   "shared": {
     "search": "Cari…",
     "perPage": "{n} / halaman",
@@ -126,7 +160,9 @@
     "ok": "OK",
     "close": "Tutup",
     "forbiddenTitle": "Akses Ditolak",
-    "forbiddenMessage": "Halaman ini memerlukan hak akses administrator. Akun Anda terdaftar sebagai pengguna biasa. Hubungi administrator untuk mendapatkan akses."
+    "forbiddenMessage": "Halaman ini memerlukan hak akses administrator. Akun Anda terdaftar sebagai pengguna biasa. Hubungi administrator untuk mendapatkan akses.",
+    "noResults": "Tidak ada hasil ditemukan",
+    "cancel": "Batal"
   },
   "dash": {
     "welcomeBack": "Selamat datang kembali",

@@ -6,6 +6,7 @@ export interface NavItem {
   mobileLabelKey?: string
   icon: string
   route: RouteDestination
+  requireAdmin?: boolean
 }
 
 export interface MenuPreference {
@@ -20,6 +21,13 @@ export const NAV_ITEMS: NavItem[] = [
     mobileLabelKey: 'nav.home',
     icon: 'lucide-house',
     route: { name: 'Dashboard' },
+  },
+  {
+    key: 'Users',
+    labelKey: 'nav.users',
+    icon: 'lucide-users',
+    route: { name: 'Users' },
+    requireAdmin: true,
   },
 ]
 

@@ -375,7 +375,15 @@ src/
   `!!auth.user || auth.registrationMode !== null`. Wajib fail-safe:
   error fetch tetap membuka gate (store harus set flag `checked`/
   `statusFailed` di `finally`), jangan spinner selamanya. Jangan
-  tambah `gateReady` ke store kalau computed view cukup.
+  tambah `gateReady` ke store kalau computed view cukup. **Gate wajib
+  `v-else`** — jangan dua `v-if` independen.
+- **Pola list**: tanpa card wrapper. Chain state lewat
+  `shared/components/ListState.vue`: `loading` → `<Spinner>` di
+  `flex justify-center py-10`, `error` → `ErrorMessage`, `empty` → icon
+  centered tanpa border + pesan `shared.noResults` (override prop
+  `emptyMessage`) + slot `#action` opsional, lalu default slot untuk
+  `<List>`. `ListFoot` di-guard `v-if="!empty"` di luar `ListState`.
+  Prop `icon` harus literal string. Detail: skill `wiring` §List pages.
 - **Ikon**: `lucide-*` (string, via unplugin-icons). Shape:
   `<span class="lucide-log-in size-6" aria-hidden="true" />` atau
   `:icon-left="'lucide-log-in'"`.
