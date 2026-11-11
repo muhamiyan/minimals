@@ -46,11 +46,11 @@ import {
   type OrgOption,
 } from '../store'
 
-// base: Invoice, Amount — md: + Status, Actions — lg: + Period, Due
+// base: Invoice, Amount — md: + Tier, Status, Actions — lg: + Period, Due
 const listColumns: ListColumnsByBreakpoint = {
   base: ['minmax(0,1fr)', '120px'],
-  md: ['minmax(0,1fr)', '130px', '120px', '150px'],
-  lg: ['minmax(0,1fr)', '130px', '150px', '110px', '120px', '150px'],
+  md: ['minmax(0,1fr)', '110px', '130px', '120px', '150px'],
+  lg: ['minmax(0,1fr)', '110px', '150px', '160px', '110px', '120px', '150px'],
 }
 
 const auth = useAuthStore()
@@ -494,6 +494,9 @@ async function submitSettings(): Promise<void> {
         <ListHead>
           <ListHeaderCell>{{ t('billing.columns.invoice') }}</ListHeaderCell>
           <ListHeaderCell class="hidden md:flex">
+            {{ t('billing.columns.tier') }}
+          </ListHeaderCell>
+          <ListHeaderCell class="hidden md:flex">
             {{ t('billing.columns.status') }}
           </ListHeaderCell>
           <ListHeaderCell class="hidden lg:flex">
@@ -519,9 +522,16 @@ async function submitSettings(): Promise<void> {
                   {{ item.number }}
                 </div>
                 <div class="truncate text-p-xs text-ink-gray-5">
-                  {{ item.organizationName || item.tier }}
+                  {{ item.organizationName }}
                 </div>
               </div>
+            </ListCell>
+            <ListCell class="hidden md:flex">
+              <Badge
+                :label="TIER_LABELS[item.tier] ?? item.tier"
+                :theme="item.tier === 'professional' ? 'violet' : 'gray'"
+                variant="subtle"
+              />
             </ListCell>
             <ListCell class="hidden md:flex">
               <Badge

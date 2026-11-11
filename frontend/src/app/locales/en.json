@@ -324,6 +324,7 @@
     },
     "columns": {
       "invoice": "Invoice",
+      "tier": "Tier",
       "status": "Status",
       "period": "Period",
       "due": "Due",
