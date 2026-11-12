@@ -1,8 +1,8 @@
 ﻿<script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { Badge, Button, PageHeader, Spinner } from 'frappe-ui'
-import PageBreadcrumbs from '@/shared/components/PageBreadcrumbs.vue'
+import { Badge, Button, Spinner } from 'frappe-ui'
+import AppPageHeader from '@/shared/shell/AppPageHeader.vue'
 import {
   List,
   ListCell,
@@ -64,9 +64,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <PageHeader>
-    <PageBreadcrumbs />
-  </PageHeader>
+  <AppPageHeader />
 
   <Spinner v-if="!gateReady" />
 

@@ -11,7 +11,10 @@
     "system": "Sistem",
     "settings": "Pengaturan",
     "logout": "Keluar",
-    "section": "Menu"
+    "section": "Menu",
+    "more": "Lainnya",
+    "menu": "Menu",
+    "you": "Anda"
   },
   "settings": {
     "title": "Pengaturan",

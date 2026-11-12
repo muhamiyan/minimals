@@ -7,6 +7,7 @@ export interface NavItem {
   icon: string
   route: RouteDestination
   requireAdmin?: boolean
+  mobile?: boolean
 }
 
 export interface MenuPreference {
@@ -47,6 +48,12 @@ export function orderedNavItems(order: string[]): NavItem[] {
   }
 
   return ordered
+}
+
+export const MAX_MOBILE_NAV_ITEMS = 3
+
+export function mobileNavItems(items: NavItem[]): NavItem[] {
+  return items.filter((item) => item.mobile !== false).slice(0, MAX_MOBILE_NAV_ITEMS)
 }
 
 export function visibleNavItems(order: string[], hidden: string[]): NavItem[] {

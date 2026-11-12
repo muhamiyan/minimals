@@ -11,7 +11,10 @@
     "system": "System",
     "settings": "Settings",
     "logout": "Log out",
-    "section": "Menu"
+    "section": "Menu",
+    "more": "More",
+    "menu": "Menu",
+    "you": "You"
   },
   "settings": {
     "title": "Settings",

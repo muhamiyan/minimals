@@ -328,11 +328,21 @@ Vue 3 + Vite + Pinia + frappe-ui (`1.0.0-rc.2`), TypeScript strict.
 
 ```
 src/
-  app/       AppShell, i18n.ts + locales/{en,id}.json, useMediaQuery — shell, i18n & layout
+  app/       AppShell (komposisi shared/shell), i18n.ts + locales/{en,id}.json, navigation, menuStore
   features/  <feature>/{routes.ts, store.ts, views/*.vue} — auth, setup, dashboard
-  shared/    api/{client.ts, errors.ts, index.ts} — SATU-SATUNYA axios instance
+  shared/    shell/{AppPageHeader, ShellSidebar, MobileBottomNav, MobileMenuSheet} — shell reusable;
+             api/{client.ts, errors.ts, index.ts} — SATU-SATUNYA axios instance
   router/    index.ts + guard.ts + meta.d.ts
 ```
+
+- **Shell reusable di `shared/shell/`**: `AppPageHeader` (breadcrumb desktop /
+  `PageHeaderMobile` + tombol menu mobile), `ShellSidebar`, `MobileBottomNav`,
+  `MobileMenuSheet`. `AppShell.vue` hanya komposisi: nav dari
+  `app/navigation.ts` (menu preferences) di-map jadi `ShellNavItem` (label
+  sudah di-resolve `t()`, `active` = nama route) lalu di-pass ke komponen.
+  Header sidebar (brand/logo/menu avatar) lewat slot `#header`; tab avatar di
+  bottom nav lewat slot default. State sheet global: `shared/shell/mobile-menu.ts`
+  (`openMobileMenu()`).
 
 - **Selalu** `import { api } from '@/shared/api'` dengan route tanpa prefix
   (`baseURL: '/api/v1'` sudah handles). **Jangan** `axios.create()` baru,
