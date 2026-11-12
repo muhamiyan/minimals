@@ -17,6 +17,8 @@ const engineLabel = computed(() => {
 
 const engineTheme = computed(() => (store.status?.engine === 'turso' ? 'violet' : 'gray'))
 
+const isTurso = computed(() => store.status?.engine === 'turso')
+
 const turso = computed(() => store.status?.turso ?? null)
 
 const modeLabel = computed(() =>
@@ -98,6 +100,7 @@ onMounted(() => {
       </section>
 
       <section
+        v-if="isTurso"
         class="space-y-4 rounded-6 border border-outline-gray-1 bg-surface-elevation-2 p-5"
       >
         <div class="space-y-1">
