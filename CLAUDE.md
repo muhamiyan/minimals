@@ -18,7 +18,7 @@ dengan Vue 3 SPA (frappe-ui) yang di-serve oleh Flask sendiri.
 | `app/` | Service ini: `auth` + `account` domain, `infra` cross-domain, migrations, config, entry point |
 | `frontend/` | Vue 3 + Vite + Pinia + frappe-ui SPA. Build output → `app/static/frontend/` |
 | `tests/` | pytest, 1 file per concern + `conftest.py` |
-| `frappe-ui/` | Checkout sibling dari upstream (git-ignored, `.git` sendiri). **Bukan** dependency yang di-resolve build — `frontend/` ambil `frappe-ui@1.0.0-rc.2` dari npm. Referensi baca saja. **Jangan diedit.** |
+| `frappe-ui/` | Checkout sibling dari upstream (git-ignored, `.git` sendiri). **Bukan** dependency yang di-resolve build — `frontend/` ambil `frappe-ui@1.0.2` dari npm. Referensi baca saja. **Jangan diedit.** |
 
 Single service, so: tidak ada `cells.services` discovery, tidak ada cross-service
 SDK. Endpoint `/api/v1/app/*` adalah read API untuk service **luar** repo ini
@@ -81,6 +81,12 @@ di-inject ke `AccountService`. Referensi: `app/account/services.py` constructor.
 > `app/account/services.py:7` masih `from app.auth.models import ... Role, User`
 > (repository & presenter juga, `repositories.py:5`, `presenters.py:5`). Jangan
 > tambah yang baru; kalau bisa, arahkan ke repository.
+
+> **Tenancy, billing & todo** punya dokumen intent sendiri:
+> [`TENANCY.md`](TENANCY.md) — maksud desain, dua konsep role (`app_role` vs
+> membership), matriks guard per endpoint, dan decision log yang sudah
+> disetujui. **Baca sebelum mengubah `app/tenancy/`, `app/billing/`,
+> `app/todo/`, atau `frontend/src/features/{tenancy,billing,todo}`.**
 
 ### Base classes (dari `framework/base`)
 
@@ -158,6 +164,50 @@ Tidak ada CLI generator di project ini (berbeda dengan root `cells`).
 | DELETE | /api/v1/account/api-keys/:id | Revoke API key (session) |
 | GET | /api/v1/account/menu-preferences | Menu order/visibility (session) |
 | PUT | /api/v1/account/menu-preferences | Save menu order/visibility (session) |
+| GET | /api/v1/tenancy/organizations | List organizations (superadmin, paginated) |
+| POST | /api/v1/tenancy/organizations | Create organization (superadmin) |
+| GET | /api/v1/tenancy/organizations/:id | Fetch organization (superadmin or member) |
+| PATCH | /api/v1/tenancy/organizations/:id | Update organization (superadmin) |
+| GET | /api/v1/tenancy/organizations/:id/subscription | Fetch subscription (superadmin) |
+| PUT | /api/v1/tenancy/organizations/:id/subscription | Upsert subscription (superadmin) |
+| GET | /api/v1/tenancy/organizations/:id/features | Effective feature flags (superadmin or member) |
+| GET | /api/v1/tenancy/organizations/:id/members | List members (superadmin or org owner) |
+| POST | /api/v1/tenancy/organizations/:id/members | Add member (superadmin or org owner) |
+| DELETE | /api/v1/tenancy/organizations/:id/members/:userId | Remove member (superadmin or org owner) |
+| GET | /api/v1/tenancy/organizations/:id/user-lookup | Exact email/username check for add-member (superadmin or org owner) |
+| GET | /api/v1/tenancy/organizations/:id/invite-codes | List invite codes (superadmin or org owner) |
+| POST | /api/v1/tenancy/organizations/:id/invite-codes | Generate invite code (superadmin or org owner) |
+| DELETE | /api/v1/tenancy/organizations/:id/invite-codes/:codeId | Revoke invite code (superadmin or org owner) |
+| POST | /api/v1/tenancy/invites/redeem | Redeem invite code (session) |
+| GET | /api/v1/tenancy/my-organizations | Current user's organizations (session) |
+| POST | /api/v1/tenancy/my-organizations | Create your own organization, creator becomes owner, max 10 per user (session) |
+| PUT | /api/v1/tenancy/my-organizations/default | Set the caller's default organization (session) |
+| GET | /api/v1/tenancy/settings | Platform settings — member quota (superadmin) |
+| PUT | /api/v1/tenancy/settings | Update member quota, 0 = no limit (superadmin) |
+| GET | /api/v1/tenancy/settings/modes | Domain operational modes (session) |
+| PUT | /api/v1/tenancy/settings/domains/:domain | Set a domain operational mode (superadmin) |
+| GET | /api/v1/dashboard/stats | Platform statistics: orgs, users, subscriptions, invoices, revenue (superadmin) |
+| GET | /api/v1/todo/organizations/:orgId | List organization todo (paginated, `?search=&completed=&page=&per_page=`), requires `todo` feature (superadmin or member) |
+| POST | /api/v1/todo/organizations/:orgId | Create a todo, requires `todo` feature (superadmin or member) |
+| PUT | /api/v1/todo/organizations/:orgId/:todoId | Update a todo, partial update, requires `todo` feature (superadmin or member) |
+| DELETE | /api/v1/todo/organizations/:orgId/:todoId | Delete a todo, requires `todo` feature (superadmin or member) |
+| GET | /api/v1/plans | List plans (paginated, `?search=&page=&per_page=`), optional `?tier=` filter (superadmin) |
+| GET | /api/v1/plans/catalog | Plan catalog, active + inactive, for the self-service plan page (session) |
+| GET | /api/v1/plans/features | Feature registry keys + categories for the plan editor (superadmin) |
+| POST | /api/v1/plans | Create a plan (superadmin) |
+| PUT | /api/v1/plans/:id | Update a plan, partial update (superadmin) |
+| DELETE | /api/v1/plans/:id | Delete an unused plan (superadmin) |
+| GET | /api/v1/billing/invoices | List invoices (superadmin or org owner, paginated) |
+| POST | /api/v1/billing/invoices | Create an invoice manually (superadmin) |
+| POST | /api/v1/billing/organizations/:id/plan-switch | Create the invoice that a self-service plan switch is paid with; applies when paid (owner) |
+| GET | /api/v1/billing/invoices/:id | Fetch invoice (superadmin or org owner) |
+| POST | /api/v1/billing/invoices/:id/pay | Mark invoice paid (superadmin) |
+| POST | /api/v1/billing/invoices/:id/void | Void invoice (superadmin) |
+| GET | /api/v1/billing/organizations/:id/invoices | List organization invoices (superadmin or org owner, paginated, `?status=` filter) |
+| GET | /api/v1/billing/settings | Billing settings: trial, renewal lead (superadmin) |
+| PUT | /api/v1/billing/settings | Update billing settings, partial update (superadmin) |
+| GET | /api/v1/infra/database | Active DB engine + Turso sync status (superadmin) |
+| POST | /api/v1/infra/database/test | Test the active DB connection (superadmin) |
 | GET | /api/v1/app/ping | Liveness of the read API (public) |
 | GET | /api/v1/app/users | Cross-service read API (internal token or admin) |
 | GET | /api/v1/app/roles | Cross-service read API (internal token or admin) |
@@ -230,8 +280,10 @@ ditolak 403 `registration_disabled` + audit `register_failure`. `GET
 
 Dua konsep role, jangan dicampur:
 
-- **`User.app_role`** — kolom string, nilainya `"user"` atau `"admin"`. Ini yang
-  dicek `require_role("admin")`. Sangat sederhana, hard-coded.
+- **`User.app_role`** — kolom string, nilainya `"user"`, `"admin"`, atau
+  `"superadmin"`. Ini yang dicek `require_role(...)`. Setup wizard seed user
+  pertama sebagai `superadmin`; hanya superadmin yang boleh grant
+  `superadmin` atau edit akun superadmin (dicek di `AccountService`).
 - **`Role` + `user_roles`** — tabel role relasional (seeded `Member`).
   Untuk display/label dan FUTURE permission granularity.
 
@@ -324,7 +376,7 @@ semua; `app/config.py` menambah path & static.
 
 ## Frontend
 
-Vue 3 + Vite + Pinia + frappe-ui (`1.0.0-rc.2`), TypeScript strict.
+Vue 3 + Vite + Pinia + frappe-ui (`1.0.2`), TypeScript strict.
 
 ```
 src/
@@ -450,6 +502,14 @@ Ini gotcha paling sering terlewat.
     (`app/infra/seo.py` → `_apply_seo`); sumber kebenaran = tabel `settings`.
     `<title>` di `frontend/index.html` hanya fallback dev. SPA membaca
     `window.brand`; `seo` tidak pernah jadi window global.
+15. **Tenant UI mengikuti org aktif.** `currentOrg` = `activeOrgId`
+    (`sessionStorage` per tab + per user) → `default_org_id` → org pertama.
+    Sesi berakhir (logout/401) → pilihan dihapus, login berikutnya mulai dari
+    default. `default_org_id` di-seed backend saat membership pertama dan
+    dibersihkan saat membership itu dicabut. Nav owner, filter Billing, dan
+    `/billing` `ownerOnly` memakai `currentOrg.myRole`; `Make default` hanya
+    mengubah default, bukan active. Jangan mengembalikan gate ke
+    `myOrgs.some(o => o.myRole === 'owner')`.
 
 ## Deployment
 
