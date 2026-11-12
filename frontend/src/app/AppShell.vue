@@ -11,6 +11,7 @@ import {
 } from 'frappe-ui'
 
 import { useAuthStore } from '@/features/auth/store'
+import { useDashboardStore } from '@/features/dashboard/store'
 import { useBillingStore } from '@/features/billing/store'
 import { usePlanStore } from '@/features/plan/store'
 import { usePlansStore } from '@/features/plans/store'
@@ -35,6 +36,7 @@ const auth = useAuthStore()
 const menu = useMenuStore()
 const tenancy = useTenancyStore()
 const billing = useBillingStore()
+const dashboard = useDashboardStore()
 const plans = usePlansStore()
 const plan = usePlanStore()
 const todo = useTodoStore()
@@ -146,6 +148,7 @@ const tabItems = computed<ShellNavItem[]>(() =>
 async function onLogout() {
   await auth.logout()
   tenancy.resetMyOrgs()
+  dashboard.reset()
   billing.reset()
   plans.reset()
   plan.reset()

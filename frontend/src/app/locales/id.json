@@ -2,6 +2,13 @@
   "nav": {
     "home": "Beranda",
     "dashboard": "Dasbor",
+    "organizations": "Organisasi",
+    "tenancy": "Tenancy",
+    "plans": "Paket",
+    "plan": "Paket",
+    "billing": "Penagihan",
+    "infrastructure": "Infrastruktur",
+    "todo": "Tugas",
     "users": "Pengguna"
   },
   "menu": {
@@ -13,12 +20,22 @@
     "logout": "Keluar",
     "section": "Menu"
   },
+  "orgSwitcher": {
+    "title": "Organisasi",
+    "switch": "Ganti organisasi",
+    "owner": "Pemilik",
+    "member": "Anggota"
+  },
   "settings": {
     "title": "Pengaturan",
-    "nav": {
-      "user": "Pengaturan pengguna",
-      "app": "Aplikasi"
-    },
+  "nav": {
+    "user": "Pengaturan pengguna",
+    "app": "Aplikasi",
+    "organization": "Organisasi"
+  },
+  "organization": {
+    "description": "Pilih organisasi yang diikuti dasbor dan penagihan."
+  },
     "profile": {
       "title": "Profil",
       "fullName": "Nama lengkap",
@@ -67,6 +84,13 @@
   },
   "crumb": {
     "dashboard": "Dasbor",
+    "organizations": "Organisasi",
+    "organization": "Detail organisasi",
+    "tenancy": "Tenancy",
+    "plans": "Paket",
+    "infrastructure": "Infrastruktur",
+    "billing": "Penagihan",
+    "todo": "Tugas",
     "users": "Pengguna"
   },
   "route": {
@@ -84,7 +108,47 @@
     },
     "Dashboard": {
       "title": "Dasbor",
-      "description": "Ringkasan akun Anda: profil dan peran."
+      "description": "Dasbor Anda: ringkasan akun, peran, dan administrasi."
+    },
+    "ToDo": {
+      "title": "Tugas",
+      "description": "Daftar tugas bersama untuk organisasi."
+    },
+    "Onboarding": {
+      "title": "Siapkan organisasi Anda",
+      "description": "Buat organisasi atau tukar kode undangan untuk melanjutkan."
+    },
+    "MyOrganizations": {
+      "title": "Organisasi",
+      "description": "Organisasi Anda dan undangan."
+    },
+    "MyOrganization": {
+      "title": "Organisasi",
+      "description": "Anggota, kode undangan, dan pengaturan satu organisasi."
+    },
+    "Tenancy": {
+      "title": "Konsol tenancy",
+      "description": "Kelola semua organisasi di platform."
+    },
+    "TenancyOrg": {
+      "title": "Organisasi",
+      "description": "Anggota, langganan, dan kode undangan satu organisasi."
+    },
+    "Plans": {
+      "title": "Paket",
+      "description": "Katalog paket: tier, masa, harga, dan default."
+    },
+    "Plan": {
+      "title": "Paket",
+      "description": "Pilih atau ganti paket organisasi."
+    },
+    "Billing": {
+      "title": "Penagihan",
+      "description": "Faktur lintas organisasi."
+    },
+    "Infrastructure": {
+      "title": "Infrastruktur",
+      "description": "Engine database aktif dan status koneksi."
     },
     "Users": {
       "title": "Pengguna",
@@ -167,7 +231,542 @@
   "dash": {
     "welcomeBack": "Selamat datang kembali",
     "roles": "Peran",
-    "noRoles": "Belum ada peran"
+    "noRoles": "Belum ada peran",
+    "currentOrg": "Organisasi saat ini",
+    "orgFeaturesNote": "Organisasi tempat fitur Anda diresolusi.",
+    "noOrgEmpty": "Anda belum menjadi anggota organisasi mana pun — buat satu untuk memulai.",
+    "noOrgFeature": "Tidak ada organisasi aktif — fitur diresolusi per organisasi, jadi belum ada yang tersedia.",
+    "advancedReporting": "Laporan lanjutan",
+    "reportingEnabled": "Aktif untuk organisasi ini.",
+    "checkingPlan": "Memeriksa paket…",
+    "reportingUpsell": "Bagian dari paket Professional. Tingkatkan langganan organisasi untuk membukanya.",
+    "totalUsers": "Total pengguna",
+    "registration": "Registrasi",
+    "registrationOpen": "Terbuka",
+    "registrationClosed": "Tertutup",
+    "adminConsole": "Administrasi",
+    "adminConsoleHint": "Kelola pengguna, peran, dan registrasi.",
+    "manageUsers": "Kelola pengguna",
+    "loadStatsFailed": "Gagal memuat statistik akun",
+    "super": {
+      "totalOrganizations": "Organisasi",
+      "revenuePaid": "Pendapatan terbayar",
+      "orgsPerMonth": "Organisasi per bulan",
+      "organizationsSeries": "Organisasi",
+      "revenuePerMonth": "Pendapatan per bulan",
+      "revenueSeries": "Pendapatan",
+      "subscriptionsByStatus": "Langganan per status",
+      "invoicesByStatus": "Faktur per status",
+      "loadFailed": "Gagal memuat statistik dasbor"
+    }
+  },
+  "plans": {
+    "new": "Paket baru",
+    "retry": "Coba lagi",
+    "empty": "Belum ada paket.",
+    "maintenance": "Paket sedang dalam pemeliharaan.",
+    "maintenanceHint": "Katalog paket dijeda selagi domain ini dalam mode pemeliharaan.",
+    "dev": "Paket sedang dalam pengembangan.",
+    "devHint": "Area ini sedang dalam pengerjaan — data dapat berubah tanpa pemberitahuan.",
+    "domainMode": "Mode domain",
+    "domainModeDescription": "Saat fitur nonaktif, ini adalah alasan yang ditampilkan ke pengguna.",
+    "default": "Utama",
+    "active": "Aktif",
+    "inactive": "Nonaktif",
+    "manual": "Faktur manual",
+    "searchPlaceholder": "Cari paket…",
+    "emptySearch": "Tidak ada paket yang cocok dengan pencarian.",
+    "columns": {
+      "name": "Nama",
+      "tier": "Tier",
+      "duration": "Durasi",
+      "price": "Harga",
+      "status": "Status",
+      "actions": "Tindakan"
+    },
+    "units": {
+      "days": "Hari",
+      "months": "Bulan"
+    },
+    "duration": {
+      "days": "{n} hari",
+      "months": "{n} bulan"
+    },
+    "create": {
+      "title": "Paket baru",
+      "submit": "Buat"
+    },
+    "edit": {
+      "title": "Ubah paket",
+      "submit": "Simpan"
+    },
+    "delete": {
+      "title": "Hapus paket",
+      "question": "Hapus \"{name}\"? Tindakan ini tidak dapat dibatalkan.",
+      "confirm": "Hapus",
+      "done": "Paket \"{name}\" dihapus"
+    },
+    "created": "Paket \"{name}\" dibuat",
+    "updated": "Paket \"{name}\" diperbarui",
+    "fields": {
+      "name": "Nama",
+      "namePlaceholder": "Pro tahunan",
+      "tier": "Tier",
+      "tierLocked": "Tier paket utama tidak dapat diubah.",
+      "durationValue": "Panjang",
+      "durationUnit": "Satuan",
+      "price": "Harga (IDR)",
+      "priceCommunity": "Paket Community wajib punya harga; 0 berarti gratis.",
+      "priceProfessional": "Kosongkan untuk penagihan manual.",
+      "isDefault": "Paket utama",
+      "isDefaultDescription": "Langganan baru pada tier ini memakai paket utama.",
+      "isActive": "Aktif",
+      "isActiveDescription": "Paket nonaktif tidak dapat dipasang ke langganan."
+    },
+    "featuresTitle": "Fitur",
+    "featuresDescription": "Fitur yang diberikan ke organisasi selama paket ini aktif.",
+    "featuresCounter": "{count} dari {total} aktif",
+    "featuresSearchPlaceholder": "Filter fitur…",
+    "featuresEmptySearch": "Tidak ada fitur cocok dengan “{search}”",
+    "featureCategories": {
+      "insights": "Analisis",
+      "support": "Dukungan",
+      "platform": "Platform",
+      "productivity": "Produktivitas",
+      "other": "Lainnya"
+    },
+    "validation": {
+      "name": "Nama wajib diisi",
+      "duration": "Masukkan bilangan bulat antara 1 dan 3650",
+      "price": "Masukkan bilangan bulat dalam rupiah",
+      "priceRequired": "Paket Community wajib punya harga"
+    },
+    "errors": {
+      "list": "Gagal memuat paket",
+      "features": "Gagal memuat registry fitur",
+      "create": "Gagal membuat paket",
+      "update": "Gagal memperbarui paket",
+      "delete": "Gagal menghapus paket"
+    }
+  },
+  "plan": {
+    "currentPlan": "Paket aktif",
+    "unavailable": "Tidak tersedia",
+    "select": "Pilih paket",
+    "confirmTitle": "Minta ganti ke {name}?",
+    "confirmBody": "Faktur senilai {price} akan dibuat. {name} menjadi paket organisasi setelah faktur dibayar — paket saat ini tetap aktif sampai saat itu.",
+    "confirm": "Buat faktur",
+    "switchRequested": "Faktur {number} dibuat — paket berlaku setelah dibayar",
+    "pendingSwitch": "Pergantian ke {name} menunggu pembayaran faktur {number}.",
+    "pendingSwitchGeneric": "Pergantian paket menunggu pembayaran faktur {number}.",
+    "viewBilling": "Lihat tagihan",
+    "empty": "Belum ada paket yang tersedia.",
+    "errors": {
+      "load": "Gagal memuat katalog paket",
+      "switch": "Gagal meminta pergantian paket"
+    }
+  },
+  "billing": {
+    "actions": {
+      "settings": "Pengaturan penagihan",
+      "create": "Buat faktur",
+      "print": "Cetak",
+      "markPaid": "Tandai lunas",
+      "void": "Batalkan",
+      "cancel": "Batal",
+      "save": "Simpan",
+      "retry": "Coba lagi"
+    },
+    "print": {
+      "title": "Faktur {number}",
+      "organization": "Organisasi",
+      "tier": "Tier",
+      "currency": "Mata uang",
+      "issued": "Tanggal terbit",
+      "paid": "Tanggal lunas"
+    },
+    "maintenance": "Penagihan sedang dalam pemeliharaan.",
+    "maintenanceHint": "Faktur dijeda selagi domain ini dalam mode pemeliharaan.",
+    "dev": "Penagihan sedang dalam pengembangan.",
+    "devHint": "Area ini sedang dalam pengerjaan — data dapat berubah tanpa pemberitahuan.",
+    "status": {
+      "all": "Semua status",
+      "issued": "Terbit",
+      "paid": "Lunas",
+      "void": "Dibatalkan"
+    },
+    "filter": {
+      "allOrgs": "Semua organisasi",
+      "search": "Cari faktur…"
+    },
+    "columns": {
+      "invoice": "Faktur",
+      "tier": "Tier",
+      "status": "Status",
+      "period": "Periode",
+      "due": "Jatuh tempo",
+      "amount": "Jumlah",
+      "actions": "Tindakan"
+    },
+    "empty": {
+      "none": "Belum ada faktur. Langganan ditagih secara otomatis.",
+      "filtered": "Tidak ada faktur yang cocok dengan filter Anda."
+    },
+    "pay": {
+      "title": "Tandai faktur lunas",
+      "question": "Tandai faktur {number} ({amount}) sebagai lunas?",
+      "amount": "Jumlah diterima (IDR)",
+      "amountDescription": "Disimpan pada faktur sebagai jumlah yang benar-benar dibayar. Kosongkan untuk memakai jumlah faktur.",
+      "done": "Faktur {number} ditandai lunas"
+    },
+    "void": {
+      "title": "Batalkan faktur",
+      "question": "Batalkan faktur {number}? Faktur yang dibatalkan tidak dapat dibayar lagi.",
+      "confirm": "Batalkan faktur",
+      "done": "Faktur {number} dibatalkan"
+    },
+    "create": {
+      "title": "Buat faktur",
+      "org": "Organisasi",
+      "orgDescription": "Cari organisasi aktif mana pun, termasuk paket gratis.",
+      "orgPlaceholder": "Pilih atau cari organisasi…",
+      "orgEmpty": "Organisasi tidak ditemukan",
+      "period": "Awal periode",
+      "periodDescription": "Tanggal mana pun di dalam periode; otomatis disesuaikan ke siklus paket organisasi.",
+      "amount": "Jumlah (IDR)",
+      "amountDescription": "Kosongkan untuk memakai harga paket.",
+      "amountRequired": "Paket ini tidak punya harga — masukkan jumlahnya.",
+      "done": "Faktur {number} dibuat"
+    },
+    "settings": {
+      "title": "Pengaturan penagihan",
+      "trial": "Hari percobaan",
+      "trialDescription": "Masa berlaku saat organisasi dibuat. 0 = tanpa masa berlaku.",
+      "lead": "Hari sebelum perpanjangan",
+      "leadDescription": "Terbitkan faktur periode berikutnya sekian hari sebelum masa berlaku berakhir. 0 = mati.",
+      "done": "Pengaturan penagihan diperbarui"
+    },
+    "validation": {
+      "amount": "Masukkan bilangan bulat dalam rupiah",
+      "days": "Masukkan bilangan bulat hari (0 menonaktifkan)",
+      "org": "Pilih organisasi",
+      "period": "Pilih awal periode"
+    },
+    "errors": {
+      "loadInvoices": "Gagal memuat faktur",
+      "createInvoice": "Gagal membuat faktur",
+      "loadSettings": "Gagal memuat pengaturan penagihan",
+      "saveSettings": "Gagal menyimpan pengaturan penagihan",
+      "markPaid": "Gagal menandai faktur lunas",
+      "voidInvoice": "Gagal membatalkan faktur"
+    },
+    "org": {
+      "title": "Faktur",
+      "description": "Langganan ditagih secara otomatis setiap periode.",
+      "due": "Jatuh tempo {date}",
+      "none": "Belum ada faktur."
+    }
+  },
+  "tenancy": {
+    "subscription": {
+      "title": "Langganan",
+      "description": "Paket, status, dan masa berlaku organisasi ini.",
+    "plan": "Upgrade Paket",
+      "manual": "Faktur manual",
+      "status": "Status",
+      "expiresOn": "Berlaku hingga",
+      "save": "Simpan langganan",
+      "expiryHelp": "Kosongkan untuk memulai masa baru paket terpilih mulai hari ini.",
+      "updated": "Langganan diperbarui",
+      "none": "Tanpa langganan"
+    },
+    "status": {
+      "trial": "Uji coba",
+      "active": "Aktif",
+      "expired": "Kedaluwarsa",
+      "cancelled": "Dibatalkan"
+    },
+    "roles": {
+      "owner": "Pemilik",
+      "member": "Anggota"
+    },
+    "features": {
+      "advanced_reporting": "Laporan lanjutan",
+      "priority_support": "Dukungan prioritas",
+      "custom_domain": "Domain kustom",
+      "todo": "Tugas organisasi"
+    },
+    "fields": {
+      "name": "Nama",
+      "namePlaceholder": "Acme Inc.",
+      "slug": "Slug",
+      "slugDescription": "Gunakan huruf kecil, angka, dan tanda hubung.",
+      "slugPlaceholder": "acme-inc",
+      "role": "Peran",
+      "cancel": "Batal"
+    },
+    "validation": {
+      "nameRequired": "Nama wajib diisi",
+      "slugRequired": "Slug wajib diisi",
+      "slugPattern": "Gunakan hanya huruf kecil, angka, dan tanda hubung",
+      "planRequired": "Pilih paket"
+    },
+    "errors": {
+      "list": "Gagal memuat organisasi",
+      "create": "Gagal membuat organisasi",
+      "org": "Gagal memuat organisasi",
+      "saveOrg": "Gagal menyimpan perubahan",
+      "saveSubscription": "Gagal menyimpan langganan",
+      "features": "Gagal memuat fitur",
+      "members": "Gagal memuat anggota",
+      "addMember": "Gagal menambahkan anggota",
+      "removeMember": "Gagal menghapus anggota",
+      "lookup": "Gagal memeriksa pengguna",
+      "myOrgs": "Gagal memuat organisasi Anda",
+      "switchOrg": "Gagal mengganti organisasi",
+      "redeem": "Gagal menukar kode undangan",
+      "inviteCodes": "Gagal memuat kode undangan",
+      "generateInvite": "Gagal membuat kode undangan",
+      "revokeInvite": "Gagal mencabut kode undangan",
+      "loadSettings": "Gagal memuat pengaturan",
+      "saveSettings": "Gagal menyimpan pengaturan"
+    },
+    "domains": {
+      "todo": "Tugas",
+      "billing": "Penagihan",
+      "plans": "Paket",
+      "tenancy": "Tenancy",
+      "infra": "Infrastruktur"
+    },
+    "myOrgs": {
+      "organization": "Organisasi",
+      "tier": "Tier",
+      "status": "Status",
+      "default": "Utama",
+      "current": "Saat ini",
+      "makeDefault": "Jadikan utama",
+      "open": "Buka organisasi",
+      "defaultUpdated": "Organisasi utama diperbarui",
+      "emptyOnboarding": "Anda belum menjadi anggota organisasi mana pun — buat organisasi pertama Anda atau tukarkan kode undangan untuk memulai."
+    },
+    "console": {
+      "settings": "Pengaturan",
+      "newOrg": "Organisasi baru",
+      "searchPlaceholder": "Cari organisasi…",
+      "name": "Nama",
+      "tier": "Tier",
+      "status": "Status",
+      "members": "Anggota",
+      "created": "Dibuat",
+      "retry": "Coba lagi",
+      "empty": "Belum ada organisasi.",
+      "emptySearch": "Tidak ada organisasi yang cocok dengan pencarian.",
+      "createdToast": "Organisasi \"{name}\" dibuat",
+      "create": {
+        "title": "Organisasi baru",
+        "submit": "Buat"
+      },
+      "settingsTitle": "Pengaturan platform",
+      "save": "Simpan",
+      "membersLimit": "Maksimal anggota per organisasi",
+      "membersLimitDescription": "0 = tanpa batas. Berlaku untuk semua organisasi.",
+      "invalidLimit": "Masukkan 0 (tanpa batas) atau bilangan bulat positif",
+      "quotaUpdated": "Kuota anggota diperbarui",
+      "domainModeDescription": "enabled = tersedia penuh, maintenance = disembunyikan dari menu, dev = lencana pengerjaan.",
+      "domainModeUpdated": "Mode domain diperbarui"
+    },
+    "org": {
+      "title": "Organisasi",
+      "description": "Nama tampilan, slug, dan status akses.",
+      "ownerDescription": "Akses dan langganan Anda untuk organisasi ini.",
+      "active": "Aktif",
+      "activeDescription": "Organisasi nonaktif kehilangan akses ke sumber dayanya.",
+      "save": "Simpan perubahan",
+      "updated": "Organisasi diperbarui",
+      "featuresTitle": "Fitur efektif",
+      "featuresDescription": "Ditentukan dari langganan saat ini.",
+      "featuresEmpty": "Belum ada langganan — tambahkan untuk mengaktifkan fitur.",
+      "yourRole": "Peran Anda",
+      "onlyOwners": "Hanya pemilik yang dapat mengubah keanggotaan.",
+      "notFound": "Organisasi tidak ditemukan",
+      "back": "Kembali ke organisasi"
+    },
+    "members": {
+      "title": "Anggota",
+      "description": "Orang yang memiliki akses ke organisasi ini.",
+      "add": "Tambah anggota",
+      "remove": "Hapus anggota",
+      "removeTitle": "Hapus anggota",
+      "removeQuestion": "Hapus {name} dari organisasi ini?",
+      "removeConfirm": "Hapus",
+      "added": "Anggota ditambahkan",
+      "removed": "Anggota dihapus",
+      "empty": "Belum ada anggota.",
+      "columnMember": "Anggota",
+      "columnActions": "Tindakan",
+      "identifier": "Email atau nama pengguna",
+      "identifierPlaceholder": "jane@example.com atau jane",
+      "checking": "Memeriksa…",
+      "valid": "Valid · {name}",
+      "alreadyMember": "Sudah menjadi anggota organisasi ini",
+      "notFound": "Tidak ada pengguna dengan email atau nama pengguna itu"
+    },
+    "invites": {
+      "title": "Kode undangan",
+      "description": "Bagikan kode agar orang bisa bergabung ke organisasi ini.",
+      "generate": "Buat kode",
+      "generated": "Kode undangan dibuat",
+      "copy": "Salin",
+      "copied": "Kode undangan disalin",
+      "copyFailed": "Tidak dapat menyalin — pilih kode dan salin manual",
+      "copyCode": "Salin kode",
+      "columnCode": "Kode",
+      "columnCreated": "Dibuat",
+      "columnActions": "Tindakan",
+      "revoke": "Cabut kode",
+      "revokeTitle": "Cabut kode undangan",
+      "revokeQuestion": "Cabut {code}? Siapa pun yang memegangnya tidak dapat bergabung lagi.",
+      "revokeConfirm": "Cabut",
+      "revoked": "Kode undangan dicabut",
+      "empty": "Tidak ada kode undangan aktif."
+    },
+    "onboarding": {
+      "welcome": "Selamat datang di Minimals",
+      "intro": "Buat organisasi sendiri, atau bergabung ke organisasi yang ada dengan kode undangan.",
+      "newOrg": "Organisasi baru",
+      "newOrgDescription": "Mulai dari awal — Anda menjadi pemiliknya dan dapat mengundang orang lain.",
+      "invite": "Kode undangan",
+      "inviteDescription": "Sudah diundang? Bergabung ke organisasi dengan kode dari pemiliknya.",
+      "back": "Kembali",
+      "createSubmit": "Buat organisasi",
+      "created": "Organisasi \"{name}\" dibuat",
+      "code": "Kode undangan",
+      "codePlaceholder": "ABCDEFGH",
+      "joinSubmit": "Bergabung ke organisasi",
+      "alreadyMember": "Anda sudah menjadi anggota \"{name}\"",
+      "joined": "Bergabung ke \"{name}\"",
+      "checkQuestion": "Sudah ditambahkan oleh pemilik organisasi?",
+      "checkAgain": "Periksa lagi",
+      "checkFound": "Anda punya organisasi — mengarahkan ke sana",
+      "checkNotFound": "Belum ada organisasi — buat satu atau gunakan kode undangan"
+    }
+  },
+  "todo": {
+    "new": "Tugas baru",
+    "searchPlaceholder": "Cari tugas…",
+    "retry": "Coba lagi",
+    "noOrgFeature": "Tugas membutuhkan organisasi aktif — bergabung atau buat organisasi untuk menggunakannya.",
+    "empty": "Belum ada tugas.",
+    "emptyFiltered": "Tidak ada tugas yang cocok dengan filter.",
+    "filter": {
+      "all": "Semua status",
+      "open": "Terbuka",
+      "done": "Selesai"
+    },
+    "status": {
+      "open": "Terbuka",
+      "done": "Selesai"
+    },
+    "columns": {
+      "title": "Tugas",
+      "status": "Status",
+      "due": "Tenggat",
+      "actions": "Aksi"
+    },
+    "fields": {
+      "title": "Judul",
+      "titlePlaceholder": "Apa yang perlu dikerjakan?",
+      "description": "Deskripsi",
+      "descriptionPlaceholder": "Tambahkan detail (opsional)",
+      "completed": "Selesai",
+      "dueDate": "Tenggat"
+    },
+    "actions": {
+      "complete": "Tandai selesai",
+      "reopen": "Tandai terbuka",
+      "edit": "Ubah tugas",
+      "delete": "Hapus tugas"
+    },
+    "create": {
+      "title": "Tugas baru",
+      "submit": "Buat"
+    },
+    "edit": {
+      "title": "Ubah tugas",
+      "submit": "Simpan"
+    },
+    "delete": {
+      "title": "Hapus tugas",
+      "question": "Hapus \"{title}\"? Tindakan ini tidak dapat dibatalkan.",
+      "confirm": "Hapus",
+      "done": "Tugas dihapus"
+    },
+    "created": "Tugas dibuat",
+    "updated": "Tugas diperbarui",
+    "validation": {
+      "title": "Judul wajib diisi"
+    },
+    "errors": {
+      "list": "Gagal memuat tugas",
+      "save": "Gagal menyimpan tugas",
+      "delete": "Gagal menghapus tugas"
+    },
+    "upsell": {
+      "title": "Tugas belum aktif",
+      "description": "Paket organisasi ini tidak menyertakan tugas bersama. Minta administrator mengaktifkan fitur ini."
+    },
+    "maintenance": "Tugas sedang dalam pemeliharaan.",
+    "maintenanceHint": "Fitur ini dijeda selagi domain sedang dalam mode pemeliharaan.",
+    "dev": "Tugas sedang dalam pengembangan.",
+    "devHint": "Fitur ini sedang dalam pengerjaan — data dapat berubah tanpa pemberitahuan."
+  },
+  "infra": {
+    "db": {
+      "title": "Basis data",
+      "description": "Mesin yang sedang terhubung oleh deployment ini.",
+      "engine": "Mesin",
+      "connection": "Koneksi"
+    },
+    "turso": {
+      "title": "Sinkronisasi Turso",
+      "description": "Bagaimana basis data lokal mengikuti Turso.",
+      "mode": "Mode",
+      "syncTarget": "Target sinkronisasi",
+      "authToken": "Token autentikasi",
+      "driver": "Driver",
+      "configured": "Terkonfigurasi",
+      "notSet": "Belum diatur",
+      "installed": "Terpasang",
+      "missing": "Tidak ada",
+      "modeNone": "Tidak memakai Turso",
+      "modeEmbedded": "Replika tersemat",
+      "modeRemote": "Basis data remote",
+      "summaryNone": "Deployment ini tidak memakai Turso.",
+      "summarySyncTarget": "Menyinkronkan ke {target}.",
+      "summaryNoTarget": "Target sinkronisasi belum dikonfigurasi.",
+      "summaryDirect": "Langsung ke Turso; tanpa replika lokal.",
+      "tokenSet": "Token autentikasi sudah diatur.",
+      "tokenMissing": "Token autentikasi belum diatur.",
+      "driverMissing": "Driver libsql tidak terpasang."
+    },
+    "test": {
+      "title": "Uji koneksi",
+      "description": "Membuka koneksi baru dan menjalankan satu kueri.",
+      "lastRun": "Terakhir dijalankan {time}.",
+      "button": "Uji koneksi",
+      "ok": "Koneksi berhasil"
+    },
+    "errors": {
+      "loadStatus": "Gagal memuat status basis data",
+      "connectionFailed": "Uji koneksi gagal",
+      "invalid_db_credentials": "Basis data menolak kredensial.",
+      "db_unreachable": "Host basis data tidak dapat dijangkau.",
+      "db_not_found": "Basis data tersebut tidak ada.",
+      "db_timeout": "Basis data tidak merespons tepat waktu.",
+      "unknown_db_host": "Host basis data tidak dapat diresolusi.",
+      "db_connection_failed": "Koneksi gagal.",
+      "turso_driver_not_installed": "Driver libsql tidak terpasang."
+    }
   },
   "setup": {
     "title": "Setup",
@@ -184,7 +783,10 @@
     "reasonNoSchema": "Skema basis data tidak ditemukan.",
     "dbEngine": "Mesin basis data",
     "dbPath": "Lokasi berkas basis data",
-    "dbPathPlaceholder": "data/app.db (opsional)",
+    "dbPathPlaceholder": "path absolut, mis. /app/data/app.db (kosong = data/app.db)",
+    "tursoUrl": "URL database Turso",
+    "tursoToken": "Token autentikasi",
+    "tursoPath": "Path replika lokal",
     "host": "Host",
     "port": "Port",
     "database": "Basis Data",
@@ -211,10 +813,13 @@
     "registration_disabled": "Pendaftaran dinonaktifkan",
     "email_already_registered": "Email sudah terdaftar",
     "username_taken": "Nama pengguna sudah dipakai",
+    "already_a_member": "Anda sudah menjadi anggota organisasi ini",
+    "amount_required": "Masukkan jumlah — paket ini tidak punya harga",
     "api_key_not_found": "API key tidak ditemukan",
     "bad_request": "Permintaan tidak valid",
     "conflict": "Data bentrok",
     "cannot_delete_builtin_role": "Tidak bisa menghapus peran bawaan",
+    "community_requires_price": "Paket Community wajib punya harga",
     "could_not_generate_unique_name": "Gagal membuat nama unik",
     "csrf_token_invalid": "Token CSRF tidak valid",
     "database_required": "Basis data wajib diisi",
@@ -222,7 +827,13 @@
     "db_not_found": "Basis data tidak ditemukan",
     "db_timeout": "Timeout basis data",
     "db_unreachable": "Basis data tidak terjangkau",
+    "default_plan_cannot_be_deleted": "Paket utama tidak dapat dihapus",
+    "default_plan_missing": "Belum ada paket utama untuk tier ini",
+    "default_plan_must_be_active": "Paket utama harus aktif",
+    "default_plan_required": "Pilih paket utama lain terlebih dahulu",
     "domain_error": "Kesalahan domain",
+    "duplicate_menu_key": "Item menu sudah ada",
+    "feature_not_enabled": "Fitur ini tidak aktif untuk organisasi",
     "file_invalid_name": "Nama berkas tidak valid",
     "file_required": "Berkas wajib diunggah",
     "file_too_large": "Ukuran berkas terlalu besar",
@@ -231,6 +842,7 @@
     "idx_invalid": "Indeks tidak valid",
     "integrity_error": "Pelanggaran integritas data",
     "internal_server_error": "Terjadi kesalahan server",
+    "invalid": "Nilai tidak valid",
     "invalid_api_key": "API key tidak valid",
     "invalid_app_role": "Peran aplikasi tidak valid",
     "invalid_date": "Tanggal tidak valid",
@@ -239,30 +851,68 @@
     "invalid_db_name": "Nama basis data tidak valid",
     "invalid_db_path": "Lokasi basis data tidak valid",
     "invalid_db_port": "Port basis data tidak valid",
+    "invalid_duration_unit": "Satuan durasi tidak valid",
     "invalid_email": "Email tidak valid",
+    "invalid_expiry_date": "Tanggal berlaku tidak valid",
+    "invalid_menu_key": "Item menu tidak valid",
     "invalid_operation": "Operasi tidak valid",
+    "invalid_paid_date": "Tanggal pembayaran tidak valid",
+    "invalid_period_start": "Awal periode tidak valid",
+    "invalid_role": "Peran tidak valid",
+    "invalid_status": "Status tidak valid",
+    "invalid_tier": "Tier tidak valid",
     "invalid_username": "Nama pengguna tidak valid",
+    "invoice_already_paid": "Faktur sudah lunas",
+    "invoice_not_found": "Faktur tidak ditemukan",
+    "invoice_not_payable": "Faktur tidak dapat dibayar",
+    "invoice_not_voidable": "Faktur tidak dapat dibatalkan",
+    "invoice_period_exists": "Faktur untuk periode ini sudah ada",
+    "invite_code_generation_failed": "Gagal membuat kode undangan",
+    "invite_not_found": "Kode undangan tidak ditemukan",
+    "last_owner_cannot_be_removed": "Owner terakhir tidak dapat dihapus",
+    "logo_upload_missing": "Pilih gambar logo untuk diunggah",
     "malformed": "Format salah",
+    "member_limit_reached": "Batas anggota organisasi telah tercapai",
+    "member_not_found": "Anggota tidak ditemukan",
     "method_not_allowed": "Metode tidak diizinkan",
     "name_required": "Nama wajib diisi",
     "no_fields_to_update": "Tidak ada kolom untuk diperbarui",
+    "not_a_member": "Anda bukan anggota organisasi ini",
     "not_found": "Tidak ditemukan",
+    "not_ready": "Aplikasi belum siap",
+    "organization_inactive": "Organisasi tidak aktif",
+    "organization_not_found": "Organisasi tidak ditemukan",
+    "paid_on_in_future": "Tanggal pembayaran tidak boleh di masa depan",
     "password_must_contain_digit": "Kata sandi harus mengandung angka",
     "password_must_contain_lowercase": "Kata sandi harus mengandung huruf kecil",
     "password_must_contain_special_character": "Kata sandi harus mengandung karakter khusus",
     "password_must_contain_uppercase": "Kata sandi harus mengandung huruf besar",
     "payload_too_large": "Ukuran payload terlalu besar",
+    "period_before_subscription": "Periode dimulai sebelum langganan",
+    "plan_in_use": "Paket ini dipakai oleh langganan",
+    "plan_inactive": "Paket ini tidak aktif",
+    "plan_missing": "Organisasi belum punya paket",
+    "plan_name_taken": "Nama paket sudah dipakai",
+    "plan_not_found": "Paket tidak ditemukan",
+    "plan_tier_locked": "Tier tidak dapat diubah selama paket utama atau sedang dipakai",
     "rate_limit_exceeded": "Batas rate limit tercapai",
     "required": "Wajib diisi",
     "role_already_exists": "Peran sudah ada",
     "role_not_found": "Peran tidak ditemukan",
+    "settings_update_failed": "Pembaruan pengaturan gagal",
     "setup_admin_failed": "Pembuatan admin gagal",
     "setup_already_complete": "Setup sudah selesai",
     "setup_env_write_failed": "Penulisan env saat setup gagal",
     "setup_migration_failed": "Migrasi setup gagal",
     "setup_repoint_failed": "Ganti pointer basis data saat setup gagal",
     "site_url_invalid": "URL situs tidak valid",
+    "slug_already_taken": "Slug ini sudah dipakai",
+    "slug_must_be_lowercase_alphanumeric_with_hyphens": "Gunakan hanya huruf kecil, angka, dan tanda hubung",
     "spa_not_built": "Frontend belum di-build",
+    "subscription_not_found": "Langganan tidak ditemukan",
+    "superadmin_only": "Hanya superadmin yang dapat melakukan ini",
+    "too_many_menu_items": "Terlalu banyak item menu",
+    "too_many_organizations": "Anda telah mencapai batas pembuatan organisasi",
     "unauthorized": "Tidak terautentikasi",
     "unprocessable_entity": "Entitas tidak dapat diproses",
     "unknown_db_host": "Host basis data tidak dikenal",

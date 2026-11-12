@@ -2,8 +2,15 @@
   "nav": {
     "home": "Home",
     "dashboard": "Dashboard",
+    "organizations": "Organizations",
+    "tenancy": "Tenancy",
+    "plans": "Plans",
+    "plan": "Plan",
+    "billing": "Billing",
+    "infrastructure": "Infrastructure",
+    "todo": "Todo",
     "users": "Users"
-  },
+    },
   "menu": {
     "theme": "Theme",
     "light": "Light",
@@ -13,12 +20,22 @@
     "logout": "Log out",
     "section": "Menu"
   },
+  "orgSwitcher": {
+    "title": "Organizations",
+    "switch": "Switch organization",
+    "owner": "Owner",
+    "member": "Member"
+  },
   "settings": {
     "title": "Settings",
-    "nav": {
-      "user": "User settings",
-      "app": "Application"
-    },
+  "nav": {
+    "user": "User settings",
+    "app": "Application",
+    "organization": "Organization"
+  },
+  "organization": {
+    "description": "Choose the organization the dashboard and billing follow."
+  },
     "profile": {
       "title": "Profile",
       "fullName": "Full name",
@@ -67,8 +84,15 @@
   },
   "crumb": {
     "dashboard": "Dashboard",
+    "organizations": "Organizations",
+    "organization": "Organization",
+    "tenancy": "Tenancy",
+    "plans": "Plans",
+    "infrastructure": "Infrastructure",
+    "billing": "Billing",
+    "todo": "Todo",
     "users": "Users"
-  },
+    },
   "route": {
     "Login": {
       "title": "Sign in",
@@ -84,7 +108,47 @@
     },
     "Dashboard": {
       "title": "Dashboard",
-      "description": "Your account overview: profile and roles."
+      "description": "Your dashboard: account overview, roles, and administration."
+    },
+    "ToDo": {
+      "title": "Todo",
+      "description": "Shared task list for the organization."
+    },
+    "Onboarding": {
+      "title": "Set up your organization",
+      "description": "Create an organization or redeem an invite code to continue."
+    },
+    "MyOrganizations": {
+      "title": "Organizations",
+      "description": "Your organizations and invitations."
+    },
+    "MyOrganization": {
+      "title": "Organization",
+      "description": "Members, invite codes, and settings for one organization."
+    },
+    "Tenancy": {
+      "title": "Tenancy console",
+      "description": "Manage every organization on the platform."
+    },
+    "TenancyOrg": {
+      "title": "Organization",
+      "description": "Members, subscription, and invite codes for one organization."
+    },
+    "Plans": {
+      "title": "Plans",
+      "description": "Plan catalog: tiers, terms, prices, and defaults."
+    },
+    "Plan": {
+      "title": "Plan",
+      "description": "Choose or switch the organization's plan."
+    },
+    "Billing": {
+      "title": "Billing",
+      "description": "Invoices across organizations."
+    },
+    "Infrastructure": {
+      "title": "Infrastructure",
+      "description": "Active database engine and connection status."
     },
     "Users": {
       "title": "Users",
@@ -167,7 +231,542 @@
   "dash": {
     "welcomeBack": "Welcome back",
     "roles": "Roles",
-    "noRoles": "No roles assigned"
+    "noRoles": "No roles assigned",
+    "currentOrg": "Current organization",
+    "orgFeaturesNote": "This is the organization your features are resolved from.",
+    "noOrgEmpty": "You are not a member of any organization yet — create one to get started.",
+    "noOrgFeature": "No active organization — features are resolved per organization, so nothing is available yet.",
+    "advancedReporting": "Advanced reporting",
+    "reportingEnabled": "Enabled for this organization.",
+    "checkingPlan": "Checking plan…",
+    "reportingUpsell": "Part of the Professional plan. Upgrade the organization's subscription to unlock it.",
+    "totalUsers": "Total users",
+    "registration": "Registration",
+    "registrationOpen": "Open",
+    "registrationClosed": "Closed",
+    "adminConsole": "Administration",
+    "adminConsoleHint": "Manage users, roles, and registration.",
+    "manageUsers": "Manage users",
+    "loadStatsFailed": "Could not load account stats",
+    "super": {
+      "totalOrganizations": "Organizations",
+      "revenuePaid": "Paid revenue",
+      "orgsPerMonth": "Organizations per month",
+      "organizationsSeries": "Organizations",
+      "revenuePerMonth": "Revenue per month",
+      "revenueSeries": "Revenue",
+      "subscriptionsByStatus": "Subscriptions by status",
+      "invoicesByStatus": "Invoices by status",
+      "loadFailed": "Could not load dashboard statistics"
+    }
+  },
+  "plans": {
+    "new": "New plan",
+    "retry": "Retry",
+    "empty": "No plans yet.",
+    "maintenance": "Plans are under maintenance.",
+    "maintenanceHint": "The plan catalog is paused while this domain is in maintenance mode.",
+    "dev": "Plans are in development.",
+    "devHint": "This area is work-in-progress — data may change without notice.",
+    "domainMode": "Domain mode",
+    "domainModeDescription": "When a feature is off, this is the reason shown to users.",
+    "default": "Default",
+    "active": "Active",
+    "inactive": "Inactive",
+    "manual": "Manual invoice",
+    "searchPlaceholder": "Search plans…",
+    "emptySearch": "No plans match your search.",
+    "columns": {
+      "name": "Name",
+      "tier": "Tier",
+      "duration": "Duration",
+      "price": "Price",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "units": {
+      "days": "Days",
+      "months": "Months"
+    },
+    "duration": {
+      "days": "{n} days",
+      "months": "{n} months"
+    },
+    "create": {
+      "title": "New plan",
+      "submit": "Create"
+    },
+    "edit": {
+      "title": "Edit plan",
+      "submit": "Save"
+    },
+    "delete": {
+      "title": "Delete plan",
+      "question": "Delete \"{name}\"? This cannot be undone.",
+      "confirm": "Delete",
+      "done": "Plan \"{name}\" deleted"
+    },
+    "created": "Plan \"{name}\" created",
+    "updated": "Plan \"{name}\" updated",
+    "fields": {
+      "name": "Name",
+      "namePlaceholder": "Pro annual",
+      "tier": "Tier",
+      "tierLocked": "The default plan's tier is fixed.",
+      "durationValue": "Length",
+      "durationUnit": "Unit",
+      "price": "Price (IDR)",
+      "priceCommunity": "Community plans must have a price; 0 keeps the tier free.",
+      "priceProfessional": "Leave empty to bill manually.",
+      "isDefault": "Default plan",
+      "isDefaultDescription": "New subscriptions of this tier start on the default plan.",
+      "isActive": "Active",
+      "isActiveDescription": "Inactive plans cannot be assigned to subscriptions."
+    },
+    "featuresTitle": "Features",
+    "featuresDescription": "Flags granted to organizations while this plan is active.",
+    "featuresCounter": "{count} of {total} active",
+    "featuresSearchPlaceholder": "Filter features…",
+    "featuresEmptySearch": "No features match “{search}”",
+    "featureCategories": {
+      "insights": "Insights",
+      "support": "Support",
+      "platform": "Platform",
+      "productivity": "Productivity",
+      "other": "Other"
+    },
+    "validation": {
+      "name": "Name is required",
+      "duration": "Enter a whole number between 1 and 3650",
+      "price": "Enter a whole number in rupiah",
+      "priceRequired": "Community plans require a price"
+    },
+    "errors": {
+      "list": "Failed to load plans",
+      "features": "Failed to load the feature registry",
+      "create": "Failed to create plan",
+      "update": "Failed to update plan",
+      "delete": "Failed to delete plan"
+    }
+  },
+  "plan": {
+    "currentPlan": "Current plan",
+    "unavailable": "Unavailable",
+    "select": "Select plan",
+    "confirmTitle": "Request switch to {name}?",
+    "confirmBody": "An invoice for {price} will be created. {name} becomes your organization's plan once the invoice is paid — your current plan stays active until then.",
+    "confirm": "Create invoice",
+    "switchRequested": "Invoice {number} created — the plan applies after payment",
+    "pendingSwitch": "Switch to {name} is pending payment of invoice {number}.",
+    "pendingSwitchGeneric": "A plan switch is pending payment of invoice {number}.",
+    "viewBilling": "View billing",
+    "empty": "No plans are available yet.",
+    "errors": {
+      "load": "Failed to load the plan catalog",
+      "switch": "Failed to request the plan switch"
+    }
+  },
+  "billing": {
+    "actions": {
+      "settings": "Billing settings",
+      "create": "Create invoice",
+      "print": "Print",
+      "markPaid": "Mark paid",
+      "void": "Void",
+      "cancel": "Cancel",
+      "save": "Save",
+      "retry": "Retry"
+    },
+    "print": {
+      "title": "Invoice {number}",
+      "organization": "Organization",
+      "tier": "Tier",
+      "currency": "Currency",
+      "issued": "Issued on",
+      "paid": "Paid on"
+    },
+    "maintenance": "Billing is under maintenance.",
+    "maintenanceHint": "Invoices are paused while this domain is in maintenance mode.",
+    "dev": "Billing is in development.",
+    "devHint": "This area is work-in-progress — data may change without notice.",
+    "status": {
+      "all": "All statuses",
+      "issued": "Issued",
+      "paid": "Paid",
+      "void": "Void"
+    },
+    "filter": {
+      "allOrgs": "All organizations",
+      "search": "Search invoices…"
+    },
+    "columns": {
+      "invoice": "Invoice",
+      "tier": "Tier",
+      "status": "Status",
+      "period": "Period",
+      "due": "Due",
+      "amount": "Amount",
+      "actions": "Actions"
+    },
+    "empty": {
+      "none": "No invoices yet. Subscriptions are invoiced automatically.",
+      "filtered": "No invoices match your filters."
+    },
+    "pay": {
+      "title": "Mark invoice as paid",
+      "question": "Mark invoice {number} ({amount}) as paid?",
+      "amount": "Amount received (IDR)",
+      "amountDescription": "Stored on the invoice as the amount actually paid. Leave empty to keep the invoice amount.",
+      "done": "Invoice {number} marked as paid"
+    },
+    "void": {
+      "title": "Void invoice",
+      "question": "Void invoice {number}? A voided invoice can no longer be paid.",
+      "confirm": "Void invoice",
+      "done": "Invoice {number} voided"
+    },
+    "create": {
+      "title": "Create invoice",
+      "org": "Organization",
+      "orgDescription": "Search any active organization, including the free tier.",
+      "orgPlaceholder": "Select or search an organization…",
+      "orgEmpty": "No organizations found",
+      "period": "Period start",
+      "periodDescription": "Any date inside the period; it snaps to the organization's plan cycle.",
+      "amount": "Amount (IDR)",
+      "amountDescription": "Leave empty to use the plan price.",
+      "amountRequired": "This plan has no price — enter the amount.",
+      "done": "Invoice {number} created"
+    },
+    "settings": {
+      "title": "Billing settings",
+      "trial": "Trial days",
+      "trialDescription": "Expiry applied when an organization is created. 0 = no expiry.",
+      "lead": "Renewal lead days",
+      "leadDescription": "Invoice the next period this many days before expiry. 0 = off.",
+      "done": "Billing settings updated"
+    },
+    "validation": {
+      "amount": "Enter a whole number in rupiah",
+      "days": "Enter a whole number of days (0 disables)",
+      "org": "Choose an organization",
+      "period": "Choose a period start"
+    },
+    "errors": {
+      "loadInvoices": "Failed to load invoices",
+      "createInvoice": "Failed to create invoice",
+      "loadSettings": "Failed to load billing settings",
+      "saveSettings": "Failed to save billing settings",
+      "markPaid": "Failed to mark invoice as paid",
+      "voidInvoice": "Failed to void invoice"
+    },
+    "org": {
+      "title": "Invoices",
+      "description": "Subscriptions are invoiced automatically each period.",
+      "due": "Due {date}",
+      "none": "No invoices yet."
+    }
+  },
+  "tenancy": {
+    "subscription": {
+      "title": "Subscription",
+      "description": "Plan, status, and expiry for this organization.",
+      "plan": "Plan",
+      "manual": "Manual invoice",
+      "status": "Status",
+      "expiresOn": "Expires on",
+      "save": "Save subscription",
+      "expiryHelp": "Leave empty to start a fresh term of the selected plan from today.",
+      "updated": "Subscription updated",
+      "none": "No subscription"
+    },
+    "status": {
+      "trial": "Trial",
+      "active": "Active",
+      "expired": "Expired",
+      "cancelled": "Cancelled"
+    },
+    "roles": {
+      "owner": "Owner",
+      "member": "Member"
+    },
+    "features": {
+      "advanced_reporting": "Advanced reporting",
+      "priority_support": "Priority support",
+      "custom_domain": "Custom domain",
+      "todo": "Organization todo"
+    },
+    "fields": {
+      "name": "Name",
+      "namePlaceholder": "Acme Inc.",
+      "slug": "Slug",
+      "slugDescription": "Lowercase letters, numbers, and hyphens.",
+      "slugPlaceholder": "acme-inc",
+      "role": "Role",
+      "cancel": "Cancel"
+    },
+    "validation": {
+      "nameRequired": "Name is required",
+      "slugRequired": "Slug is required",
+      "slugPattern": "Use lowercase letters, numbers, and hyphens",
+      "planRequired": "Choose a plan"
+    },
+    "errors": {
+      "list": "Failed to load organizations",
+      "create": "Failed to create organization",
+      "org": "Failed to load organization",
+      "saveOrg": "Failed to save changes",
+      "saveSubscription": "Failed to save subscription",
+      "features": "Failed to load features",
+      "members": "Failed to load members",
+      "addMember": "Failed to add member",
+      "removeMember": "Failed to remove member",
+      "lookup": "Failed to check user",
+      "myOrgs": "Failed to load your organizations",
+      "switchOrg": "Failed to switch organization",
+      "redeem": "Failed to redeem invite code",
+      "inviteCodes": "Failed to load invite codes",
+      "generateInvite": "Failed to generate invite code",
+      "revokeInvite": "Failed to revoke invite code",
+      "loadSettings": "Failed to load settings",
+      "saveSettings": "Failed to save settings"
+    },
+    "domains": {
+      "todo": "Todo",
+      "billing": "Billing",
+      "plans": "Plans",
+      "tenancy": "Tenancy",
+      "infra": "Infrastructure"
+    },
+    "myOrgs": {
+      "organization": "Organization",
+      "tier": "Tier",
+      "status": "Status",
+      "default": "Default",
+      "current": "Current",
+      "makeDefault": "Make default",
+      "open": "Open organization",
+      "defaultUpdated": "Default organization updated",
+      "emptyOnboarding": "You are not a member of any organization yet — create your first organization or redeem an invite code to get started."
+    },
+    "console": {
+      "settings": "Settings",
+      "newOrg": "New organization",
+      "searchPlaceholder": "Search organizations…",
+      "name": "Name",
+      "tier": "Tier",
+      "status": "Status",
+      "members": "Members",
+      "created": "Created",
+      "retry": "Retry",
+      "empty": "No organizations yet.",
+      "emptySearch": "No organizations match your search.",
+      "createdToast": "Organization \"{name}\" created",
+      "create": {
+        "title": "New organization",
+        "submit": "Create"
+      },
+      "settingsTitle": "Platform settings",
+      "save": "Save",
+      "membersLimit": "Max members per organization",
+      "membersLimitDescription": "0 = no limit. Applies to every organization.",
+      "invalidLimit": "Enter 0 (no limit) or a positive whole number",
+      "quotaUpdated": "Member quota updated",
+      "domainModeDescription": "enabled = fully available, maintenance = hidden from menu, dev = work-in-progress badge.",
+      "domainModeUpdated": "Domain modes updated"
+    },
+    "org": {
+      "title": "Organization",
+      "description": "Display name, slug, and access state.",
+      "ownerDescription": "Your access and subscription for this organization.",
+      "active": "Active",
+      "activeDescription": "Inactive organizations lose access to their resources.",
+      "save": "Save changes",
+      "updated": "Organization updated",
+      "featuresTitle": "Effective features",
+      "featuresDescription": "Resolved from the current subscription.",
+      "featuresEmpty": "No subscription yet — add one to enable features.",
+      "yourRole": "Your role",
+      "onlyOwners": "Only owners can change membership.",
+      "notFound": "Organization not found",
+      "back": "Back to organizations"
+    },
+    "members": {
+      "title": "Members",
+      "description": "People with access to this organization.",
+      "add": "Add member",
+      "remove": "Remove member",
+      "removeTitle": "Remove member",
+      "removeQuestion": "Remove {name} from this organization?",
+      "removeConfirm": "Remove",
+      "added": "Member added",
+      "removed": "Member removed",
+      "empty": "No members yet.",
+      "columnMember": "Member",
+      "columnActions": "Actions",
+      "identifier": "Email or username",
+      "identifierPlaceholder": "jane@example.com or jane",
+      "checking": "Checking…",
+      "valid": "Valid · {name}",
+      "alreadyMember": "Already a member of this organization",
+      "notFound": "No user with that email or username"
+    },
+    "invites": {
+      "title": "Invite codes",
+      "description": "Share a code so people can join this organization.",
+      "generate": "Generate code",
+      "generated": "Invite code generated",
+      "copy": "Copy",
+      "copied": "Invite code copied",
+      "copyFailed": "Could not copy — select the code and copy manually",
+      "copyCode": "Copy code",
+      "columnCode": "Code",
+      "columnCreated": "Created",
+      "columnActions": "Actions",
+      "revoke": "Revoke code",
+      "revokeTitle": "Revoke invite code",
+      "revokeQuestion": "Revoke {code}? Anyone holding it will no longer be able to join.",
+      "revokeConfirm": "Revoke",
+      "revoked": "Invite code revoked",
+      "empty": "No active invite codes."
+    },
+    "onboarding": {
+      "welcome": "Welcome to Minimals",
+      "intro": "Create your own organization, or join an existing one with an invite code.",
+      "newOrg": "New organization",
+      "newOrgDescription": "Start fresh — you become its owner and can invite others.",
+      "invite": "Invite code",
+      "inviteDescription": "Already invited? Join an organization with a code from its owner.",
+      "back": "Back",
+      "createSubmit": "Create organization",
+      "created": "Organization \"{name}\" created",
+      "code": "Invite code",
+      "codePlaceholder": "ABCDEFGH",
+      "joinSubmit": "Join organization",
+      "alreadyMember": "You're already a member of \"{name}\"",
+      "joined": "Joined \"{name}\"",
+      "checkQuestion": "Added by an organization owner already?",
+      "checkAgain": "Check again",
+      "checkFound": "You have an organization — taking you there",
+      "checkNotFound": "Still no organization — create one or use an invite code"
+    }
+  },
+  "todo": {
+    "new": "New todo",
+    "searchPlaceholder": "Search todo…",
+    "retry": "Retry",
+    "noOrgFeature": "Todo need an active organization — join or create one to use them.",
+    "empty": "No todo yet.",
+    "emptyFiltered": "No todo match your filters.",
+    "filter": {
+      "all": "All statuses",
+      "open": "Open",
+      "done": "Done"
+    },
+    "status": {
+      "open": "Open",
+      "done": "Done"
+    },
+    "columns": {
+      "title": "Todo",
+      "status": "Status",
+      "due": "Due",
+      "actions": "Actions"
+    },
+    "fields": {
+      "title": "Title",
+      "titlePlaceholder": "What needs doing?",
+      "description": "Description",
+      "descriptionPlaceholder": "Add details (optional)",
+      "completed": "Completed",
+      "dueDate": "Due date"
+    },
+    "actions": {
+      "complete": "Mark complete",
+      "reopen": "Mark open",
+      "edit": "Edit todo",
+      "delete": "Delete todo"
+    },
+    "create": {
+      "title": "New todo",
+      "submit": "Create"
+    },
+    "edit": {
+      "title": "Edit todo",
+      "submit": "Save"
+    },
+    "delete": {
+      "title": "Delete todo",
+      "question": "Delete \"{title}\"? This cannot be undone.",
+      "confirm": "Delete",
+      "done": "Todo deleted"
+    },
+    "created": "Todo created",
+    "updated": "Todo updated",
+    "validation": {
+      "title": "Title is required"
+    },
+    "errors": {
+      "list": "Failed to load todo",
+      "save": "Failed to save todo",
+      "delete": "Failed to delete todo"
+    },
+    "upsell": {
+      "title": "Todo are not enabled",
+      "description": "The organization's plan does not include shared todo. Ask an administrator to enable this feature."
+    },
+    "maintenance": "Todo are under maintenance.",
+    "maintenanceHint": "This feature is paused while the domain is in maintenance mode.",
+    "dev": "Todo are in development.",
+    "devHint": "This feature is work-in-progress — data may change without notice."
+  },
+  "infra": {
+    "db": {
+      "title": "Database",
+      "description": "The engine this deployment is currently connected to.",
+      "engine": "Engine",
+      "connection": "Connection"
+    },
+    "turso": {
+      "title": "Turso sync",
+      "description": "How the local database stays in step with Turso.",
+      "mode": "Mode",
+      "syncTarget": "Sync target",
+      "authToken": "Auth token",
+      "driver": "Driver",
+      "configured": "Configured",
+      "notSet": "Not set",
+      "installed": "Installed",
+      "missing": "Missing",
+      "modeNone": "Not using Turso",
+      "modeEmbedded": "Embedded replica",
+      "modeRemote": "Remote database",
+      "summaryNone": "This deployment does not use Turso.",
+      "summarySyncTarget": "Syncing to {target}.",
+      "summaryNoTarget": "No sync target configured.",
+      "summaryDirect": "Talking directly to Turso; no local replica.",
+      "tokenSet": "Auth token set.",
+      "tokenMissing": "No auth token set.",
+      "driverMissing": "libsql driver not installed."
+    },
+    "test": {
+      "title": "Connection test",
+      "description": "Opens a fresh connection and runs a single query.",
+      "lastRun": "Last run {time}.",
+      "button": "Test connection",
+      "ok": "Connection OK"
+    },
+    "errors": {
+      "loadStatus": "Failed to load database status",
+      "connectionFailed": "Connection test failed",
+      "invalid_db_credentials": "The database rejected the credentials.",
+      "db_unreachable": "The database host could not be reached.",
+      "db_not_found": "That database does not exist.",
+      "db_timeout": "The database did not respond in time.",
+      "unknown_db_host": "The database host could not be resolved.",
+      "db_connection_failed": "The connection failed.",
+      "turso_driver_not_installed": "The libsql driver is not installed."
+    }
   },
   "setup": {
     "title": "Setup",
@@ -184,7 +783,10 @@
     "reasonNoSchema": "No database schema found.",
     "dbEngine": "Database engine",
     "dbPath": "Database file path",
-    "dbPathPlaceholder": "data/app.db (optional)",
+    "dbPathPlaceholder": "absolute path, e.g. /app/data/app.db (blank = data/app.db)",
+    "tursoUrl": "Turso database URL",
+    "tursoToken": "Auth token",
+    "tursoPath": "Local replica path",
     "host": "Host",
     "port": "Port",
     "database": "Database",
@@ -211,10 +813,13 @@
     "registration_disabled": "Registration is disabled",
     "email_already_registered": "Email already registered",
     "username_taken": "Username already taken",
+    "already_a_member": "You are already a member of this organization",
+    "amount_required": "Enter an amount — this plan has no price",
     "api_key_not_found": "Api key not found",
     "bad_request": "Bad request",
     "conflict": "Conflicting data",
     "cannot_delete_builtin_role": "Cannot delete builtin role",
+    "community_requires_price": "Community plans require a price",
     "could_not_generate_unique_name": "Could not generate unique name",
     "csrf_token_invalid": "Csrf token invalid",
     "database_required": "Database required",
@@ -222,7 +827,13 @@
     "db_not_found": "Db not found",
     "db_timeout": "Db timeout",
     "db_unreachable": "Db unreachable",
+    "default_plan_cannot_be_deleted": "The default plan cannot be deleted",
+    "default_plan_missing": "No default plan is configured for this tier",
+    "default_plan_must_be_active": "The default plan must be active",
+    "default_plan_required": "Choose another default plan first",
     "domain_error": "Domain error",
+    "duplicate_menu_key": "Menu item already exists",
+    "feature_not_enabled": "This feature is not enabled for the organization",
     "file_invalid_name": "File invalid name",
     "file_required": "File required",
     "file_too_large": "File too large",
@@ -231,6 +842,7 @@
     "idx_invalid": "Idx invalid",
     "integrity_error": "Integrity error",
     "internal_server_error": "Internal server error",
+    "invalid": "Invalid value",
     "invalid_api_key": "Invalid API key",
     "invalid_app_role": "Invalid app role",
     "invalid_date": "Invalid date",
@@ -239,30 +851,68 @@
     "invalid_db_name": "Invalid db name",
     "invalid_db_path": "Invalid db path",
     "invalid_db_port": "Invalid db port",
+    "invalid_duration_unit": "Invalid duration unit",
     "invalid_email": "Invalid email",
+    "invalid_expiry_date": "Invalid expiry date",
+    "invalid_menu_key": "Invalid menu item",
     "invalid_operation": "Invalid operation",
+    "invalid_paid_date": "Invalid paid date",
+    "invalid_period_start": "Invalid period start",
+    "invalid_role": "Invalid role",
+    "invalid_status": "Invalid status",
+    "invalid_tier": "Invalid tier",
     "invalid_username": "Invalid username",
+    "invoice_already_paid": "Invoice is already paid",
+    "invoice_not_found": "Invoice not found",
+    "invoice_not_payable": "Invoice is not payable",
+    "invoice_not_voidable": "Invoice cannot be voided",
+    "invoice_period_exists": "An invoice already exists for this period",
+    "invite_code_generation_failed": "Could not generate an invite code",
+    "invite_not_found": "Invite code not found",
+    "last_owner_cannot_be_removed": "The last owner cannot be removed",
+    "logo_upload_missing": "Choose a logo image to upload",
     "malformed": "Malformed",
+    "member_limit_reached": "The organization member limit has been reached",
+    "member_not_found": "Member not found",
     "method_not_allowed": "Method not allowed",
     "name_required": "Name required",
     "no_fields_to_update": "No fields to update",
+    "not_a_member": "You are not a member of this organization",
     "not_found": "Not found",
+    "not_ready": "The app is not ready yet",
+    "organization_inactive": "Organization is inactive",
+    "organization_not_found": "Organization not found",
+    "paid_on_in_future": "Paid date cannot be in the future",
     "password_must_contain_digit": "Password must contain digit",
     "password_must_contain_lowercase": "Password must contain lowercase",
     "password_must_contain_special_character": "Password must contain special character",
     "password_must_contain_uppercase": "Password must contain uppercase",
     "payload_too_large": "Payload too large",
+    "period_before_subscription": "Period starts before the subscription",
+    "plan_in_use": "This plan is assigned to a subscription",
+    "plan_inactive": "This plan is inactive",
+    "plan_missing": "The organization has no plan",
+    "plan_name_taken": "A plan with this name already exists",
+    "plan_not_found": "Plan not found",
+    "plan_tier_locked": "The tier cannot change while the plan is default or in use",
     "rate_limit_exceeded": "Rate limit exceeded",
     "required": "Required",
     "role_already_exists": "Role already exists",
     "role_not_found": "Role not found",
+    "settings_update_failed": "Settings update failed",
     "setup_admin_failed": "Setup admin failed",
     "setup_already_complete": "Setup already complete",
     "setup_env_write_failed": "Setup env write failed",
     "setup_migration_failed": "Setup migration failed",
     "setup_repoint_failed": "Setup engine repoint failed",
     "site_url_invalid": "Site url invalid",
+    "slug_already_taken": "This slug is already taken",
+    "slug_must_be_lowercase_alphanumeric_with_hyphens": "Use lowercase letters, numbers, and hyphens only",
     "spa_not_built": "Spa not built",
+    "subscription_not_found": "Subscription not found",
+    "superadmin_only": "Only superadmins can do this",
+    "too_many_menu_items": "Too many menu items",
+    "too_many_organizations": "You have reached the organization creation limit",
     "unauthorized": "Unauthorized",
     "unprocessable_entity": "Unprocessable entity",
     "unknown_db_host": "Unknown database host",

@@ -79,7 +79,7 @@ onMounted(async () => {
 
       <PanelCard :title="t('dash.roles')">
         <div class="mt-3 flex flex-wrap gap-2">
-          <Badge v-if="user?.appRole" :label="user.appRole" theme="blue" />
+          <Badge v-if="user?.appRole" :label="user.appRole" variant="subtle" />
           <Badge v-for="role in user?.roles ?? []" :key="role" :label="role" />
           <p
             v-if="!user?.appRole && !user?.roles?.length"
