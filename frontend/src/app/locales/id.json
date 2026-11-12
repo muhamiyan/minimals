@@ -84,7 +84,7 @@
     },
     "Dashboard": {
       "title": "Dasbor",
-      "description": "Ringkasan akun Anda: profil dan peran."
+      "description": "Dasbor Anda: ringkasan akun, peran, dan administrasi."
     },
     "Users": {
       "title": "Pengguna",
@@ -167,7 +167,15 @@
   "dash": {
     "welcomeBack": "Selamat datang kembali",
     "roles": "Peran",
-    "noRoles": "Belum ada peran"
+    "noRoles": "Belum ada peran",
+    "totalUsers": "Total pengguna",
+    "registration": "Registrasi",
+    "registrationOpen": "Terbuka",
+    "registrationClosed": "Tertutup",
+    "adminConsole": "Administrasi",
+    "adminConsoleHint": "Kelola pengguna, peran, dan registrasi.",
+    "manageUsers": "Kelola pengguna",
+    "loadStatsFailed": "Gagal memuat statistik akun"
   },
   "setup": {
     "title": "Setup",
