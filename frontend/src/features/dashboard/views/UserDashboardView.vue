@@ -1,0 +1,38 @@
+<script setup lang="ts">
+import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { Badge } from 'frappe-ui'
+
+import { useAuthStore } from '@/features/auth/store'
+
+const auth = useAuthStore()
+const { t } = useI18n()
+
+const user = computed(() => auth.user)
+</script>
+
+<template>
+  <div class="mx-auto w-full max-w-6xl space-y-4 px-5 py-6">
+    <div class="space-y-1 rounded-6 border border-outline-gray-1 bg-surface-elevation-2 p-5">
+      <p class="text-p-sm text-ink-gray-5">{{ t('dash.welcomeBack') }}</p>
+      <div class="text-xl-semibold text-ink-gray-8">
+        {{ user?.fullName || user?.username }}
+      </div>
+      <p class="text-p-sm text-ink-gray-5">{{ user?.email }}</p>
+    </div>
+
+    <div class="rounded-6 border border-outline-gray-1 bg-surface-elevation-2 p-5">
+      <div class="text-base-medium text-ink-gray-8">{{ t('dash.roles') }}</div>
+      <div class="mt-3 flex flex-wrap gap-2">
+        <Badge v-if="user?.appRole" :label="user.appRole" />
+        <Badge v-for="role in user?.roles ?? []" :key="role" :label="role" />
+        <p
+          v-if="!user?.appRole && !user?.roles?.length"
+          class="text-p-sm text-ink-gray-5"
+        >
+          {{ t('dash.noRoles') }}
+        </p>
+      </div>
+    </div>
+  </div>
+</template>

@@ -8,7 +8,7 @@ export const dashboardRoutes: RouteRecordRaw[] = [
     meta: {
       requiresAuth: true,
       title: 'Dashboard',
-      description: 'Your account overview: profile and roles.',
+      description: 'Your dashboard: account overview, roles, and administration.',
     },
   },
 ]
