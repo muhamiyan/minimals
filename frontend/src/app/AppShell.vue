@@ -19,7 +19,7 @@ import { useAuthStore } from '@/features/auth/store'
 import ForbiddenDialog from '@/shared/components/ForbiddenDialog.vue'
 import { brand, useBrandLogo } from '@/shared/brand'
 import { useMenuStore } from './menuStore'
-import { useMediaQuery } from './useMediaQuery'
+import { useMediaQuery } from '@/shared/composables/useMediaQuery'
 import ThemeSwitcher from './ThemeSwitcher.vue'
 import UserSettingsDialog from './UserSettingsDialog.vue'
 
