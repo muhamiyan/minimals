@@ -356,12 +356,14 @@ src/
 
 - **Shell reusable di `shared/shell/`**: `AppPageHeader` (breadcrumb desktop /
   `PageHeaderMobile` + tombol menu mobile), `ShellSidebar`, `MobileBottomNav`,
-  `MobileMenuSheet`. `AppShell.vue` hanya komposisi: nav dari
+  `MobileMenuSheet` (menu sidebar — dari tombol menu `AppPageHeader`).
+  `AppShell.vue` hanya komposisi: nav dari
   `app/navigation.ts` (menu preferences) di-map jadi `ShellNavItem` (label
   sudah di-resolve `t()`, `active` = nama route) lalu di-pass ke komponen.
   Header sidebar (brand/logo/menu avatar) lewat slot `#header`; tab avatar di
-  bottom nav lewat slot default. State sheet global: `shared/shell/mobile-menu.ts`
-  (`openMobileMenu()`).
+  bottom nav lewat slot default — klik langsung buka `UserSettingsDialog`
+  (tab profile, `openSettings('profile')`, `:active="settingsOpen"`).
+  State sheet global: `shared/shell/mobile-menu.ts` (`openMobileMenu()`).
 
 - **Selalu** `import { api } from '@/shared/api'` dengan route tanpa prefix
   (`baseURL: '/api/v1'` sudah handles). **Jangan** `axios.create()` baru,
