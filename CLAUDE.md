@@ -228,20 +228,39 @@ ditolak 403 `registration_disabled` + audit `register_failure`. `GET
 /api/v1/auth/registration` publik — dipakai FE untuk menyembunyikan link
 "Create one" dan me-redirect `/register` ke `/login`.
 
-Dua konsep role, jangan dicampur:
+### Definisi ketat: `app_role` vs `roles`
 
-- **`User.app_role`** — kolom string, nilainya `"user"` atau `"admin"`. Ini yang
-  dicek `require_role("admin")`. Sangat sederhana, hard-coded.
-- **`Role` + `user_roles`** — tabel role relasional (seeded `Member`).
-  Untuk display/label dan FUTURE permission granularity.
+Dua konsep dengan **dimensi akses berbeda** — jangan pernah dicampur atau
+dianggap setara:
 
-`require_role(*roles)` / `require_owner_or_role(owner_id, *roles)` dari
-`framework.auth` — return `None` kalau boleh, atau response tuple yang langsung
-di-`return` dari view:
+| | `User.app_role` | `Role` + `user_roles` (tabel `roles`) |
+|---|---|---|
+| Dimensi | **Tier akses (pangkat)** — biner, menentukan pintu/manajemen mana yang boleh | **Peran fungsional DI DALAM sebuah tier** — many-to-many; himpunan roles boleh berbeda antar app_role |
+| Nilai | Hanya `"user"` atau `"admin"` — `VALID_APP_ROLES` di `app/account/dto.py`. `admin` = **tier tertinggi** (manajemen sistem), `user` = tier dasar | Nama bebas (unique, ≤64 char), seeded `Member` (`MEMBER_ROLE`). Contoh: `app_role="user"` + role `Owner` = owner di tier `user` |
+| Assignment | Kolom langsung di `users` | `PATCH /api/v1/account/users/:id` dengan `roleNames: [...]` → relasi `user_roles` |
+| Gate | **`require_role()` / `require_owner_or_role()`** (`framework/auth/helpers.py`) — baca `app_role` **saja**, return `None` / response tuple | **`User.has_role(name)`** (`app/auth/models.py`) — baca tabel `roles` via `user_roles`, return bool |
+
+Aturan keras:
+
+- Menambah/mengubah baris tabel `roles` **bukan** menambah tier. Nilai
+  `app_role` baru hanya lewat `VALID_APP_ROLES` + keputusan eksplisit.
+- **Belum ada validasi pasangan** `(app_role, role)` di code — `roleNames`
+  bebas di-assign ke app_role mana pun.
+- `BUILTIN_ROLES` (`Member`) dilindungi dari hapus; role lain CRUD via
+  `/api/v1/account/roles` (admin).
+
+Dua gate, dua kontrak — jangan tertukar:
 
 ```python
+# gate app_role (tier) — framework.auth; args = nilai app_role.
+# return None kalau boleh, atau response tuple untuk langsung di-return view:
 if denied := require_role("admin"):
     return denied
+
+# gate roles (peran fungsional) — exact match Role.name, return bool;
+# view yang menentukan response error (mis. 403):
+if not current_user.has_role("Owner"):
+    return error("forbidden", 403)  # framework.api.response
 ```
 
 ## CSRF
