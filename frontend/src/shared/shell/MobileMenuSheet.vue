@@ -41,6 +41,11 @@ function go(item: ShellNavItem) {
   mobileMenuOpen.value = false
   void router.push(item.route as RouteLocationRaw)
 }
+
+function onLogout() {
+  mobileMenuOpen.value = false
+  emit('logout')
+}
 </script>
 
 <template>
@@ -68,10 +73,7 @@ function go(item: ShellNavItem) {
 
       <div class="mt-2 border-t border-outline-gray-2 pt-2">
         <List>
-          <ListRow
-            class="h-11 cursor-pointer rounded-5"
-            @click="emit('logout')"
-          >
+          <ListRow class="h-11 cursor-pointer rounded-5" @click="onLogout">
             <ListCell>
               <Icon icon="lucide-log-out" class="size-5 shrink-0 text-ink-gray-5" />
             </ListCell>
