@@ -149,7 +149,11 @@ async function onLogout() {
 
     <template #nav>
       <MobileBottomNav :items="tabItems">
-        <MobileNavItem :label="t('menu.you')" @click="openMobileMenu()">
+        <MobileNavItem
+          :label="t('settings.profile.title')"
+          :active="settingsOpen"
+          @click="openSettings('profile')"
+        >
           <template #default="{ active }">
             <Avatar
               :label="displayName"
