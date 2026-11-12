@@ -50,6 +50,17 @@ export const useAccountStore = defineStore('account', () => {
   const roles = ref<AccountRole[]>([])
   const rolesLoaded = ref(false)
 
+  async function fetchUserTotal(): Promise<number | null> {
+    try {
+      const { data } = await api.get<UserPage>('/account/users', {
+        params: { page: 1, per_page: 1 },
+      })
+      return data.total ?? 0
+    } catch {
+      return null
+    }
+  }
+
   async function fetchUsers(query: UserQuery = {}): Promise<boolean> {
     loading.value = true
     error.value = ''
@@ -114,6 +125,7 @@ export const useAccountStore = defineStore('account', () => {
     loading,
     error,
     roles,
+    fetchUserTotal,
     fetchUsers,
     fetchRoles,
     updateUser,

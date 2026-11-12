@@ -84,7 +84,7 @@
     },
     "Dashboard": {
       "title": "Dashboard",
-      "description": "Your account overview: profile and roles."
+      "description": "Your dashboard: account overview, roles, and administration."
     },
     "Users": {
       "title": "Users",
@@ -167,7 +167,15 @@
   "dash": {
     "welcomeBack": "Welcome back",
     "roles": "Roles",
-    "noRoles": "No roles assigned"
+    "noRoles": "No roles assigned",
+    "totalUsers": "Total users",
+    "registration": "Registration",
+    "registrationOpen": "Open",
+    "registrationClosed": "Closed",
+    "adminConsole": "Administration",
+    "adminConsoleHint": "Manage users, roles, and registration.",
+    "manageUsers": "Manage users",
+    "loadStatsFailed": "Could not load account stats"
   },
   "setup": {
     "title": "Setup",
