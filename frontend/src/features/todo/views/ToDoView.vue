@@ -27,6 +27,7 @@ import PageBreadcrumbs from '@/shared/components/PageBreadcrumbs.vue'
 import ListFoot from '@/shared/components/ListFoot.vue'
 import ListHead from '@/shared/components/ListHead.vue'
 import ListRowOpenButton from '@/shared/components/ListRowOpenButton.vue'
+import ListState from '@/shared/components/ListState.vue'
 import ListToolbar from '@/shared/components/ListToolbar.vue'
 import { useListControls } from '@/shared/composables/useListControls'
 import { formatDate } from '@/shared/format'
@@ -85,6 +86,10 @@ const { search, perPage, reload, goToPage } = useListControls({
 
 const isFiltered = computed(
   () => search.value.trim() !== '' || status.value !== 'all',
+)
+
+const empty = computed(
+  () => !store.loading && store.items.length === 0,
 )
 
 function onStatusChange(value: SelectOptionValue | null | undefined): void {
@@ -209,7 +214,7 @@ async function confirmDelete(): Promise<void> {
     <Spinner />
   </div>
 
-  <div v-else class="mx-auto w-full max-w-6xl space-y-3 px-5 py-6">
+  <div v-else class="mx-auto w-full max-w-6xl space-y-4 px-5 py-6">
     <div v-if="!org" class="py-10 text-center text-p-sm text-ink-gray-5">
       {{ t('todo.noOrgFeature') }}
     </div>
@@ -240,7 +245,7 @@ async function confirmDelete(): Promise<void> {
       <ListToolbar
         v-model:search="search"
         v-model:per-page="perPage"
-        :show-per-page="store.items.length > 0"
+        :show-per-page="!empty"
         :placeholder="t('todo.searchPlaceholder')"
       >
         <Select
@@ -251,36 +256,15 @@ async function confirmDelete(): Promise<void> {
         />
       </ListToolbar>
 
-      <ErrorMessage
-        v-if="store.error || store.listError"
-        :message="store.error || store.listError"
-      />
-
       <div>
-        <div v-if="store.loading" class="flex justify-center py-10">
-          <Spinner />
-        </div>
-
-        <div v-else-if="store.listError" class="flex justify-center py-8">
-          <Button
-            :label="t('todo.retry')"
-            variant="outline"
-            icon-left="lucide-refresh-cw"
-            @click="reload"
-          />
-        </div>
-
-        <div
-          v-else-if="!store.items.length"
-          class="flex flex-col items-center gap-2 py-10 text-center"
+        <ListState
+          :loading="store.loading"
+          :error="store.listError"
+          :empty="empty"
+          icon="lucide-list-todo"
+          :empty-message="isFiltered ? t('todo.emptyFiltered') : t('todo.empty')"
         >
-          <span class="lucide-list-todo size-8 text-ink-gray-4" aria-hidden="true" />
-          <p class="text-p-sm text-ink-gray-5">
-            {{ isFiltered ? t('todo.emptyFiltered') : t('todo.empty') }}
-          </p>
-        </div>
-
-        <List v-else class="list-row-px-3" :columns="listColumns">
+        <List class="list-row-px-3" :columns="listColumns">
           <ListHead>
             <ListHeaderCell>{{ t('todo.columns.title') }}</ListHeaderCell>
             <ListHeaderCell>{{ t('todo.columns.status') }}</ListHeaderCell>
@@ -349,6 +333,7 @@ async function confirmDelete(): Promise<void> {
             </ListRow>
           </ListRows>
         </List>
+        </ListState>
         <ListFoot
           v-if="!store.loading && !store.listError && store.items.length"
           :total="store.total"
