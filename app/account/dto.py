@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from pydantic import field_validator, model_validator
 
+from app.infra.validation import CredentialPolicy
 from framework.base import DTOBase
 
 VALID_APP_ROLES = ("user", "admin")
@@ -41,6 +42,24 @@ class UserUpdateIn(DTOBase):
         if not self.model_fields_set:
             raise ValueError("no_fields_to_update")
         return self
+
+
+class UserCreateIn(DTOBase, CredentialPolicy):
+    """Validate an admin-created user payload."""
+
+    email: str = DTOBase.field(..., max_length=255)
+    username: str = DTOBase.field(..., min_length=3, max_length=150)
+    password: str = DTOBase.field(..., min_length=8, max_length=255)
+    full_name: str = DTOBase.field(..., alias="fullName", max_length=255)
+    app_role: str = DTOBase.field(default="user", alias="appRole")
+    role_names: list[str] | None = DTOBase.field(default=None, alias="roleNames")
+
+    @field_validator("app_role")
+    @classmethod
+    def validate_app_role(cls, v: str) -> str:
+        if v not in VALID_APP_ROLES:
+            raise ValueError("invalid_app_role")
+        return v
 
 
 class RoleCreateIn(DTOBase):
@@ -103,5 +122,6 @@ __all__ = [
     "MenuPreferenceIn",
     "RoleCreateIn",
     "RoleUpdateIn",
+    "UserCreateIn",
     "UserUpdateIn",
 ]
