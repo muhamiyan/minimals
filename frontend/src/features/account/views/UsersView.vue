@@ -145,7 +145,7 @@ onMounted(async () => {
       </ListState>
 
       <ListFoot
-        v-if="!empty"
+        v-if="!store.loading && !store.error && store.items.length"
         :total="store.total"
         :page="store.page"
         :per-page="store.perPage"
