@@ -40,6 +40,15 @@ export interface UserUpdatePayload {
   roleNames?: string[]
 }
 
+export interface UserCreatePayload {
+  email: string
+  username: string
+  password: string
+  fullName: string
+  appRole: string
+  roleNames: string[]
+}
+
 export const useAccountStore = defineStore('account', () => {
   const items = ref<AdminUser[]>([])
   const total = ref(0)
@@ -117,6 +126,22 @@ export const useAccountStore = defineStore('account', () => {
     }
   }
 
+  async function createUser(
+    payload: UserCreatePayload,
+  ): Promise<AdminUser | null> {
+    error.value = ''
+    try {
+      const { data } = await api.post<AdminUser>('/account/users', payload)
+      return data
+    } catch (e: any) {
+      error.value = getErrorMessage(
+        e,
+        i18n.global.t('account.errors.createUserFailed'),
+      )
+      return null
+    }
+  }
+
   return {
     items,
     total,
@@ -128,6 +153,7 @@ export const useAccountStore = defineStore('account', () => {
     fetchUserTotal,
     fetchUsers,
     fetchRoles,
+    createUser,
     updateUser,
   }
 })

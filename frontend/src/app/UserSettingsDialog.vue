@@ -284,7 +284,9 @@ watch([open, activeTab], ([isOpen, tab]) => {
             </SettingsRow>
           </div>
 
-          <div class="mt-8 border-t border-outline-gray-1 pt-4 sm:hidden">
+          <div
+            class="mt-8 flex flex-col gap-2 border-t border-outline-gray-1 pt-4 sm:hidden"
+          >
             <Button
               :label="t('menu.logout')"
               icon-left="lucide-log-out"
