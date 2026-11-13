@@ -4,7 +4,7 @@ from __future__ import annotations
 from flask import request
 from flask_login import current_user, login_required
 
-from app.account.dto import RoleCreateIn, RoleUpdateIn, UserUpdateIn
+from app.account.dto import RoleCreateIn, RoleUpdateIn, UserCreateIn, UserUpdateIn
 from app.account.presenters import RoleOut, UserAdminOut
 from app.account.services import AccountService
 from framework.api import (
@@ -41,6 +41,17 @@ def list_users():
             page.per_page,
         )
     )
+
+
+@bp.post("/users")
+@login_required
+def create_user():
+    if denied := require_role("admin"):
+        return denied
+
+    dto = UserCreateIn.validate(request.get_json(silent=True) or {})
+    user = AccountService().create_user(dto, actor_id=current_user.id)
+    return created(UserAdminOut.from_user(user).to_dict())
 
 
 @bp.get("/users/<user_id>")

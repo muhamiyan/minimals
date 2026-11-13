@@ -57,6 +57,11 @@ function openEdit(user: AdminUser) {
   editOpen.value = true
 }
 
+function openCreate() {
+  editing.value = null
+  editOpen.value = true
+}
+
 onMounted(async () => {
   if (!auth.checked) await auth.fetchMe()
   refresh()
@@ -64,7 +69,25 @@ onMounted(async () => {
 </script>
 
 <template>
-  <AppPageHeader />
+  <AppPageHeader>
+    <template #default>
+      <Button
+        variant="solid"
+        icon-left="lucide-user-plus"
+        :label="t('account.addUser')"
+        @click="openCreate"
+      />
+    </template>
+    <template #suffix>
+      <Button
+        variant="ghost"
+        theme="gray"
+        icon="lucide-user-plus"
+        :label="t('account.addUser')"
+        @click="openCreate"
+      />
+    </template>
+  </AppPageHeader>
 
   <Spinner v-if="!gateReady" />
 
@@ -143,7 +166,7 @@ onMounted(async () => {
       </ListState>
 
       <ListFoot
-        v-if="!empty"
+        v-if="!store.loading && !store.error && !empty"
         :total="store.total"
         :page="store.page"
         :per-page="store.perPage"

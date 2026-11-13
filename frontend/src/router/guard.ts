@@ -20,6 +20,9 @@ export async function authGuard(to: any) {
   if (to.meta.requiresAuth && !auth.user) {
     return { path: '/login', query: { redirect: to.fullPath } }
   }
+  if (to.meta.requiresAdmin && auth.user?.appRole !== 'admin') {
+    return '/'
+  }
   if (to.meta.guestOnly) {
     if (auth.user) return '/'
     await auth.fetchRegistrationMode()

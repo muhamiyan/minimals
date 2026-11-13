@@ -4,7 +4,7 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass
 
-from app.account.dto import MenuPreferenceIn, RoleUpdateIn, UserUpdateIn
+from app.account.dto import MenuPreferenceIn, RoleUpdateIn, UserCreateIn, UserUpdateIn
 from app.account.models import ApiKey, UserPreference, generate_api_key
 from app.account.repositories import (
     AccountRepository,
@@ -13,6 +13,7 @@ from app.account.repositories import (
 )
 from app.auth.models import MEMBER_ROLE, Role, User
 from app.auth.repositories import RoleRepository, UserRepository
+from app.auth.services import AuthService
 from app.infra.audit import log as audit_log
 from framework.base import ServiceBase
 from framework.exceptions import Conflict, InvalidOperation, NotFound
@@ -80,6 +81,41 @@ class AccountService(ServiceBase[AccountRepository]):
             user_id=actor_id,
             resource=f"users/{user_id}",
             details={"changed": sorted(data.keys())},
+        )
+        self._commit()
+        return user
+
+    def create_user(self, dto: UserCreateIn, *, actor_id: str) -> User:
+        if self._repo.find_user_by_email(dto.email) is not None:
+            raise Conflict("email_already_registered")
+        if self._repo.find_user_by_username(dto.username) is not None:
+            raise Conflict("username_taken")
+
+        user = AuthService.build_user(
+            username=dto.username,
+            email=dto.email,
+            full_name=dto.full_name,
+            password=dto.password,
+            app_role=dto.app_role,
+        )
+        if dto.role_names:
+            for name in dto.role_names:
+                role = self._roles.find_by_name(name)
+                if role is None:
+                    raise InvalidOperation("role_not_found")
+                user.roles.append(role)
+        else:
+            member_role = self._roles.find_by_name(MEMBER_ROLE)
+            if member_role is not None:
+                user.roles.append(member_role)
+
+        self._repo.add(user)
+        self._flush()
+        audit_log(
+            "user_created",
+            user_id=actor_id,
+            resource=f"users/{user.id}",
+            details={"email": user.email, "app_role": user.app_role},
         )
         self._commit()
         return user

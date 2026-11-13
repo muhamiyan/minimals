@@ -149,6 +149,7 @@ Tidak ada CLI generator di project ini (berbeda dengan root `cells`).
 | GET | /api/v1/account/users | List users (admin) |
 | GET | /api/v1/account/users/:id | Fetch one user (owner or admin) |
 | PATCH | /api/v1/account/users/:id | Update user (admin) |
+| POST | /api/v1/account/users | Create user with chosen appRole (admin) |
 | GET | /api/v1/account/roles | List roles (admin) |
 | POST | /api/v1/account/roles | Create role (admin) |
 | PATCH | /api/v1/account/roles/:id | Update role (admin) |
@@ -385,8 +386,9 @@ src/
   Tema di Preferences. Wizard setup punya select bahasa di langkah Brand
   (disimpan ke `settings.appLang`).
 - **Router guard urutan**: setup dulu (`setupRequired` → semua nav ke `/setup`),
-  baru auth (`requiresAuth` / `guestOnly`). `setupRequired` = schema atau
-  user kosong.
+  baru auth (`requiresAuth` / `guestOnly`), baru admin (`requiresAdmin` →
+  redirect `/` kalau `appRole !== "admin"` — dipakai route `/users`).
+  `setupRequired` = schema atau user kosong.
 - **Per-page `<head>`**: `router.afterEach` (`router/index.ts`) mengisi
   `document.title`/`meta description` dari kunci i18n `route.<Name>.title`
   dan `route.<Name>.description` (fallback `meta.title`/`meta.description`

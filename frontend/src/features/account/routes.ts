@@ -7,6 +7,7 @@ export const accountRoutes: RouteRecordRaw[] = [
     component: () => import('./views/UsersView.vue'),
     meta: {
       requiresAuth: true,
+      requiresAdmin: true,
       title: 'Users',
       description: 'Administer user accounts: role, status, and group memberships.',
     },
