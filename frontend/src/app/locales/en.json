@@ -136,6 +136,7 @@
       "status": "Status",
       "actions": "Actions"
     },
+    "addUser": "Add user",
     "editUser": "Edit user",
     "fullName": "Full name",
     "appRole": "App role",
@@ -147,10 +148,13 @@
     "statusInactive": "Inactive",
     "isActive": "Active",
     "saveChanges": "Save changes",
+    "createUser": "Create user",
     "userUpdated": "User updated.",
+    "userCreated": "User created.",
     "errors": {
       "loadUsersFailed": "Couldn't load users.",
-      "updateUserFailed": "Couldn't update the user."
+      "updateUserFailed": "Couldn't update the user.",
+      "createUserFailed": "Couldn't create the user."
     }
   },
   "shared": {
