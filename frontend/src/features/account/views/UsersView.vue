@@ -25,7 +25,9 @@ const store = useAccountStore()
 const auth = useAuthStore()
 const { t } = useI18n()
 
-const gateReady = computed(() => auth.checked)
+const initialLoaded = ref(false)
+
+const gateReady = computed(() => auth.checked && initialLoaded.value)
 
 const empty = computed(
   () => !store.loading && store.items.length === 0,
@@ -40,13 +42,12 @@ const { search, perPage, reload: refresh, goToPage } = useListControls({
   setPage: (page) => {
     store.page = page
   },
-  fetch: (query) => {
+  fetch: (query) =>
     store.fetchUsers({
       search: query.search,
       page: store.page,
       perPage: query.perPage,
-    })
-  },
+    }),
 })
 
 const editOpen = ref(false)
@@ -62,7 +63,10 @@ function openCreate() {
   editOpen.value = true
 }
 
-onMounted(() => refresh())
+onMounted(async () => {
+  await refresh()
+  initialLoaded.value = true
+})
 </script>
 
 <template>
@@ -87,7 +91,9 @@ onMounted(() => refresh())
     </template>
   </AppPageHeader>
 
-  <Spinner v-if="!gateReady" />
+  <div v-if="!gateReady" class="flex justify-center py-10">
+    <Spinner />
+  </div>
 
   <div v-else class="mx-auto w-full max-w-6xl space-y-4 px-5 py-6">
     <ListToolbar
