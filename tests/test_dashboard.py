@@ -38,7 +38,7 @@ def _create_user(app, username):
 
 
 def _pay_invoice(superadmin, org_id, amount):
-    period_start = datetime.now(UTC).replace(day=15, hour=0, minute=0, second=0, microsecond=0, tzinfo=UTC)
+    period_start = datetime.now(UTC)
     response = superadmin.post(
         "/api/v1/billing/invoices",
         json={

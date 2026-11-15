@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
-import { PageHeader, Spinner } from 'frappe-ui'
-import PageBreadcrumbs from '@/shared/components/PageBreadcrumbs.vue'
+import { computed } from 'vue'
+import { Spinner } from 'frappe-ui'
 
+import AppPageHeader from '@/shared/shell/AppPageHeader.vue'
 import AdminDashboardView from './AdminDashboardView.vue'
 import SuperadminDashboardView from './SuperadminDashboardView.vue'
 import UserDashboardView from './UserDashboardView.vue'
@@ -16,16 +16,10 @@ const isAdmin = computed(() => {
   const role = auth.user?.appRole
   return role === 'admin' || role === 'superadmin'
 })
-
-onMounted(async () => {
-  if (!auth.checked) await auth.fetchMe()
-})
 </script>
 
 <template>
-  <PageHeader>
-    <PageBreadcrumbs />
-  </PageHeader>
+  <AppPageHeader />
 
   <Spinner v-if="!gateReady" />
 
