@@ -118,7 +118,7 @@ async function onLogout() {
             :menu-items="headerMenu"
           >
             <template #prefix>
-              <BrandLogo fill :alt="brand.name">
+              <BrandLogo size="fill" :alt="brand.name">
                 <div
                   class="flex h-full w-full items-center justify-center bg-surface-gray-4 text-ink-gray-7"
                 >
