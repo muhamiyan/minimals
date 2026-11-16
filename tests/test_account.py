@@ -286,10 +286,18 @@ def test_create_user_can_be_admin(admin):
 
 def test_create_user_rejects_invalid_app_role(admin):
     response = admin.post(
-        "/api/v1/account/users", json=create_user_payload(appRole="superadmin")
+        "/api/v1/account/users", json=create_user_payload(appRole="owner")
     )
     assert response.status_code == 400
     assert response.get_json() == {"message": "app_role_invalid_app_role"}
+
+
+def test_admin_cannot_create_superadmin(admin):
+    response = admin.post(
+        "/api/v1/account/users", json=create_user_payload(appRole="superadmin")
+    )
+    assert response.status_code == 403
+    assert response.get_json() == {"message": "superadmin_only"}
 
 
 def test_create_user_rejects_duplicate_email(admin):

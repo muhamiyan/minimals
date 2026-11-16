@@ -90,6 +90,10 @@ class AccountService(ServiceBase[AccountRepository]):
         return user
 
     def create_user(self, dto: UserCreateIn, *, actor_id: str) -> User:
+        if dto.app_role == "superadmin":
+            actor = self._repo.get(actor_id)
+            if actor is None or actor.app_role != "superadmin":
+                raise Forbidden("superadmin_only")
         if self._repo.find_user_by_email(dto.email) is not None:
             raise Conflict("email_already_registered")
         if self._repo.find_user_by_username(dto.username) is not None:
