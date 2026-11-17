@@ -1,8 +1,8 @@
 ﻿<script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { Badge, Button, PageHeader, Spinner } from 'frappe-ui'
-import PageBreadcrumbs from '@/shared/components/PageBreadcrumbs.vue'
+import { Badge, Button, Spinner } from 'frappe-ui'
+import AppPageHeader from '@/shared/shell/AppPageHeader.vue'
 import {
   List,
   ListCell,
@@ -25,7 +25,9 @@ const store = useAccountStore()
 const auth = useAuthStore()
 const { t } = useI18n()
 
-const gateReady = computed(() => auth.checked)
+const initialLoaded = ref(false)
+
+const gateReady = computed(() => auth.checked && initialLoaded.value)
 
 const empty = computed(
   () => !store.loading && store.items.length === 0,
@@ -40,13 +42,12 @@ const { search, perPage, reload: refresh, goToPage } = useListControls({
   setPage: (page) => {
     store.page = page
   },
-  fetch: (query) => {
+  fetch: (query) =>
     store.fetchUsers({
       search: query.search,
       page: store.page,
       perPage: query.perPage,
-    })
-  },
+    }),
 })
 
 const editOpen = ref(false)
@@ -57,18 +58,42 @@ function openEdit(user: AdminUser) {
   editOpen.value = true
 }
 
+function openCreate() {
+  editing.value = null
+  editOpen.value = true
+}
+
 onMounted(async () => {
-  if (!auth.checked) await auth.fetchMe()
-  refresh()
+  await refresh()
+  initialLoaded.value = true
 })
 </script>
 
 <template>
-  <PageHeader>
-    <PageBreadcrumbs />
-  </PageHeader>
+  <AppPageHeader>
+    <template #default>
+      <Button
+        variant="solid"
+        theme="gray"
+        icon-left="lucide-user-plus"
+        :label="t('account.addUser')"
+        @click="openCreate"
+      />
+    </template>
+    <template #suffix>
+      <Button
+        variant="ghost"
+        theme="gray"
+        icon="lucide-user-plus"
+        :label="t('account.addUser')"
+        @click="openCreate"
+      />
+    </template>
+  </AppPageHeader>
 
-  <Spinner v-if="!gateReady" />
+  <div v-if="!gateReady" class="flex justify-center py-10">
+    <Spinner />
+  </div>
 
   <div v-else class="mx-auto w-full max-w-6xl space-y-4 px-5 py-6">
     <ListToolbar
@@ -113,14 +138,14 @@ onMounted(async () => {
               </ListCell>
               <ListCell>
                 <Badge
-                  :label="item.appRole ?? 'â€”'"
+                  :label="item.appRole ?? '–'"
                   :theme="item.appRole === 'admin' ? 'blue' : 'gray'"
                   variant="subtle"
                 />
               </ListCell>
               <ListCell class="max-md:hidden">
                 <span class="truncate text-p-sm text-ink-gray-5">
-                  {{ item.roles.length ? item.roles.join(', ') : 'â€”' }}
+                  {{ item.roles.length ? item.roles.join(', ') : '–' }}
                 </span>
               </ListCell>
               <ListCell>
@@ -145,7 +170,7 @@ onMounted(async () => {
       </ListState>
 
       <ListFoot
-        v-if="!store.loading && !store.error && store.items.length"
+        v-if="!store.loading && !store.error && !empty"
         :total="store.total"
         :page="store.page"
         :per-page="store.perPage"

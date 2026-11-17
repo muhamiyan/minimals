@@ -18,7 +18,9 @@
     "system": "Sistem",
     "settings": "Pengaturan",
     "logout": "Keluar",
-    "section": "Menu"
+    "section": "Menu",
+    "more": "Lainnya",
+    "menu": "Menu"
   },
   "orgSwitcher": {
     "title": "Organisasi",
@@ -198,6 +200,7 @@
       "status": "Status",
       "actions": "Aksi"
     },
+    "addUser": "Tambah pengguna",
     "editUser": "Edit pengguna",
     "fullName": "Nama lengkap",
     "appRole": "Peran app",
@@ -209,10 +212,13 @@
     "statusInactive": "Nonaktif",
     "isActive": "Aktif",
     "saveChanges": "Simpan perubahan",
+    "createUser": "Buat pengguna",
     "userUpdated": "Pengguna diperbarui.",
+    "userCreated": "Pengguna ditambahkan.",
     "errors": {
       "loadUsersFailed": "Gagal memuat pengguna.",
-      "updateUserFailed": "Gagal memperbarui pengguna."
+      "updateUserFailed": "Gagal memperbarui pengguna.",
+      "createUserFailed": "Gagal menambah pengguna."
     }
   },
   "shared": {
