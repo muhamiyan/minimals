@@ -1,14 +1,25 @@
 """Account input DTOs — request-body validation for account endpoints."""
 from __future__ import annotations
 
+from typing import TypeVar
+
 from pydantic import field_validator, model_validator
 
+from app.infra.validation import CredentialPolicy, UsernamePolicy
 from framework.base import DTOBase
 
 VALID_APP_ROLES = ("user", "admin")
 
+TAppRole = TypeVar("TAppRole", bound=str | None)
 
-class UserUpdateIn(DTOBase):
+
+def _check_app_role(v: TAppRole) -> TAppRole:
+    if v is not None and v not in VALID_APP_ROLES:
+        raise ValueError("invalid_app_role")
+    return v
+
+
+class UserUpdateIn(DTOBase, UsernamePolicy):
     """Validate a user admin-update payload."""
 
     model_config = dict(DTOBase.model_config, extra="ignore")
@@ -19,28 +30,32 @@ class UserUpdateIn(DTOBase):
     app_role: str | None = DTOBase.field(default=None, alias="appRole")
     role_names: list[str] | None = DTOBase.field(default=None, alias="roleNames")
 
-    @field_validator("username")
-    @classmethod
-    def validate_username(cls, v: str | None) -> str | None:
-        if v is None:
-            return v
-        v = v.strip().lower()
-        if not all(ch.isalnum() or ch in "_.-" for ch in v):
-            raise ValueError("invalid_username")
-        return v
-
     @field_validator("app_role")
     @classmethod
     def validate_app_role(cls, v: str | None) -> str | None:
-        if v is not None and v not in VALID_APP_ROLES:
-            raise ValueError("invalid_app_role")
-        return v
+        return _check_app_role(v)
 
     @model_validator(mode="after")
     def check_not_empty(self):
         if not self.model_fields_set:
             raise ValueError("no_fields_to_update")
         return self
+
+
+class UserCreateIn(DTOBase, CredentialPolicy):
+    """Validate an admin-created user payload."""
+
+    email: str = DTOBase.field(..., max_length=255)
+    username: str = DTOBase.field(..., min_length=3, max_length=150)
+    password: str = DTOBase.field(..., min_length=8, max_length=255)
+    full_name: str = DTOBase.field(..., alias="fullName", max_length=255)
+    app_role: str = DTOBase.field(default="user", alias="appRole")
+    role_names: list[str] | None = DTOBase.field(default=None, alias="roleNames")
+
+    @field_validator("app_role")
+    @classmethod
+    def validate_app_role(cls, v: str) -> str:
+        return _check_app_role(v)
 
 
 class RoleCreateIn(DTOBase):
@@ -103,5 +118,6 @@ __all__ = [
     "MenuPreferenceIn",
     "RoleCreateIn",
     "RoleUpdateIn",
+    "UserCreateIn",
     "UserUpdateIn",
 ]

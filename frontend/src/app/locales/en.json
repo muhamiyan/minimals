@@ -1,7 +1,8 @@
 {
   "nav": {
     "home": "Home",
-    "dashboard": "Dashboard"
+    "dashboard": "Dashboard",
+    "users": "Users"
   },
   "menu": {
     "theme": "Theme",
@@ -10,7 +11,9 @@
     "system": "System",
     "settings": "Settings",
     "logout": "Log out",
-    "section": "Menu"
+    "section": "Menu",
+    "more": "More",
+    "menu": "Menu"
   },
   "settings": {
     "title": "Settings",
@@ -65,7 +68,8 @@
     }
   },
   "crumb": {
-    "dashboard": "Dashboard"
+    "dashboard": "Dashboard",
+    "users": "Users"
   },
   "route": {
     "Login": {
@@ -82,7 +86,11 @@
     },
     "Dashboard": {
       "title": "Dashboard",
-      "description": "Your account overview: profile and roles."
+      "description": "Your dashboard: account overview, roles, and administration."
+    },
+    "Users": {
+      "title": "Users",
+      "description": "User administration: roles, status, and groups."
     }
   },
   "field": {
@@ -117,6 +125,38 @@
       "length": "At least 8 characters"
     }
   },
+  "account": {
+    "searchUsers": "Search users…",
+    "noUsers": "No users yet.",
+    "noUsersFound": "No users match your search.",
+    "columns": {
+      "user": "User",
+      "appRole": "App role",
+      "roles": "Groups",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "addUser": "Add user",
+    "editUser": "Edit user",
+    "fullName": "Full name",
+    "appRole": "App role",
+    "roleUser": "User",
+    "roleAdmin": "Admin",
+    "roleNames": "Groups",
+    "rolesPlaceholder": "Select groups…",
+    "statusActive": "Active",
+    "statusInactive": "Inactive",
+    "isActive": "Active",
+    "saveChanges": "Save changes",
+    "createUser": "Create user",
+    "userUpdated": "User updated.",
+    "userCreated": "User created.",
+    "errors": {
+      "loadUsersFailed": "Couldn't load users.",
+      "updateUserFailed": "Couldn't update the user.",
+      "createUserFailed": "Couldn't create the user."
+    }
+  },
   "shared": {
     "search": "Search…",
     "perPage": "{n} / page",
@@ -126,12 +166,22 @@
     "ok": "OK",
     "close": "Close",
     "forbiddenTitle": "Access denied",
-    "forbiddenMessage": "This page requires administrator privileges. Your account is registered as a regular user. Contact an administrator to get access."
+    "forbiddenMessage": "This page requires administrator privileges. Your account is registered as a regular user. Contact an administrator to get access.",
+    "noResults": "No results found",
+    "cancel": "Cancel"
   },
   "dash": {
     "welcomeBack": "Welcome back",
     "roles": "Roles",
-    "noRoles": "No roles assigned"
+    "noRoles": "No roles assigned",
+    "totalUsers": "Total users",
+    "registration": "Registration",
+    "registrationOpen": "Open",
+    "registrationClosed": "Closed",
+    "adminConsole": "Administration",
+    "adminConsoleHint": "Manage users, roles, and registration.",
+    "manageUsers": "Manage users",
+    "loadStatsFailed": "Could not load account stats"
   },
   "setup": {
     "title": "Setup",

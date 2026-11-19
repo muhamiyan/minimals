@@ -213,3 +213,77 @@ def test_promoted_user_gains_admin_access(admin, app):
     assert promoted.status_code == 200
     assert promoted.get_json()["appRole"] == "admin"
     assert newcomer.get("/api/v1/account/users").status_code == 200
+
+
+def create_user_payload(**overrides):
+    payload = {
+        "email": "fresh@example.com",
+        "username": "freshuser",
+        "password": "Str0ng!pass",
+        "fullName": "Fresh User",
+    }
+    payload.update(overrides)
+    return payload
+
+
+def test_create_user_requires_admin(member):
+    response = member.post("/api/v1/account/users", json=create_user_payload())
+    assert response.status_code == 403
+    assert response.get_json() == {"message": "forbidden"}
+
+
+def test_create_user_returns_201(admin):
+    response = admin.post("/api/v1/account/users", json=create_user_payload())
+    assert response.status_code == 201
+
+    body = response.get_json()
+    assert set(body) == USER_ITEM_KEYS
+    assert body["email"] == "fresh@example.com"
+    assert body["appRole"] == "user"
+    assert body["roles"] == ["Member"]
+    assert body["isActive"] is True
+
+
+def test_create_user_can_be_admin(admin):
+    response = admin.post(
+        "/api/v1/account/users",
+        json=create_user_payload(email="boss@example.com", username="boss", appRole="admin"),
+    )
+    assert response.status_code == 201
+    assert response.get_json()["appRole"] == "admin"
+
+
+def test_create_user_rejects_invalid_app_role(admin):
+    response = admin.post(
+        "/api/v1/account/users", json=create_user_payload(appRole="superadmin")
+    )
+    assert response.status_code == 400
+    assert response.get_json() == {"message": "app_role_invalid_app_role"}
+
+
+def test_create_user_rejects_duplicate_email(admin):
+    admin.post("/api/v1/account/users", json=create_user_payload())
+
+    response = admin.post(
+        "/api/v1/account/users", json=create_user_payload(username="someoneelse")
+    )
+    assert response.status_code == 409
+    assert response.get_json() == {"message": "email_already_registered"}
+
+
+def test_create_user_rejects_duplicate_username(admin):
+    admin.post("/api/v1/account/users", json=create_user_payload())
+
+    response = admin.post(
+        "/api/v1/account/users", json=create_user_payload(email="other@example.com")
+    )
+    assert response.status_code == 409
+    assert response.get_json() == {"message": "username_taken"}
+
+
+def test_create_user_rejects_weak_password(admin):
+    response = admin.post(
+        "/api/v1/account/users", json=create_user_payload(password="password")
+    )
+    assert response.status_code == 400
+    assert response.get_json() == {"message": "password_password_must_contain_uppercase"}

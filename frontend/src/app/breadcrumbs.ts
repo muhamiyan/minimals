@@ -18,4 +18,5 @@ interface Crumb {
 
 export const breadcrumbMap: Record<string, Crumb> = {
   Dashboard: { label: 'crumb.dashboard' },
+  Users: { label: 'crumb.users' },
 }

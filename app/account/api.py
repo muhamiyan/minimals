@@ -4,7 +4,7 @@ from __future__ import annotations
 from flask import request
 from flask_login import current_user, login_required
 
-from app.account.dto import RoleCreateIn, RoleUpdateIn, UserUpdateIn
+from app.account.dto import RoleCreateIn, RoleUpdateIn, UserCreateIn, UserUpdateIn
 from app.account.presenters import RoleOut, UserAdminOut
 from app.account.services import AccountService
 from framework.api import (
@@ -16,7 +16,7 @@ from framework.api import (
     paginate,
     paginated_response,
 )
-from framework.auth.helpers import require_role
+from framework.auth.helpers import require_owner_or_role, require_role
 
 bp = BlueprintFactory("account", __name__, url_prefix="/api/v1/account")
 
@@ -43,12 +43,22 @@ def list_users():
     )
 
 
+@bp.post("/users")
+@login_required
+def create_user():
+    if denied := require_role("admin"):
+        return denied
+
+    dto = UserCreateIn.validate(request.get_json(silent=True) or {})
+    user = AccountService().create_user(dto, actor_id=current_user.id)
+    return created(UserAdminOut.from_user(user).to_dict())
+
+
 @bp.get("/users/<user_id>")
 @login_required
 def get_user(user_id: str):
-    if current_user.id != user_id:
-        if denied := require_role("admin"):
-            return denied
+    if denied := require_owner_or_role(user_id, "admin"):
+        return denied
 
     user = AccountService().get_user(user_id)
     return ok(UserAdminOut.from_user(user).to_dict())

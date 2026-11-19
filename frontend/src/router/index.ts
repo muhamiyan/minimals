@@ -8,6 +8,7 @@ import {
 
 import { i18n } from '@/app/i18n'
 import AppShell from '@/app/AppShell.vue'
+import { accountRoutes } from '@/features/account/routes'
 import { authRoutes } from '@/features/auth/routes'
 import { useAuthStore } from '@/features/auth/store'
 import { blogAdminRoutes, blogRoutes } from '@/features/blog/routes'
@@ -25,7 +26,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/dashboard',
     component: AppShell,
-    children: [...dashboardRoutes],
+    children: [...dashboardRoutes, ...accountRoutes],
   },
   {
     path: '/admin/blog',

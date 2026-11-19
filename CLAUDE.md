@@ -142,13 +142,14 @@ Tidak ada CLI generator di project ini (berbeda dengan root `cells`).
 | GET | /api/v1/auth/me | Current user (session) |
 | GET | /api/v1/auth/registration | Registration mode open/closed (public) |
 | PUT | /api/v1/auth/registration | Set registration mode (admin) |
-| GET | /api/v1/setup/status | First-run setup status (public) |
+| GET | /api/v1/setup/status | First-run setup status (public; engine/URL only for loopback clients) |
 | POST | /api/v1/setup/db-test | Test DB connection (loopback client only) |
 | POST | /api/v1/setup | Run first-run setup (loopback client only) |
 | GET | /api/v1/csrf | Fetch CSRF token (public) |
 | GET | /api/v1/account/users | List users (admin) |
 | GET | /api/v1/account/users/:id | Fetch one user (owner or admin) |
 | PATCH | /api/v1/account/users/:id | Update user (admin) |
+| POST | /api/v1/account/users | Create user with chosen appRole (admin) |
 | GET | /api/v1/account/roles | List roles (admin) |
 | POST | /api/v1/account/roles | Create role (admin) |
 | PATCH | /api/v1/account/roles/:id | Update role (admin) |
@@ -234,20 +235,39 @@ ditolak 403 `registration_disabled` + audit `register_failure`. `GET
 /api/v1/auth/registration` publik — dipakai FE untuk menyembunyikan link
 "Create one" dan me-redirect `/register` ke `/login`.
 
-Dua konsep role, jangan dicampur:
+### Definisi ketat: `app_role` vs `roles`
 
-- **`User.app_role`** — kolom string, nilainya `"user"` atau `"admin"`. Ini yang
-  dicek `require_role("admin")`. Sangat sederhana, hard-coded.
-- **`Role` + `user_roles`** — tabel role relasional (seeded `Member`).
-  Untuk display/label dan FUTURE permission granularity.
+Dua konsep dengan **dimensi akses berbeda** — jangan pernah dicampur atau
+dianggap setara:
 
-`require_role(*roles)` / `require_owner_or_role(owner_id, *roles)` dari
-`framework.auth` — return `None` kalau boleh, atau response tuple yang langsung
-di-`return` dari view:
+| | `User.app_role` | `Role` + `user_roles` (tabel `roles`) |
+|---|---|---|
+| Dimensi | **Tier akses (pangkat)** — biner, menentukan pintu/manajemen mana yang boleh | **Peran fungsional DI DALAM sebuah tier** — many-to-many; himpunan roles boleh berbeda antar app_role |
+| Nilai | Hanya `"user"` atau `"admin"` — `VALID_APP_ROLES` di `app/account/dto.py`. `admin` = **tier tertinggi** (manajemen sistem), `user` = tier dasar | Nama bebas (unique, ≤64 char), seeded `Member` (`MEMBER_ROLE`). Contoh: `app_role="user"` + role `Owner` = owner di tier `user` |
+| Assignment | Kolom langsung di `users` | `PATCH /api/v1/account/users/:id` dengan `roleNames: [...]` → relasi `user_roles` |
+| Gate | **`require_role()` / `require_owner_or_role()`** (`framework/auth/helpers.py`) — baca `app_role` **saja**, return `None` / response tuple | **`User.has_role(name)`** (`app/auth/models.py`) — baca tabel `roles` via `user_roles`, return bool |
+
+Aturan keras:
+
+- Menambah/mengubah baris tabel `roles` **bukan** menambah tier. Nilai
+  `app_role` baru hanya lewat `VALID_APP_ROLES` + keputusan eksplisit.
+- **Belum ada validasi pasangan** `(app_role, role)` di code — `roleNames`
+  bebas di-assign ke app_role mana pun.
+- `BUILTIN_ROLES` (`Member`) dilindungi dari hapus; role lain CRUD via
+  `/api/v1/account/roles` (admin).
+
+Dua gate, dua kontrak — jangan tertukar:
 
 ```python
+# gate app_role (tier) — framework.auth; args = nilai app_role.
+# return None kalau boleh, atau response tuple untuk langsung di-return view:
 if denied := require_role("admin"):
     return denied
+
+# gate roles (peran fungsional) — exact match Role.name, return bool;
+# view yang menentukan response error (mis. 403):
+if not current_user.has_role("Owner"):
+    return error("forbidden", 403)  # framework.api.response
 ```
 
 ## CSRF
@@ -334,11 +354,23 @@ Vue 3 + Vite + Pinia + frappe-ui (`1.0.0-rc.2`), TypeScript strict.
 
 ```
 src/
-  app/       AppShell, i18n.ts + locales/{en,id}.json, useMediaQuery — shell, i18n & layout
+  app/       AppShell (komposisi shared/shell), i18n.ts + locales/{en,id}.json, navigation, menuStore
   features/  <feature>/{routes.ts, store.ts, views/*.vue} — auth, setup, dashboard
-  shared/    api/{client.ts, errors.ts, index.ts} — SATU-SATUNYA axios instance
+  shared/    shell/{AppPageHeader, ShellSidebar, MobileBottomNav, MobileMenuSheet} — shell reusable;
+             api/{client.ts, errors.ts, index.ts} — SATU-SATUNYA axios instance
   router/    index.ts + guard.ts + meta.d.ts
 ```
+
+- **Shell reusable di `shared/shell/`**: `AppPageHeader` (breadcrumb desktop /
+  `PageHeaderMobile` + tombol menu mobile), `ShellSidebar`, `MobileBottomNav`,
+  `MobileMenuSheet` (menu sidebar — dari tombol menu `AppPageHeader`).
+  `AppShell.vue` hanya komposisi: nav dari
+  `app/navigation.ts` (menu preferences) di-map jadi `ShellNavItem` (label
+  sudah di-resolve `t()`, `active` = nama route) lalu di-pass ke komponen.
+  Header sidebar (brand/logo/menu avatar) lewat slot `#header`; tab avatar di
+  bottom nav lewat slot default — klik langsung buka `UserSettingsDialog`
+  (tab profile, `openSettings('profile')`, `:active="settingsOpen"`).
+  State sheet global: `shared/shell/mobile-menu.ts` (`openMobileMenu()`).
 
 - **Selalu** `import { api } from '@/shared/api'` dengan route tanpa prefix
   (`baseURL: '/api/v1'` sudah handles). **Jangan** `axios.create()` baru,
@@ -360,8 +392,9 @@ src/
   Tema di Preferences. Wizard setup punya select bahasa di langkah Brand
   (disimpan ke `settings.appLang`).
 - **Router guard urutan**: setup dulu (`setupRequired` → semua nav ke `/setup`),
-  baru auth (`requiresAuth` / `guestOnly`). `setupRequired` = schema atau
-  user kosong.
+  baru auth (`requiresAuth` / `guestOnly`), baru admin (`requiresAdmin` →
+  redirect `/` kalau `appRole !== "admin"` — dipakai route `/users`).
+  `setupRequired` = schema atau user kosong.
 - **Per-page `<head>`**: `router.afterEach` (`router/index.ts`) mengisi
   `document.title`/`meta description` dari kunci i18n `route.<Name>.title`
   dan `route.<Name>.description` (fallback `meta.title`/`meta.description`
@@ -381,7 +414,15 @@ src/
   `!!auth.user || auth.registrationMode !== null`. Wajib fail-safe:
   error fetch tetap membuka gate (store harus set flag `checked`/
   `statusFailed` di `finally`), jangan spinner selamanya. Jangan
-  tambah `gateReady` ke store kalau computed view cukup.
+  tambah `gateReady` ke store kalau computed view cukup. **Gate wajib
+  `v-else`** — jangan dua `v-if` independen.
+- **Pola list**: tanpa card wrapper. Chain state lewat
+  `shared/components/ListState.vue`: `loading` → `<Spinner>` di
+  `flex justify-center py-10`, `error` → `ErrorMessage`, `empty` → icon
+  centered tanpa border + pesan `shared.noResults` (override prop
+  `emptyMessage`) + slot `#action` opsional, lalu default slot untuk
+  `<List>`. `ListFoot` di-guard `v-if="!empty"` di luar `ListState`.
+  Prop `icon` harus literal string. Detail: skill `wiring` §List pages.
 - **Ikon**: `lucide-*` (string, via unplugin-icons). Shape:
   `<span class="lucide-log-in size-6" aria-hidden="true" />` atau
   `:icon-left="'lucide-log-in'"`.

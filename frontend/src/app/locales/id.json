@@ -1,7 +1,8 @@
 {
   "nav": {
     "home": "Beranda",
-    "dashboard": "Dasbor"
+    "dashboard": "Dasbor",
+    "users": "Pengguna"
   },
   "menu": {
     "theme": "Tema",
@@ -10,7 +11,9 @@
     "system": "Sistem",
     "settings": "Pengaturan",
     "logout": "Keluar",
-    "section": "Menu"
+    "section": "Menu",
+    "more": "Lainnya",
+    "menu": "Menu"
   },
   "settings": {
     "title": "Pengaturan",
@@ -65,7 +68,8 @@
     }
   },
   "crumb": {
-    "dashboard": "Dasbor"
+    "dashboard": "Dasbor",
+    "users": "Pengguna"
   },
   "route": {
     "Login": {
@@ -82,7 +86,11 @@
     },
     "Dashboard": {
       "title": "Dasbor",
-      "description": "Ringkasan akun Anda: profil dan peran."
+      "description": "Dasbor Anda: ringkasan akun, peran, dan administrasi."
+    },
+    "Users": {
+      "title": "Pengguna",
+      "description": "Administrasi pengguna: peran, status, dan grup."
     }
   },
   "field": {
@@ -117,6 +125,38 @@
       "length": "Minimal 8 karakter"
     }
   },
+  "account": {
+    "searchUsers": "Cari pengguna…",
+    "noUsers": "Belum ada pengguna.",
+    "noUsersFound": "Tidak ada pengguna yang cocok.",
+    "columns": {
+      "user": "Pengguna",
+      "appRole": "Peran app",
+      "roles": "Grup",
+      "status": "Status",
+      "actions": "Aksi"
+    },
+    "addUser": "Tambah pengguna",
+    "editUser": "Edit pengguna",
+    "fullName": "Nama lengkap",
+    "appRole": "Peran app",
+    "roleUser": "Pengguna",
+    "roleAdmin": "Admin",
+    "roleNames": "Grup",
+    "rolesPlaceholder": "Pilih grup…",
+    "statusActive": "Aktif",
+    "statusInactive": "Nonaktif",
+    "isActive": "Aktif",
+    "saveChanges": "Simpan perubahan",
+    "createUser": "Buat pengguna",
+    "userUpdated": "Pengguna diperbarui.",
+    "userCreated": "Pengguna ditambahkan.",
+    "errors": {
+      "loadUsersFailed": "Gagal memuat pengguna.",
+      "updateUserFailed": "Gagal memperbarui pengguna.",
+      "createUserFailed": "Gagal menambah pengguna."
+    }
+  },
   "shared": {
     "search": "Cari…",
     "perPage": "{n} / halaman",
@@ -126,12 +166,22 @@
     "ok": "OK",
     "close": "Tutup",
     "forbiddenTitle": "Akses Ditolak",
-    "forbiddenMessage": "Halaman ini memerlukan hak akses administrator. Akun Anda terdaftar sebagai pengguna biasa. Hubungi administrator untuk mendapatkan akses."
+    "forbiddenMessage": "Halaman ini memerlukan hak akses administrator. Akun Anda terdaftar sebagai pengguna biasa. Hubungi administrator untuk mendapatkan akses.",
+    "noResults": "Tidak ada hasil ditemukan",
+    "cancel": "Batal"
   },
   "dash": {
     "welcomeBack": "Selamat datang kembali",
     "roles": "Peran",
-    "noRoles": "Belum ada peran"
+    "noRoles": "Belum ada peran",
+    "totalUsers": "Total pengguna",
+    "registration": "Registrasi",
+    "registrationOpen": "Terbuka",
+    "registrationClosed": "Tertutup",
+    "adminConsole": "Administrasi",
+    "adminConsoleHint": "Kelola pengguna, peran, dan registrasi.",
+    "manageUsers": "Kelola pengguna",
+    "loadStatsFailed": "Gagal memuat statistik akun"
   },
   "setup": {
     "title": "Setup",

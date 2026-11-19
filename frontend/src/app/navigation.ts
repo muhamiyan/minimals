@@ -6,6 +6,8 @@ export interface NavItem {
   mobileLabelKey?: string
   icon: string
   route: RouteDestination
+  requireAdmin?: boolean
+  mobile?: boolean
 }
 
 export interface MenuPreference {
@@ -13,13 +15,20 @@ export interface MenuPreference {
   hidden: string[]
 }
 
-export const NAV_ITEMS: NavItem[] = [
+const NAV_ITEMS: NavItem[] = [
   {
     key: 'Dashboard',
     labelKey: 'nav.dashboard',
     mobileLabelKey: 'nav.home',
     icon: 'lucide-house',
     route: { name: 'Dashboard' },
+  },
+  {
+    key: 'Users',
+    labelKey: 'nav.users',
+    icon: 'lucide-users',
+    route: { name: 'Users' },
+    requireAdmin: true,
   },
 ]
 
@@ -39,6 +48,12 @@ export function orderedNavItems(order: string[]): NavItem[] {
   }
 
   return ordered
+}
+
+const MAX_MOBILE_NAV_ITEMS = 3
+
+export function mobileNavItems(items: NavItem[]): NavItem[] {
+  return items.filter((item) => item.mobile !== false).slice(0, MAX_MOBILE_NAV_ITEMS)
 }
 
 export function visibleNavItems(order: string[], hidden: string[]): NavItem[] {
