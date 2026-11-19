@@ -3,9 +3,8 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 
-from framework.base import ServiceBase
-
 from app.dashboard.repositories import DashboardRepository
+from framework.base import ServiceBase
 
 _MONTH_WINDOW = 12
 _SUBSCRIPTION_KEYS = ("trial", "active", "expired", "cancelled")
