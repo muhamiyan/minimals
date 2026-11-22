@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { Button } from 'frappe-ui'
+import { useI18n } from 'vue-i18n'
 
 import { useAuthStore } from '@/features/auth/store'
 import { pipeline, stack } from '../content'
 import { useStartAction } from '../useStartAction'
 
+const { t } = useI18n()
 const auth = useAuthStore()
 const { loading, start } = useStartAction()
 
@@ -25,24 +27,22 @@ function scrollToFeatures() {
         class="inline-flex items-center gap-1.5 rounded-full border border-outline-blue-2 bg-surface-blue-1 px-2.5 py-1 text-xs-medium text-ink-blue-7"
       >
         <span class="size-1.5 animate-pulse rounded-full bg-surface-green-7" />
-        Open alpha
+        {{ t('landing.hero.badge') }}
       </span>
 
       <h1 class="mx-auto mt-6 max-w-3xl text-7xl-bold text-ink-gray-9 sm:text-10xl-bold">
-        Production-ready Flask,
-        <span class="text-ink-blue-6">thoughtfully minimal</span>.
+        {{ t('landing.hero.title') }}
+        <span class="text-ink-blue-6">{{ t('landing.hero.accent') }}</span>.
       </h1>
 
       <p class="mx-auto mt-5 max-w-2xl text-p-lg text-ink-gray-6">
-        Minimals is a batteries-included Flask service for cPanel and VPS behind
-        Caddy — layered domain architecture, session &amp; API-key auth, and a
-        Vue 3 SPA served by Flask itself.
+        {{ t('landing.hero.lead') }}
       </p>
 
       <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
         <Button
           v-if="!auth.user"
-          label="Get started"
+          :label="t('landing.getStarted')"
           size="lg"
           variant="solid"
           theme="blue"
@@ -52,7 +52,7 @@ function scrollToFeatures() {
         />
         <Button
           v-else
-          label="Open dashboard"
+          :label="t('landing.openDashboard')"
           size="lg"
           variant="solid"
           theme="blue"
@@ -62,7 +62,7 @@ function scrollToFeatures() {
         />
         <Button
           v-if="!auth.user"
-          label="Sign in"
+          :label="t('auth.signIn')"
           size="lg"
           variant="outline"
           icon-left="lucide-log-in"
@@ -70,7 +70,7 @@ function scrollToFeatures() {
         />
         <Button
           v-else
-          label="What's inside"
+          :label="t('landing.whatsInside')"
           size="lg"
           variant="outline"
           icon-left="lucide-sparkles"
@@ -89,12 +89,12 @@ function scrollToFeatures() {
             <span class="size-2.5 rounded-full bg-surface-amber-4" />
             <span class="size-2.5 rounded-full bg-surface-green-4" />
             <span class="ml-2 text-xs-medium text-ink-gray-5">
-              request lifecycle
+              {{ t('landing.hero.lifecycle') }}
             </span>
             <span
               class="ml-auto rounded-1 bg-surface-green-2 px-1.5 py-0.5 text-2xs-medium text-ink-green-8"
             >
-              200 OK
+              {{ t('landing.hero.ok') }}
             </span>
           </div>
 

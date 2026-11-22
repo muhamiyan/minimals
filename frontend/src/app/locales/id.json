@@ -2,7 +2,8 @@
   "nav": {
     "home": "Beranda",
     "dashboard": "Dasbor",
-    "users": "Pengguna"
+    "users": "Pengguna",
+    "blog": "Blog"
   },
   "menu": {
     "theme": "Tema",
@@ -91,6 +92,30 @@
     "Users": {
       "title": "Pengguna",
       "description": "Administrasi pengguna: peran, status, dan grup."
+    },
+    "Landing": {
+      "title": "Beranda",
+      "description": "Minimals — layanan Flask siap produksi dengan SPA Vue 3."
+    },
+    "BlogList": {
+      "title": "Blog",
+      "description": "Kabar, pembaruan, dan tulisan mendalam."
+    },
+    "BlogPost": {
+      "title": "Blog",
+      "description": "Sebuah tulisan dari blog."
+    },
+    "BlogAdminList": {
+      "title": "Blog",
+      "description": "Kelola draf dan tulisan terbit."
+    },
+    "BlogAdminCreate": {
+      "title": "Tulisan baru",
+      "description": "Tulis dan terbitkan tulisan baru."
+    },
+    "BlogAdminEdit": {
+      "title": "Sunting tulisan",
+      "description": "Sunting tulisan yang sudah ada."
     }
   },
   "field": {
@@ -163,6 +188,7 @@
     "pagination": "Paginasi",
     "prevPage": "Halaman sebelumnya",
     "nextPage": "Halaman berikutnya",
+    "pageOf": "Halaman {page} dari {total}",
     "ok": "OK",
     "close": "Tutup",
     "forbiddenTitle": "Akses Ditolak",
@@ -182,6 +208,143 @@
     "adminConsoleHint": "Kelola pengguna, peran, dan registrasi.",
     "manageUsers": "Kelola pengguna",
     "loadStatsFailed": "Gagal memuat statistik akun"
+  },
+  "blog": {
+    "title": "Blog",
+    "empty": "Belum ada tulisan.",
+    "errors": {
+      "loadFailed": "Gagal memuat tulisan",
+      "notFound": "Tulisan tidak ditemukan",
+      "createFailed": "Gagal membuat tulisan",
+      "updateFailed": "Gagal memperbarui tulisan",
+      "deleteFailed": "Gagal menghapus tulisan"
+    },
+    "list": {
+      "subtitle": "Kabar, pembaruan, dan tulisan mendalam dari tim {name}.",
+      "readMore": "Baca selengkapnya"
+    },
+    "post": {
+      "back": "Semua tulisan"
+    },
+    "admin": {
+      "subtitle": "Draf dan tulisan terbit.",
+      "newPost": "Tulisan baru",
+      "createFirst": "Buat tulisan pertama Anda",
+      "editPost": "Sunting tulisan",
+      "columns": {
+        "title": "Judul",
+        "status": "Status",
+        "created": "Dibuat"
+      },
+      "form": {
+        "title": "Judul",
+        "titlePlaceholder": "Judul tulisan",
+        "slug": "Slug",
+        "slugHint": "Kosongkan agar dibuat otomatis dari judul.",
+        "status": "Status",
+        "draft": "Draf",
+        "published": "Terbit",
+        "cover": "Gambar sampul",
+        "uploadCover": "Unggah sampul",
+        "uploading": "Mengunggah {n}%",
+        "remove": "Hapus",
+        "body": "Isi tulisan",
+        "bodyPlaceholder": "Tulis isi tulisan Anda…"
+      },
+      "actions": {
+        "delete": "Hapus",
+        "cancel": "Batal",
+        "save": "Simpan"
+      },
+      "toast": {
+        "created": "Tulisan dibuat",
+        "updated": "Tulisan diperbarui",
+        "deleted": "Tulisan dihapus"
+      },
+      "confirm": {
+        "title": "Hapus tulisan",
+        "message": "Tulisan akan dihapus permanen dan tidak dapat dibatalkan."
+      }
+    }
+  },
+  "landing": {
+    "getStarted": "Mulai sekarang",
+    "openDashboard": "Buka dasbor",
+    "whatsInside": "Isinya apa",
+    "nav": {
+      "features": "Fitur",
+      "about": "Tentang",
+      "theme": "Ganti tema"
+    },
+    "hero": {
+      "badge": "Alpha terbuka",
+      "title": "Flask siap produksi,",
+      "accent": "dengan rasa minimal",
+      "lead": "Minimals adalah layanan Flask yang lengkap untuk cPanel dan VPS di belakang Caddy — arsitektur domain berlapis, autentikasi sesi & API-key, dan SPA Vue 3 yang disajikan oleh Flask sendiri.",
+      "lifecycle": "siklus request",
+      "ok": "200 OK"
+    },
+    "features": {
+      "badge": "Fitur",
+      "title": "Semua yang tetap akan Anda bangun",
+      "lead": "Panggung produksi yang dibutuhkan setiap layanan Flask — sudah tersedia, sudah diuji, dan sengaja dibuat biasa.",
+      "items": {
+        "layered": {
+          "title": "Domain berlapis",
+          "desc": "Tujuh berkas per domain, dependensi hanya menunjuk ke bawah. Sebuah bug punya tepat satu alamat."
+        },
+        "auth": {
+          "title": "Autentikasi sesi & API-key",
+          "desc": "Sesi peramban lewat Flask-Login; layanan mengautentikasi dengan API key ber-hash bcrypt di belakang prefiks lookup 10 karakter."
+        },
+        "security": {
+          "title": "Keamanan bawaan",
+          "desc": "CSRF di setiap operasi tulis, rate limit per IP, CSP + HSTS, dan header forwarded yang hanya dipercaya dari peer privat."
+        },
+        "roles": {
+          "title": "Peran & RBAC",
+          "desc": "App role keras untuk pemeriksaan nyata, peran relasional untuk label, dan helper require_role yang langsung return."
+        },
+        "setup": {
+          "title": "Setup awal",
+          "desc": "SQLite, MariaDB, atau PostgreSQL: uji, migrasi, buat admin — mesinnya bisa ditukar, hanya dari loopback."
+        },
+        "health": {
+          "title": "Kesehatan & audit",
+          "desc": "Probe /health dan /ready, log berputar, jejak audit per operasi tulis, dan alert yang tidak pernah mengganggu alur bisnis."
+        },
+        "spa": {
+          "title": "SPA Vue 3 ikut disertakan",
+          "desc": "frappe-ui di atas token Tailwind, dibangun langsung ke folder static Flask. Satu proses, satu origin, satu deploy."
+        },
+        "migrations": {
+          "title": "Migrasi saat boot",
+          "desc": "Nyalakan MIGRATE_ON_BOOT dan Alembic berjalan sebelum server menerima trafik — skema dan model tetap sinkron di semua mesin."
+        }
+      }
+    },
+    "about": {
+      "badge": "Tentang",
+      "title": "Minimal, bukan sepele.",
+      "body1": "Minimals lahir dari satu pengamatan: setiap layanan Flask produksi mengulang scaffolding yang sama — autentikasi, CSRF, peran, migrasi, health check, dan build frontend. Minimals membungkus lantai dasar itu, dan tidak lebih.",
+      "body2": "Arsitekturnya sengaja membosankan. Service memiliki transaksi, repository memiliki query, dan format wire adalah kontrak yang diuji. Saat ada yang rusak, Anda memperbaikinya di titik masalah — tidak ada riwayat yang perlu digali.",
+      "rules": "Aturan rumah",
+      "principles": {
+        "p1": "Dependensi hanya menunjuk ke bawah — api, dto, services, repositories, models, presenters.",
+        "p2": "Service memiliki transaksi; repository tidak pernah commit.",
+        "p3": "Objek telanjang saat sukses, satu kunci snake_case saat gagal.",
+        "p4": "Raise exception dari service — jangan pernah return response.",
+        "p5": "Perbaiki di titik masalah. Tidak ada riwayat yang perlu digali."
+      }
+    },
+    "cta": {
+      "title": "Mulai dari bagian membosankan yang sudah selesai.",
+      "lead": "Jalankan setup sekali — tunjuk ke basis data Anda, buat admin — lalu kirim domain Anda di atas lantai yang sudah siap."
+    },
+    "footer": {
+      "alpha": "alpha terbuka",
+      "copyright": "© 2026 {name}"
+    }
   },
   "setup": {
     "title": "Setup",
@@ -266,6 +429,7 @@
     "password_must_contain_special_character": "Kata sandi harus mengandung karakter khusus",
     "password_must_contain_uppercase": "Kata sandi harus mengandung huruf besar",
     "payload_too_large": "Ukuran payload terlalu besar",
+    "post_not_found": "Tulisan tidak ditemukan",
     "rate_limit_exceeded": "Batas rate limit tercapai",
     "required": "Wajib diisi",
     "role_already_exists": "Peran sudah ada",
@@ -276,6 +440,8 @@
     "setup_migration_failed": "Migrasi setup gagal",
     "setup_repoint_failed": "Ganti pointer basis data saat setup gagal",
     "site_url_invalid": "URL situs tidak valid",
+    "slug_required": "Slug wajib diisi",
+    "slug_taken": "Slug sudah dipakai",
     "spa_not_built": "Frontend belum di-build",
     "unauthorized": "Tidak terautentikasi",
     "unprocessable_entity": "Entitas tidak dapat diproses",

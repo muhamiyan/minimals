@@ -2,7 +2,8 @@
   "nav": {
     "home": "Home",
     "dashboard": "Dashboard",
-    "users": "Users"
+    "users": "Users",
+    "blog": "Blog"
   },
   "menu": {
     "theme": "Theme",
@@ -91,6 +92,30 @@
     "Users": {
       "title": "Users",
       "description": "User administration: roles, status, and groups."
+    },
+    "Landing": {
+      "title": "Home",
+      "description": "Minimals — a batteries-included Flask service with a Vue 3 SPA."
+    },
+    "BlogList": {
+      "title": "Blog",
+      "description": "News, updates, and deep dives."
+    },
+    "BlogPost": {
+      "title": "Blog",
+      "description": "A post from the blog."
+    },
+    "BlogAdminList": {
+      "title": "Blog",
+      "description": "Manage drafts and published posts."
+    },
+    "BlogAdminCreate": {
+      "title": "New post",
+      "description": "Write and publish a new post."
+    },
+    "BlogAdminEdit": {
+      "title": "Edit post",
+      "description": "Edit an existing post."
     }
   },
   "field": {
@@ -163,6 +188,7 @@
     "pagination": "Pagination",
     "prevPage": "Previous page",
     "nextPage": "Next page",
+    "pageOf": "Page {page} of {total}",
     "ok": "OK",
     "close": "Close",
     "forbiddenTitle": "Access denied",
@@ -182,6 +208,143 @@
     "adminConsoleHint": "Manage users, roles, and registration.",
     "manageUsers": "Manage users",
     "loadStatsFailed": "Could not load account stats"
+  },
+  "blog": {
+    "title": "Blog",
+    "empty": "No posts yet.",
+    "errors": {
+      "loadFailed": "Could not load posts",
+      "notFound": "Post not found",
+      "createFailed": "Could not create post",
+      "updateFailed": "Could not update post",
+      "deleteFailed": "Could not delete post"
+    },
+    "list": {
+      "subtitle": "News, updates, and deep dives from the {name} team.",
+      "readMore": "Read more"
+    },
+    "post": {
+      "back": "All posts"
+    },
+    "admin": {
+      "subtitle": "Drafts and published posts.",
+      "newPost": "New post",
+      "createFirst": "Create your first post",
+      "editPost": "Edit post",
+      "columns": {
+        "title": "Title",
+        "status": "Status",
+        "created": "Created"
+      },
+      "form": {
+        "title": "Title",
+        "titlePlaceholder": "Post title",
+        "slug": "Slug",
+        "slugHint": "Leave empty to generate it from the title.",
+        "status": "Status",
+        "draft": "Draft",
+        "published": "Published",
+        "cover": "Cover image",
+        "uploadCover": "Upload cover",
+        "uploading": "Uploading {n}%",
+        "remove": "Remove",
+        "body": "Body",
+        "bodyPlaceholder": "Write your post…"
+      },
+      "actions": {
+        "delete": "Delete",
+        "cancel": "Cancel",
+        "save": "Save"
+      },
+      "toast": {
+        "created": "Post created",
+        "updated": "Post updated",
+        "deleted": "Post deleted"
+      },
+      "confirm": {
+        "title": "Delete post",
+        "message": "This permanently removes the post and cannot be undone."
+      }
+    }
+  },
+  "landing": {
+    "getStarted": "Get started",
+    "openDashboard": "Open dashboard",
+    "whatsInside": "What's inside",
+    "nav": {
+      "features": "Features",
+      "about": "About",
+      "theme": "Toggle theme"
+    },
+    "hero": {
+      "badge": "Open alpha",
+      "title": "Production-ready Flask,",
+      "accent": "thoughtfully minimal",
+      "lead": "Minimals is a batteries-included Flask service for cPanel and VPS behind Caddy — layered domain architecture, session & API-key auth, and a Vue 3 SPA served by Flask itself.",
+      "lifecycle": "request lifecycle",
+      "ok": "200 OK"
+    },
+    "features": {
+      "badge": "Features",
+      "title": "Everything you'd build anyway",
+      "lead": "The production floor every Flask service needs — included, tested, and deliberately unexciting.",
+      "items": {
+        "layered": {
+          "title": "Layered domains",
+          "desc": "Seven files per domain, dependencies pointing only downward. A bug has exactly one address."
+        },
+        "auth": {
+          "title": "Session & API-key auth",
+          "desc": "Browser sessions via Flask-Login; services authenticate with bcrypt-hashed API keys behind a 10-char lookup prefix."
+        },
+        "security": {
+          "title": "Security defaults",
+          "desc": "CSRF on every write, per-IP rate limits, CSP + HSTS, and forwarded headers believed only from private peers."
+        },
+        "roles": {
+          "title": "Roles & RBAC",
+          "desc": "A hard-coded app role for real checks, relational roles for labels, and require_role helpers that return."
+        },
+        "setup": {
+          "title": "First-run setup",
+          "desc": "SQLite, MariaDB or PostgreSQL: test, migrate, create the admin — the engine hot-swaps, loopback-only."
+        },
+        "health": {
+          "title": "Health & audit",
+          "desc": "/health and /ready probes, rotating logs, an audit trail per write, and alerts that never break the business flow."
+        },
+        "spa": {
+          "title": "Vue 3 SPA included",
+          "desc": "frappe-ui on Tailwind tokens, built straight into Flask's static folder. One process, one origin, one deploy."
+        },
+        "migrations": {
+          "title": "Migrations on boot",
+          "desc": "Flip MIGRATE_ON_BOOT and Alembic runs before the server accepts traffic — schema and models stay in step across engines."
+        }
+      }
+    },
+    "about": {
+      "badge": "About",
+      "title": "Minimal, not trivial.",
+      "body1": "Minimals started from an observation: every production Flask service re-implements the same scaffolding — auth, CSRF, roles, migrations, health checks, a frontend build. Minimals packages that floor, and nothing above it.",
+      "body2": "The architecture is deliberately boring. Services own transactions, repositories own queries, and the wire format is a tested contract. When something breaks, you fix it at the point of failure — there is no history to dig through.",
+      "rules": "House rules",
+      "principles": {
+        "p1": "Dependencies point only downward — api, dto, services, repositories, models, presenters.",
+        "p2": "Services own the transaction; repositories never commit.",
+        "p3": "Bare objects on success, a single snake_case key on failure.",
+        "p4": "Raise exceptions from services — never return responses.",
+        "p5": "Fix at the point of failure. No history to dig through."
+      }
+    },
+    "cta": {
+      "title": "Start where the boring parts are already done.",
+      "lead": "Run setup once — point at your database, create the admin — then ship your domain on a floor that's ready."
+    },
+    "footer": {
+      "alpha": "open alpha",
+      "copyright": "© 2026 {name}"
+    }
   },
   "setup": {
     "title": "Setup",
@@ -266,6 +429,7 @@
     "password_must_contain_special_character": "Password must contain special character",
     "password_must_contain_uppercase": "Password must contain uppercase",
     "payload_too_large": "Payload too large",
+    "post_not_found": "Post not found",
     "rate_limit_exceeded": "Rate limit exceeded",
     "required": "Required",
     "role_already_exists": "Role already exists",
@@ -276,6 +440,8 @@
     "setup_migration_failed": "Setup migration failed",
     "setup_repoint_failed": "Setup engine repoint failed",
     "site_url_invalid": "Site url invalid",
+    "slug_required": "Slug required",
+    "slug_taken": "Slug already exists",
     "spa_not_built": "Spa not built",
     "unauthorized": "Unauthorized",
     "unprocessable_entity": "Unprocessable entity",

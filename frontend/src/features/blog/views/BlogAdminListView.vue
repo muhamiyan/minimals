@@ -1,20 +1,23 @@
 <script setup lang="ts">
-import { Badge, Button, ErrorMessage } from 'frappe-ui'
+import { Badge, Button, ErrorMessage, Spinner } from 'frappe-ui'
 import { List, ListCell, ListHeader, ListHeaderCell, ListRow, ListRows } from 'frappe-ui/list'
 import { computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 import { formatDate } from '@/shared/format'
 
 import { useBlogStore } from '../store'
 
+const { t } = useI18n()
 const blog = useBlogStore()
 
+const gateReady = computed(() => blog.checked)
 const pageCount = computed(() => Math.max(1, Math.ceil(blog.total / blog.perPage)))
 const hasPrev = computed(() => blog.page > 1)
 const hasNext = computed(() => blog.page < pageCount.value)
 
-onMounted(() => {
-  blog.fetchAdminList()
+onMounted(async () => {
+  if (!blog.checked) await blog.fetchAdminList()
 })
 
 async function goTo(nextPage: number) {
@@ -24,14 +27,15 @@ async function goTo(nextPage: number) {
 </script>
 
 <template>
-  <div class="mx-auto w-full max-w-5xl p-6">
+  <Spinner v-if="!gateReady" class="mx-auto flex py-24" />
+  <div v-else class="mx-auto w-full max-w-5xl p-6">
     <header class="mb-6 flex flex-wrap items-center justify-between gap-3">
       <div>
-        <h1 class="text-2xl-semibold text-ink-gray-9">Blog</h1>
-        <p class="mt-1 text-p-sm text-ink-gray-5">Drafts and published posts.</p>
+        <h1 class="text-2xl-semibold text-ink-gray-9">{{ t('blog.title') }}</h1>
+        <p class="mt-1 text-p-sm text-ink-gray-5">{{ t('blog.admin.subtitle') }}</p>
       </div>
       <Button
-        label="New post"
+        :label="t('blog.admin.newPost')"
         variant="solid"
         theme="blue"
         icon-left="lucide-plus"
@@ -49,10 +53,10 @@ async function goTo(nextPage: number) {
       v-else-if="!blog.posts.length"
       class="rounded-6 border border-outline-gray-1 bg-surface-elevation-2 p-10 text-center"
     >
-      <p class="text-p-sm text-ink-gray-5">No posts yet.</p>
+      <p class="text-p-sm text-ink-gray-5">{{ t('blog.empty') }}</p>
       <Button
         class="mt-4"
-        label="Create your first post"
+        :label="t('blog.admin.createFirst')"
         variant="subtle"
         icon-left="lucide-plus"
         :route="{ name: 'BlogAdminCreate' }"
@@ -61,9 +65,9 @@ async function goTo(nextPage: number) {
 
     <List v-else :columns="['minmax(0,1fr)', '7rem', '7rem']">
       <ListHeader>
-        <ListHeaderCell>Title</ListHeaderCell>
-        <ListHeaderCell>Status</ListHeaderCell>
-        <ListHeaderCell>Created</ListHeaderCell>
+        <ListHeaderCell>{{ t('blog.admin.columns.title') }}</ListHeaderCell>
+        <ListHeaderCell>{{ t('blog.admin.columns.status') }}</ListHeaderCell>
+        <ListHeaderCell>{{ t('blog.admin.columns.created') }}</ListHeaderCell>
       </ListHeader>
       <ListRows :items="blog.posts" v-slot="{ item }">
         <ListRow :route="{ name: 'BlogAdminEdit', params: { slug: item.slug } }">
@@ -87,16 +91,18 @@ async function goTo(nextPage: number) {
 
     <div v-if="pageCount > 1" class="mt-4 flex items-center justify-between">
       <Button
-        label="Previous"
+        :label="t('shared.prevPage')"
         size="sm"
         variant="subtle"
         icon-left="lucide-arrow-left"
         :disabled="!hasPrev || blog.loading"
         @click="goTo(blog.page - 1)"
       />
-      <span class="text-p-sm text-ink-gray-4">Page {{ blog.page }} of {{ pageCount }}</span>
+      <span class="text-p-sm text-ink-gray-4">
+        {{ t('shared.pageOf', { page: blog.page, total: pageCount }) }}
+      </span>
       <Button
-        label="Next"
+        :label="t('shared.nextPage')"
         size="sm"
         variant="subtle"
         icon-right="lucide-arrow-right"

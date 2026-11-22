@@ -27,50 +27,50 @@ export interface Feature {
 export const features: Feature[] = [
   {
     icon: 'lucide-layers-3',
-    title: 'Layered domains',
-    desc: 'Seven files per domain, dependencies pointing only downward. A bug has exactly one address.',
+    title: 'landing.features.items.layered.title',
+    desc: 'landing.features.items.layered.desc',
   },
   {
     icon: 'lucide-key-round',
-    title: 'Session & API-key auth',
-    desc: 'Browser sessions via Flask-Login; services authenticate with bcrypt-hashed API keys behind a 10-char lookup prefix.',
+    title: 'landing.features.items.auth.title',
+    desc: 'landing.features.items.auth.desc',
   },
   {
     icon: 'lucide-shield-check',
-    title: 'Security defaults',
-    desc: 'CSRF on every write, per-IP rate limits, CSP + HSTS, and forwarded headers believed only from private peers.',
+    title: 'landing.features.items.security.title',
+    desc: 'landing.features.items.security.desc',
   },
   {
     icon: 'lucide-users',
-    title: 'Roles & RBAC',
-    desc: 'A hard-coded app role for real checks, relational roles for labels, and require_role helpers that return.',
+    title: 'landing.features.items.roles.title',
+    desc: 'landing.features.items.roles.desc',
   },
   {
     icon: 'lucide-rocket',
-    title: 'First-run setup',
-    desc: 'SQLite, MariaDB or PostgreSQL: test, migrate, create the admin — the engine hot-swaps, loopback-only.',
+    title: 'landing.features.items.setup.title',
+    desc: 'landing.features.items.setup.desc',
   },
   {
     icon: 'lucide-heart-pulse',
-    title: 'Health & audit',
-    desc: '/health and /ready probes, rotating logs, an audit trail per write, and alerts that never break the business flow.',
+    title: 'landing.features.items.health.title',
+    desc: 'landing.features.items.health.desc',
   },
   {
     icon: 'lucide-panels-top-left',
-    title: 'Vue 3 SPA included',
-    desc: 'frappe-ui on Tailwind tokens, built straight into Flask’s static folder. One process, one origin, one deploy.',
+    title: 'landing.features.items.spa.title',
+    desc: 'landing.features.items.spa.desc',
   },
   {
     icon: 'lucide-git-branch',
-    title: 'Migrations on boot',
-    desc: 'Flip MIGRATE_ON_BOOT and Alembic runs before the server accepts traffic — schema and models stay in step across engines.',
+    title: 'landing.features.items.migrations.title',
+    desc: 'landing.features.items.migrations.desc',
   },
 ]
 
 export const principles = [
-  'Dependencies point only downward — api, dto, services, repositories, models, presenters.',
-  'Services own the transaction; repositories never commit.',
-  'Bare objects on success, a single snake_case key on failure.',
-  'Raise exceptions from services — never return responses.',
-  'Fix at the point of failure. No history to dig through.',
+  'landing.about.principles.p1',
+  'landing.about.principles.p2',
+  'landing.about.principles.p3',
+  'landing.about.principles.p4',
+  'landing.about.principles.p5',
 ]

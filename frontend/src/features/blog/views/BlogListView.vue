@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { Button, ErrorMessage } from 'frappe-ui'
+import { Button, ErrorMessage, Spinner } from 'frappe-ui'
 import { computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 import LandingFooter from '@/features/landing/components/LandingFooter.vue'
 import LandingNav from '@/features/landing/components/LandingNav.vue'
@@ -9,14 +10,16 @@ import { formatDate } from '@/shared/format'
 
 import { useBlogStore } from '../store'
 
+const { t } = useI18n()
 const blog = useBlogStore()
 
+const gateReady = computed(() => blog.checked)
 const pageCount = computed(() => Math.max(1, Math.ceil(blog.total / blog.perPage)))
 const hasPrev = computed(() => blog.page > 1)
 const hasNext = computed(() => blog.page < pageCount.value)
 
 onMounted(async () => {
-  await blog.fetchList()
+  if (!blog.checked) await blog.fetchList()
   window.scrollTo({ top: 0 })
 })
 
@@ -29,11 +32,12 @@ async function goTo(nextPage: number) {
 <template>
   <div id="top" class="min-h-screen bg-surface-base text-ink-gray-8">
     <LandingNav />
-    <main class="mx-auto w-full max-w-6xl px-5 py-12">
+    <Spinner v-if="!gateReady" class="mx-auto flex py-24" />
+    <main v-else class="mx-auto w-full max-w-6xl px-5 py-12">
       <header class="mb-10 max-w-2xl">
-        <h1 class="text-4xl-bold text-ink-gray-9">Blog</h1>
+        <h1 class="text-4xl-bold text-ink-gray-9">{{ t('blog.title') }}</h1>
         <p class="mt-3 text-p-sm text-ink-gray-6">
-          News, updates, and deep dives from the {{ brand.name }} team.
+          {{ t('blog.list.subtitle', { name: brand.name }) }}
         </p>
       </header>
 
@@ -44,7 +48,7 @@ async function goTo(nextPage: number) {
       </div>
 
       <div v-else-if="!blog.posts.length" class="rounded-6 border border-outline-gray-1 bg-surface-elevation-2 p-10 text-center">
-        <p class="text-p-sm text-ink-gray-5">No posts yet.</p>
+        <p class="text-p-sm text-ink-gray-5">{{ t('blog.empty') }}</p>
       </div>
 
       <div v-else class="space-y-4">
@@ -69,14 +73,14 @@ async function goTo(nextPage: number) {
           </h2>
           <p class="mt-2 text-p-sm text-ink-gray-6">{{ post.excerpt }}</p>
           <span class="mt-3 inline-flex items-center gap-1 text-p-sm-medium text-ink-gray-7 transition-colors group-hover:text-ink-gray-9">
-            Read more
+            {{ t('blog.list.readMore') }}
             <span class="lucide-chevron-right size-3.5" aria-hidden="true" />
           </span>
         </router-link>
 
         <div v-if="pageCount > 1" class="flex items-center justify-between pt-4">
           <Button
-            label="Previous"
+            :label="t('shared.prevPage')"
             size="sm"
             variant="subtle"
             icon-left="lucide-arrow-left"
@@ -84,10 +88,10 @@ async function goTo(nextPage: number) {
             @click="goTo(blog.page - 1)"
           />
           <span class="text-p-sm text-ink-gray-4">
-            Page {{ blog.page }} of {{ pageCount }}
+            {{ t('shared.pageOf', { page: blog.page, total: pageCount }) }}
           </span>
           <Button
-            label="Next"
+            :label="t('shared.nextPage')"
             size="sm"
             variant="subtle"
             icon-right="lucide-arrow-right"

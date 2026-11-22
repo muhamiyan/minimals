@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
 import { api, getErrorMessage } from '@/shared/api'
+import { i18n } from '@/app/i18n'
 
 export interface BlogSummary {
   id: string
@@ -43,6 +44,11 @@ export const useBlogStore = defineStore('blog', () => {
   const loading = ref(false)
   const loadingPost = ref(false)
   const error = ref('')
+  const checked = ref(false)
+
+  function openGate(): void {
+    checked.value = true
+  }
 
   async function fetchList(nextPage = 1): Promise<boolean> {
     loading.value = true
@@ -56,10 +62,11 @@ export const useBlogStore = defineStore('blog', () => {
       page.value = data.page
       return true
     } catch (e: unknown) {
-      error.value = getErrorMessage(e, 'Could not load posts')
+      error.value = getErrorMessage(e, i18n.global.t('blog.errors.loadFailed'))
       return false
     } finally {
       loading.value = false
+      openGate()
     }
   }
 
@@ -72,10 +79,11 @@ export const useBlogStore = defineStore('blog', () => {
       post.value = data
       return true
     } catch (e: unknown) {
-      error.value = getErrorMessage(e, 'Post not found')
+      error.value = getErrorMessage(e, i18n.global.t('blog.errors.notFound'))
       return false
     } finally {
       loadingPost.value = false
+      openGate()
     }
   }
 
@@ -91,10 +99,11 @@ export const useBlogStore = defineStore('blog', () => {
       page.value = data.page
       return true
     } catch (e: unknown) {
-      error.value = getErrorMessage(e, 'Could not load posts')
+      error.value = getErrorMessage(e, i18n.global.t('blog.errors.loadFailed'))
       return false
     } finally {
       loading.value = false
+      openGate()
     }
   }
 
@@ -104,7 +113,7 @@ export const useBlogStore = defineStore('blog', () => {
       const { data } = await api.post<BlogPostDetail>('/blog/posts', input)
       return data
     } catch (e: unknown) {
-      error.value = getErrorMessage(e, 'Could not create post')
+      error.value = getErrorMessage(e, i18n.global.t('blog.errors.createFailed'))
       return null
     }
   }
@@ -118,7 +127,7 @@ export const useBlogStore = defineStore('blog', () => {
       const { data } = await api.patch<BlogPostDetail>(`/blog/posts/${slug}`, input)
       return data
     } catch (e: unknown) {
-      error.value = getErrorMessage(e, 'Could not update post')
+      error.value = getErrorMessage(e, i18n.global.t('blog.errors.updateFailed'))
       return null
     }
   }
@@ -129,7 +138,7 @@ export const useBlogStore = defineStore('blog', () => {
       await api.delete(`/blog/posts/${slug}`)
       return true
     } catch (e: unknown) {
-      error.value = getErrorMessage(e, 'Could not delete post')
+      error.value = getErrorMessage(e, i18n.global.t('blog.errors.deleteFailed'))
       return false
     }
   }
@@ -147,7 +156,9 @@ export const useBlogStore = defineStore('blog', () => {
     loading,
     loadingPost,
     error,
+    checked,
     clearError,
+    openGate,
     fetchList,
     fetchPost,
     fetchAdminList,
