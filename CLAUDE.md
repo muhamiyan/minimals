@@ -203,6 +203,11 @@ Tidak ada CLI generator di project ini (berbeda dengan root `cells`).
 | GET | /api/v1/billing/organizations/:id/invoices | List organization invoices (superadmin or org owner) |
 | GET | /api/v1/billing/settings | Billing settings: trial, renewal lead (superadmin) |
 | PUT | /api/v1/billing/settings | Update billing settings, partial update (superadmin) |
+| POST | /api/v1/goakal/webhook | Goakal payment webhook (guest, HMAC-verified, CSRF-exempt) |
+| GET | /api/v1/goakal/transactions | List Goakal transactions (superadmin, paginated) |
+| POST | /api/v1/goakal/transactions/:id/link | Manually link a Goakal transaction to an invoice and pay it (superadmin) |
+| GET | /api/v1/goakal/settings | Whether a webhook secret is configured (superadmin) |
+| PUT | /api/v1/goakal/settings | Set the webhook secret (superadmin) |
 | GET | /api/v1/infra/database | Active DB engine + Turso sync status (superadmin) |
 | POST | /api/v1/infra/database/test | Test the active DB connection (superadmin) |
 | GET | /api/v1/app/ping | Liveness of the read API (public) |

@@ -7,7 +7,8 @@
     "plans": "Plans",
     "billing": "Billing",
     "infrastructure": "Infrastructure",
-    "todo": "Todo"
+    "todo": "Todo",
+    "goakal": "Goakal"
   },
   "menu": {
     "theme": "Theme",
@@ -26,14 +27,14 @@
   },
   "settings": {
     "title": "Settings",
-  "nav": {
-    "user": "User settings",
-    "app": "Application",
-    "organization": "Organization"
-  },
-  "organization": {
-    "description": "Choose the organization the dashboard and billing follow."
-  },
+    "nav": {
+      "user": "User settings",
+      "app": "Application",
+      "organization": "Organization"
+    },
+    "organization": {
+      "description": "Choose the organization the dashboard and billing follow."
+    },
     "profile": {
       "title": "Profile",
       "fullName": "Full name",
@@ -142,6 +143,10 @@
     "Infrastructure": {
       "title": "Infrastructure",
       "description": "Active database engine and connection status."
+    },
+    "Goakal": {
+      "title": "Goakal",
+      "description": "Goakal payments and webhook secret."
     }
   },
   "field": {
@@ -834,6 +839,55 @@
     "user_not_found": "User not found",
     "username_already_registered": "Username already registered",
     "username_required": "Username required",
-    "validation_error": "Validation error"
+    "validation_error": "Validation error",
+    "goakal_secret_not_configured": "Goakal webhook secret is not configured",
+    "invalid_signature": "Invalid webhook signature",
+    "unsupported_event": "Unsupported webhook event",
+    "unsupported_status": "Unsupported transaction status",
+    "missing_transaction_id": "Missing transaction id",
+    "transaction_already_linked": "Transaction already linked",
+    "goakal_transaction_not_found": "Goakal transaction not found",
+    "goakal_paid_on_in_future": "Payment date cannot be in the future",
+    "secret_required": "A secret is required"
+  },
+  "goakal": {
+    "subtitle": "Goakal transactions",
+    "description": "Payments arrive via webhook and are matched to invoices by payer email.",
+    "actions": {
+      "settings": "Webhook secret",
+      "link": "Link"
+    },
+    "filter": {
+      "search": "Search transactions…"
+    },
+    "columns": {
+      "payer": "Payer",
+      "status": "Status",
+      "amount": "Amount",
+      "paidAt": "Paid at",
+      "actions": "Actions"
+    },
+    "empty": "No transactions yet.",
+    "linked": "Linked to invoice",
+    "link": {
+      "title": "Link to invoice",
+      "invoice": "Invoice (issued)",
+      "noInvoices": "No issued invoices.",
+      "done": "Transaction linked and invoice paid."
+    },
+    "settings": {
+      "title": "Webhook secret",
+      "description": "HMAC-SHA256 signature secret shared with the Goakal provider. Written once; never shown again.",
+      "configured": "A secret is already configured. Saving replaces it.",
+      "secret": "Secret",
+      "secretPlaceholder": "New secret…",
+      "done": "Webhook secret saved."
+    },
+    "errors": {
+      "load": "Failed to load transactions",
+      "link": "Failed to link transaction",
+      "settings": "Failed to load settings",
+      "saveSettings": "Failed to save secret"
+    }
   }
 }

@@ -64,6 +64,13 @@ export const NAV_ITEMS: NavItem[] = [
     domain: 'billing',
   },
   {
+    key: 'Goakal',
+    labelKey: 'nav.goakal',
+    icon: 'lucide-wallet',
+    route: { name: 'Goakal' },
+    gate: 'superadmin',
+  },
+  {
     key: 'Infrastructure',
     labelKey: 'nav.infrastructure',
     icon: 'lucide-database',

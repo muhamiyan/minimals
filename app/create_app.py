@@ -66,6 +66,10 @@ def _init_csrf(app: Flask) -> None:
     csrf.exempt(csrf_bp._bp)
     csrf.exempt(health_bp)
 
+    from app.goakal.api import bp as goakal_bp
+
+    csrf.exempt(goakal_bp._bp)
+
 
 def create_app() -> Flask:
     app = Flask(
@@ -98,6 +102,7 @@ def create_app() -> Flask:
         from app.account.models import ApiKey, UserPreference  # noqa: F401
         from app.auth.models import Role, User, user_roles  # noqa: F401
         from app.billing.models import Invoice  # noqa: F401
+        from app.goakal.models import GoakalTransaction, GoakalWebhookLog  # noqa: F401
         from app.infra.audit import AuditLog  # noqa: F401
         from app.infra.models import AppSetting  # noqa: F401
         from app.infra.roles import ensure_member_role
@@ -113,6 +118,7 @@ def create_app() -> Flask:
         from app.account.preference_api import bp as account_preference_bp
         from app.auth import bp as auth_bp
         from app.billing import bp as billing_bp
+        from app.goakal import bp as goakal_bp
         from app.infra.api import bp as app_api_bp
         from app.infra.brand_api import bp as brand_bp
         from app.infra.csrf import bp as csrf_bp
@@ -137,6 +143,7 @@ def create_app() -> Flask:
         app.register_blueprint(tenancy_bp)
         app.register_blueprint(todo_bp)
         app.register_blueprint(billing_bp)
+        app.register_blueprint(goakal_bp)
         app.register_blueprint(plans_bp)
         app.register_blueprint(infra_database_bp)
         app.register_blueprint(app_api_bp)

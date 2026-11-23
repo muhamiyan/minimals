@@ -13,6 +13,8 @@ import { useAuthStore } from '@/features/auth/store'
 import { billingRoutes } from '@/features/billing/routes'
 import { useBillingStore } from '@/features/billing/store'
 import { dashboardRoutes } from '@/features/dashboard/routes'
+import { goakalRoutes } from '@/features/goakal/routes'
+import { useGoakalStore } from '@/features/goakal/store'
 import { infraRoutes } from '@/features/infra/routes'
 import { plansRoutes } from '@/features/plans/routes'
 import { usePlansStore } from '@/features/plans/store'
@@ -36,6 +38,7 @@ const routes: RouteRecordRaw[] = [
       ...tenancyRoutes,
       ...plansRoutes,
       ...billingRoutes,
+      ...goakalRoutes,
       ...infraRoutes,
     ],
   },
@@ -85,6 +88,7 @@ window.addEventListener('auth:unauthorized', () => {
   // must not survive into the next sign-in.
   useTenancyStore().resetMyOrgs()
   useBillingStore().reset()
+  useGoakalStore().reset()
   usePlansStore().reset()
   useTodoStore().reset()
   const current = router.currentRoute.value

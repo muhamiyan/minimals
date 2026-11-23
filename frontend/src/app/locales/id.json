@@ -7,7 +7,8 @@
     "plans": "Paket",
     "billing": "Penagihan",
     "infrastructure": "Infrastruktur",
-    "todo": "Tugas"
+    "todo": "Tugas",
+    "goakal": "Goakal"
   },
   "menu": {
     "theme": "Tema",
@@ -26,14 +27,14 @@
   },
   "settings": {
     "title": "Pengaturan",
-  "nav": {
-    "user": "Pengaturan pengguna",
-    "app": "Aplikasi",
-    "organization": "Organisasi"
-  },
-  "organization": {
-    "description": "Pilih organisasi yang diikuti dasbor dan penagihan."
-  },
+    "nav": {
+      "user": "Pengaturan pengguna",
+      "app": "Aplikasi",
+      "organization": "Organisasi"
+    },
+    "organization": {
+      "description": "Pilih organisasi yang diikuti dasbor dan penagihan."
+    },
     "profile": {
       "title": "Profil",
       "fullName": "Nama lengkap",
@@ -142,6 +143,10 @@
     "Infrastructure": {
       "title": "Infrastruktur",
       "description": "Engine database aktif dan status koneksi."
+    },
+    "Goakal": {
+      "title": "Goakal",
+      "description": "Pembayaran Goakal dan rahasia webhook."
     }
   },
   "field": {
@@ -834,6 +839,55 @@
     "user_not_found": "Pengguna tidak ditemukan",
     "username_already_registered": "Nama pengguna sudah terdaftar",
     "username_required": "Nama pengguna wajib diisi",
-    "validation_error": "Validasi gagal"
+    "validation_error": "Validasi gagal",
+    "goakal_secret_not_configured": "Rahasia webhook Goakal belum dikonfigurasi",
+    "invalid_signature": "Tanda tangan webhook tidak valid",
+    "unsupported_event": "Event webhook tidak didukung",
+    "unsupported_status": "Status transaksi tidak didukung",
+    "missing_transaction_id": "ID transaksi kosong",
+    "transaction_already_linked": "Transaksi sudah ditautkan",
+    "goakal_transaction_not_found": "Transaksi Goakal tidak ditemukan",
+    "goakal_paid_on_in_future": "Tanggal pembayaran tidak boleh di masa depan",
+    "secret_required": "Rahasia wajib diisi"
+  },
+  "goakal": {
+    "subtitle": "Transaksi Goakal",
+    "description": "Pembayaran masuk lewat webhook dan dicocokkan ke faktur lewat email pembayar.",
+    "actions": {
+      "settings": "Rahasia webhook",
+      "link": "Buka"
+    },
+    "filter": {
+      "search": "Cari transaksi…"
+    },
+    "columns": {
+      "payer": "Payer",
+      "status": "Status",
+      "amount": "Jumlah",
+      "paidAt": "Dibayar",
+      "actions": "Actions"
+    },
+    "empty": "Belum ada transaksi.",
+    "linked": "Terhubung ke faktur",
+    "link": {
+      "title": "Tautkan ke faktur",
+      "invoice": "Faktur (terbit)",
+      "noInvoices": "Tidak ada faktur terbit.",
+      "done": "Transaksi ditautkan dan faktur dilunasi."
+    },
+    "settings": {
+      "title": "Rahasia webhook",
+      "description": "Rahasia tanda tangan HMAC-SHA256 yang dibagikan dengan penyedia Goakal. Ditulis sekali; tidak pernah ditampilkan lagi.",
+      "configured": "Rahasia sudah dikonfigurasi. Menyimpan akan menggantinya.",
+      "secret": "Rahasia",
+      "secretPlaceholder": "Rahasia baru…",
+      "done": "Rahasia webhook disimpan."
+    },
+    "errors": {
+      "load": "Gagal memuat transaksi",
+      "link": "Gagal menautkan transaksi",
+      "settings": "Gagal memuat pengaturan",
+      "saveSettings": "Gagal menyimpan rahasia"
+    }
   }
 }
