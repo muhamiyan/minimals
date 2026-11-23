@@ -1,6 +1,6 @@
-# CLAUDE.md
+# AGENTS.md
 
-Guidance untuk Claude saat bekerja di project **minimals**.
+Guidance untuk agent saat bekerja di project **minimals**.
 
 > **Project ini berbeda dari root repo `cells`.** `minimals` adalah Flask app
 > **single-service** mandiri: punya `app/` + `framework/` sendiri, tidak ada

@@ -121,7 +121,7 @@ Database dari dalam container tidak persist — set `DATABASE_URL` di `.env`.
 Satu service dengan domain berlapis (`api → dto → services → repositories →
 models → presenters`); commit hanya di service; response camelCase, error
 `{"message": "<snake_case_key>"}`. Detail & konvensi lengkap:
-[`CLAUDE.md`](CLAUDE.md), [`framework/README.md`](framework/README.md).
+[`AGENTS.md`](AGENTS.md), [`framework/README.md`](framework/README.md).
 
 ## Security notes
 
