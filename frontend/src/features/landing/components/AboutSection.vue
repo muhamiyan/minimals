@@ -1,28 +1,21 @@
 <script setup lang="ts">
 import { Badge } from 'frappe-ui'
+import { useI18n } from 'vue-i18n'
 
 import { principles } from '../content'
+
+const { t } = useI18n()
 </script>
 
 <template>
   <section id="about" class="border-t border-outline-gray-1">
     <div class="mx-auto grid w-full max-w-6xl gap-10 px-5 py-20 lg:grid-cols-5">
       <div class="lg:col-span-3">
-        <Badge theme="blue" variant="outline" label="About" />
-        <h2 class="mt-4 text-5xl-bold text-ink-gray-9">Minimal, not trivial.</h2>
+        <Badge theme="blue" variant="outline" :label="t('landing.about.badge')" />
+        <h2 class="mt-4 text-5xl-bold text-ink-gray-9">{{ t('landing.about.title') }}</h2>
         <div class="mt-5 max-w-xl space-y-4 text-p-base text-ink-gray-6">
-          <p>
-            Minimals started from an observation: every production Flask
-            service re-implements the same scaffolding — auth, CSRF, roles,
-            migrations, health checks, a frontend build. Minimals packages that
-            floor, and nothing above it.
-          </p>
-          <p>
-            The architecture is deliberately boring. Services own
-            transactions, repositories own queries, and the wire format is a
-            tested contract. When something breaks, you fix it at the point of
-            failure — there is no history to dig through.
-          </p>
+          <p>{{ t('landing.about.body1') }}</p>
+          <p>{{ t('landing.about.body2') }}</p>
         </div>
       </div>
 
@@ -30,7 +23,7 @@ import { principles } from '../content'
         <div class="rounded-6 border border-outline-gray-1 bg-surface-elevation-2 p-5">
           <div class="flex items-center gap-2 text-base-semibold text-ink-gray-8">
             <span class="lucide-badge-check size-4 text-ink-blue-7" aria-hidden="true" />
-            House rules
+            {{ t('landing.about.rules') }}
           </div>
           <ul class="mt-4 space-y-3">
             <li
@@ -42,7 +35,7 @@ import { principles } from '../content'
                 class="lucide-check mt-0.5 size-4 shrink-0 text-ink-green-6"
                 aria-hidden="true"
               />
-              <span>{{ rule }}</span>
+              <span>{{ t(rule) }}</span>
             </li>
           </ul>
         </div>

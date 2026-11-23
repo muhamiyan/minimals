@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { Button, useColorScheme } from 'frappe-ui'
 
 import { useAuthStore } from '@/features/auth/store'
 import { brand } from '@/shared/brand'
 import { useStartAction } from '../useStartAction'
 
+const { t } = useI18n()
 const auth = useAuthStore()
 const { loading, start } = useStartAction()
 
@@ -44,40 +46,40 @@ function goTop() {
           href="/#features"
           class="rounded-4 px-3 py-1.5 text-base-medium text-ink-gray-6 transition-colors hover:text-ink-gray-9"
         >
-          Features
+          {{ t('landing.nav.features') }}
         </a>
         <a
           href="/#about"
           class="rounded-4 px-3 py-1.5 text-base-medium text-ink-gray-6 transition-colors hover:text-ink-gray-9"
         >
-          About
+          {{ t('landing.nav.about') }}
         </a>
         <router-link
           :to="{ name: 'BlogList' }"
           class="rounded-4 px-3 py-1.5 text-base-medium text-ink-gray-6 transition-colors hover:text-ink-gray-9"
         >
-          Blog
+          {{ t('nav.blog') }}
         </router-link>
       </nav>
 
       <div class="flex items-center gap-2">
         <Button
           :icon="themeIcon"
-          label="Toggle theme"
+          :label="t('landing.nav.theme')"
           size="sm"
           variant="ghost"
           @click="toggleColorScheme"
         />
         <template v-if="!auth.user">
           <Button
-            label="Sign in"
+            :label="t('auth.signIn')"
             size="sm"
             variant="ghost"
             class="hidden sm:inline-flex"
             :route="{ name: 'Login' }"
           />
           <Button
-            label="Get started"
+            :label="t('landing.getStarted')"
             size="sm"
             variant="solid"
             theme="blue"
@@ -87,7 +89,7 @@ function goTop() {
         </template>
         <Button
           v-else
-          label="Dashboard"
+          :label="t('nav.dashboard')"
           size="sm"
           variant="solid"
           theme="blue"

@@ -1,20 +1,22 @@
 <script setup lang="ts">
 import { Badge } from 'frappe-ui'
+import { useI18n } from 'vue-i18n'
 
 import { features } from '../content'
+
+const { t } = useI18n()
 </script>
 
 <template>
   <section id="features" class="border-t border-outline-gray-1">
     <div class="mx-auto w-full max-w-6xl px-5 py-20">
       <div class="mx-auto max-w-2xl text-center">
-        <Badge theme="blue" variant="outline" label="Features" />
+        <Badge theme="blue" variant="outline" :label="t('landing.features.badge')" />
         <h2 class="mt-4 text-5xl-bold text-ink-gray-9">
-          Everything you'd build anyway
+          {{ t('landing.features.title') }}
         </h2>
         <p class="mt-3 text-p-base text-ink-gray-6">
-          The production floor every Flask service needs — included, tested,
-          and deliberately unexciting.
+          {{ t('landing.features.lead') }}
         </p>
       </div>
 
@@ -33,9 +35,9 @@ import { features } from '../content'
             <span :class="feature.icon" class="size-5" aria-hidden="true" />
           </div>
           <h3 class="mt-4 text-base-semibold text-ink-gray-8">
-            {{ feature.title }}
+            {{ t(feature.title) }}
           </h3>
-          <p class="mt-1.5 text-p-sm text-ink-gray-6">{{ feature.desc }}</p>
+          <p class="mt-1.5 text-p-sm text-ink-gray-6">{{ t(feature.desc) }}</p>
         </div>
       </div>
     </div>

@@ -1,5 +1,9 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
+
 import { brand } from '@/shared/brand'
+
+const { t } = useI18n()
 </script>
 
 <template>
@@ -12,7 +16,7 @@ import { brand } from '@/shared/brand'
           <span class="lucide-package size-3.5" aria-hidden="true" />
         </span>
         <span class="text-p-sm-medium text-ink-gray-7">{{ brand.name }}</span>
-        <span class="text-p-sm text-ink-gray-4">· open alpha</span>
+        <span class="text-p-sm text-ink-gray-4">· {{ t('landing.footer.alpha') }}</span>
       </div>
 
       <nav class="flex flex-wrap items-center justify-center gap-4">
@@ -20,35 +24,37 @@ import { brand } from '@/shared/brand'
           href="/#features"
           class="text-p-sm text-ink-gray-5 transition-colors hover:text-ink-gray-8"
         >
-          Features
+          {{ t('landing.nav.features') }}
         </a>
         <a
           href="/#about"
           class="text-p-sm text-ink-gray-5 transition-colors hover:text-ink-gray-8"
         >
-          About
+          {{ t('landing.nav.about') }}
         </a>
         <router-link
           :to="{ name: 'BlogList' }"
           class="text-p-sm text-ink-gray-5 transition-colors hover:text-ink-gray-8"
         >
-          Blog
+          {{ t('nav.blog') }}
         </router-link>
         <router-link
           :to="{ name: 'Login' }"
           class="text-p-sm text-ink-gray-5 transition-colors hover:text-ink-gray-8"
         >
-          Sign in
+          {{ t('auth.signIn') }}
         </router-link>
         <router-link
           :to="{ name: 'Register' }"
           class="text-p-sm text-ink-gray-5 transition-colors hover:text-ink-gray-8"
         >
-          Get started
+          {{ t('landing.getStarted') }}
         </router-link>
       </nav>
 
-      <p class="text-p-sm text-ink-gray-4">© 2026 {{ brand.name }}</p>
+      <p class="text-p-sm text-ink-gray-4">
+        {{ t('landing.footer.copyright', { name: brand.name }) }}
+      </p>
     </div>
   </footer>
 </template>

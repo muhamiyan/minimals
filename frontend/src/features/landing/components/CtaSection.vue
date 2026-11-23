@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { Button } from 'frappe-ui'
+import { useI18n } from 'vue-i18n'
 
 import { useAuthStore } from '@/features/auth/store'
 import { useStartAction } from '../useStartAction'
 
+const { t } = useI18n()
 const auth = useAuthStore()
 const { loading, start } = useStartAction()
 
@@ -28,17 +30,16 @@ function scrollToFeatures() {
 
       <div class="relative">
         <h2 class="mx-auto max-w-2xl text-4xl-bold text-ink-gray-9 sm:text-5xl-bold">
-          Start where the boring parts are already done.
+          {{ t('landing.cta.title') }}
         </h2>
         <p class="mx-auto mt-3 max-w-xl text-p-base text-ink-gray-6">
-          Run setup once — point at your database, create the admin — then
-          ship your domain on a floor that's ready.
+          {{ t('landing.cta.lead') }}
         </p>
 
         <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
           <Button
             v-if="!auth.user"
-            label="Get started"
+            :label="t('landing.getStarted')"
             size="lg"
             variant="solid"
             theme="blue"
@@ -48,7 +49,7 @@ function scrollToFeatures() {
           />
           <Button
             v-else
-            label="Open dashboard"
+            :label="t('landing.openDashboard')"
             size="lg"
             variant="solid"
             theme="blue"
@@ -58,14 +59,14 @@ function scrollToFeatures() {
           />
           <Button
             v-if="!auth.user"
-            label="Sign in"
+            :label="t('auth.signIn')"
             size="lg"
             variant="outline"
             :route="{ name: 'Login' }"
           />
           <Button
             v-else
-            label="What's inside"
+            :label="t('landing.whatsInside')"
             size="lg"
             variant="outline"
             @click="scrollToFeatures"

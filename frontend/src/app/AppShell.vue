@@ -100,7 +100,7 @@ const sidebarItems = computed<ShellNavItem[]>(() => {
     ...menuItems.value,
     {
       key: 'BlogAdminList',
-      label: 'Blog',
+      label: t('nav.blog'),
       icon: 'lucide-newspaper',
       route: { name: 'BlogAdminList' },
       active:
@@ -155,7 +155,7 @@ async function onLogout() {
       <MobileBottomNav :items="tabItems">
         <MobileNavItem
           v-if="auth.user?.appRole === 'admin'"
-          label="Blog"
+          :label="t('nav.blog')"
           icon="lucide-newspaper"
           :route="{ name: 'BlogAdminList' }"
         />
