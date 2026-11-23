@@ -3,6 +3,7 @@ ITEM_KEYS = {
     "title",
     "slug",
     "excerpt",
+    "readTime",
     "status",
     "createdOn",
     "authorName",
@@ -295,3 +296,49 @@ def test_create_title_without_slugable_chars_is_422(admin):
     response = create_post(admin, title="!!!")
     assert response.status_code == 422
     assert response.get_json() == {"message": "slug_required"}
+
+
+def test_create_post_accepts_author_and_category(admin):
+    response = create_post(
+        admin,
+        slug="byline",
+        author="  Guest Writer  ",
+        category="  News  ",
+    )
+    assert response.status_code == 201
+    body = response.get_json()
+    assert body["author"] == "Guest Writer"
+    assert body["category"] == "News"
+    assert body["authorName"] == "Admin User"
+    assert body["readTime"] == 1
+
+
+def test_blank_author_and_category_are_omitted(admin):
+    response = create_post(admin, slug="blank-meta", author="   ", category="  ")
+    assert response.status_code == 201
+    assert "author" not in response.get_json()
+    assert "category" not in response.get_json()
+
+
+def test_read_time_is_computed_and_recomputed_on_body_change(admin):
+    words = " ".join(["word"] * 450)
+    response = create_post(admin, slug="long-read", body=f"<p>{words}</p>")
+    assert response.status_code == 201
+    assert response.get_json()["readTime"] == 3
+
+    patched = admin.patch(
+        "/api/v1/blog/posts/long-read", json={"body": "<p>short</p>"}
+    )
+    assert patched.status_code == 200
+    assert patched.get_json()["readTime"] == 1
+
+
+def test_update_author_and_category(admin):
+    create_post(admin, slug="meta-update")
+    response = admin.patch(
+        "/api/v1/blog/posts/meta-update",
+        json={"author": "Jane Doe", "category": "Tutorial"},
+    )
+    assert response.status_code == 200
+    assert response.get_json()["author"] == "Jane Doe"
+    assert response.get_json()["category"] == "Tutorial"

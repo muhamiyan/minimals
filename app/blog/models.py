@@ -1,7 +1,7 @@
 """Blog domain models — BlogPost."""
 from __future__ import annotations
 
-from sqlalchemy import DateTime, ForeignKey, String, Text, func
+from sqlalchemy import DateTime, ForeignKey, Integer, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from framework.extensions import db
@@ -25,6 +25,11 @@ class BlogPost(db.Model):
         String(20), nullable=False, default="draft", index=True
     )
     cover_image: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    author: Mapped[str | None] = mapped_column(String(200), nullable=True)
+    category: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    read_time: Mapped[int] = mapped_column(
+        Integer, nullable=False, default=1, server_default="1"
+    )
     author_id: Mapped[str | None] = mapped_column(
         String(36), ForeignKey("users.id", ondelete="SET NULL"), nullable=True
     )
@@ -39,7 +44,7 @@ class BlogPost(db.Model):
         onupdate=func.now(),
     )
 
-    author = relationship("User", backref="blog_posts")
+    author_user = relationship("User", backref="blog_posts")
 
 
 __all__ = ["BLOG_STATUSES", "BlogPost"]

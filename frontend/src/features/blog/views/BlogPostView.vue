@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { ErrorMessage } from 'frappe-ui'
+import { ErrorMessage, Spinner } from 'frappe-ui'
 import { computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 
 import LandingFooter from '@/features/landing/components/LandingFooter.vue'
 import LandingNav from '@/features/landing/components/LandingNav.vue'
@@ -12,31 +13,41 @@ import { useBlogStore } from '../store'
 
 const route = useRoute()
 const blog = useBlogStore()
+const { t, locale } = useI18n()
 
 const slug = computed(() => String(route.params.slug || ''))
+const gateReady = computed(() => blog.checked)
 
-async function load() {
-  await blog.fetchPost(slug.value)
+function applyTitle() {
   if (blog.post) {
     document.title = `${blog.post.title} · ${brand.name}`
   }
+}
+
+async function load() {
+  await blog.fetchPost(slug.value)
+  applyTitle()
   window.scrollTo({ top: 0 })
 }
 
-onMounted(load)
+onMounted(async () => {
+  await load()
+})
 watch(slug, load)
+watch(locale, applyTitle)
 </script>
 
 <template>
   <div id="top" class="min-h-screen bg-surface-base text-ink-gray-8">
     <LandingNav />
-    <main class="mx-auto w-full max-w-3xl px-5 py-12">
+    <Spinner v-if="!gateReady" class="mx-auto flex py-24" />
+    <main v-else class="mx-auto w-full max-w-3xl px-5 py-12">
       <router-link
         :to="{ name: 'BlogList' }"
         class="mb-8 inline-flex items-center gap-1.5 text-p-sm-medium text-ink-gray-6 transition-colors hover:text-ink-gray-9"
       >
         <span class="lucide-arrow-left size-3.5" aria-hidden="true" />
-        All posts
+        {{ t('blog.post.back') }}
       </router-link>
 
       <div v-if="blog.loadingPost" class="space-y-4">
@@ -52,7 +63,9 @@ watch(slug, load)
           <h1 class="text-4xl-bold text-ink-gray-9">{{ blog.post.title }}</h1>
           <div class="mt-3 flex flex-wrap items-center gap-2 text-p-sm text-ink-gray-5">
             <span v-if="blog.post.publishedOn">{{ formatDate(blog.post.publishedOn) }}</span>
-            <span v-if="blog.post.authorName">· {{ blog.post.authorName }}</span>
+            <span v-if="blog.post.author || blog.post.authorName">· {{ blog.post.author || blog.post.authorName }}</span>
+            <span v-if="blog.post.category">· {{ blog.post.category }}</span>
+            <span v-if="blog.post.readTime">· {{ t('blog.list.readTime', { n: blog.post.readTime }) }}</span>
           </div>
         </header>
 

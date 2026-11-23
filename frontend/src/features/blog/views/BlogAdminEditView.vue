@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { Button, ErrorMessage, FileUploader, FormControl, dialog, toast } from 'frappe-ui'
+import { Button, ErrorMessage, FileUploader, FormControl, Spinner, dialog, toast } from 'frappe-ui'
 import { Editor, EditorContent, EditorFixedMenu, RichTextKit, articleToolbar } from 'frappe-ui/editor'
 import { computed, onMounted, reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 
 import { fetchCsrfToken } from '@/shared/api'
 
@@ -11,6 +12,7 @@ import { useBlogStore } from '../store'
 const route = useRoute()
 const router = useRouter()
 const blog = useBlogStore()
+const { t } = useI18n()
 
 const isEdit = computed(() => route.name === 'BlogAdminEdit')
 const slug = computed(() => String(route.params.slug || ''))
@@ -21,11 +23,16 @@ const form = reactive({
   body: '',
   status: 'draft',
   coverImage: '',
+  author: '',
+  category: '',
 })
 const saving = ref(false)
 const deleting = ref(false)
 
-const pageTitle = computed(() => (isEdit.value ? 'Edit post' : 'New post'))
+const pageTitle = computed(() =>
+  isEdit.value ? t('blog.admin.editPost') : t('blog.admin.newPost'),
+)
+const gateReady = computed(() => !isEdit.value || blog.checked)
 const canSave = computed(
   () => Boolean(form.title.trim() && form.body.trim() && !saving.value),
 )
@@ -41,6 +48,8 @@ onMounted(async () => {
       form.body = blog.post.body
       form.status = blog.post.status
       form.coverImage = blog.post.coverImage ?? ''
+      form.author = blog.post.author ?? ''
+      form.category = blog.post.category ?? ''
     }
   }
 })
@@ -67,13 +76,15 @@ async function onSave() {
     body: form.body,
     status: form.status,
     coverImage: form.coverImage,
+    author: form.author.trim(),
+    category: form.category.trim(),
   }
   const saved = isEdit.value
     ? await blog.updatePost(slug.value, payload)
     : await blog.createPost({ ...payload, slug: form.slug.trim() || undefined })
   saving.value = false
   if (saved) {
-    toast.success(isEdit.value ? 'Post updated' : 'Post created')
+    toast.success(t(isEdit.value ? 'blog.admin.toast.updated' : 'blog.admin.toast.created'))
     router.push({ name: 'BlogAdminList' })
   } else {
     toast.error(blog.error)
@@ -82,14 +93,14 @@ async function onSave() {
 
 function onDelete() {
   dialog.danger({
-    title: 'Delete post',
-    message: 'This permanently removes the post and cannot be undone.',
+    title: t('blog.admin.confirm.title'),
+    message: t('blog.admin.confirm.message'),
     onConfirm: async () => {
       deleting.value = true
       const removed = await blog.removePost(slug.value)
       deleting.value = false
       if (removed) {
-        toast.success('Post deleted')
+        toast.success(t('blog.admin.toast.deleted'))
         router.push({ name: 'BlogAdminList' })
       } else {
         toast.error(blog.error)
@@ -100,7 +111,8 @@ function onDelete() {
 </script>
 
 <template>
-  <div class="mx-auto w-full max-w-3xl p-6">
+  <Spinner v-if="!gateReady" class="mx-auto flex py-24" />
+  <div v-else class="mx-auto w-full max-w-3xl p-6">
     <header class="mb-6">
       <h1 class="text-2xl-semibold text-ink-gray-9">{{ pageTitle }}</h1>
       <p v-if="isEdit" class="mt-1 text-p-sm text-ink-gray-5">/{{ slug }}</p>
@@ -117,29 +129,41 @@ function onDelete() {
     <form v-else class="space-y-5" @submit.prevent="onSave">
       <FormControl
         v-model="form.title"
-        label="Title"
-        placeholder="Post title"
+        :label="t('blog.admin.form.title')"
+        :placeholder="t('blog.admin.form.titlePlaceholder')"
         required
       />
       <FormControl
         v-if="!isEdit"
         v-model="form.slug"
-        label="Slug"
+        :label="t('blog.admin.form.slug')"
         placeholder="generated-from-title"
-        description="Leave empty to generate it from the title."
+        :description="t('blog.admin.form.slugHint')"
+      />
+      <FormControl
+        v-model="form.author"
+        :label="t('blog.admin.form.author')"
+        :placeholder="t('blog.admin.form.authorPlaceholder')"
+      />
+      <FormControl
+        v-model="form.category"
+        :label="t('blog.admin.form.category')"
+        :placeholder="t('blog.admin.form.categoryPlaceholder')"
       />
       <FormControl
         v-model="form.status"
         type="select"
-        label="Status"
+        :label="t('blog.admin.form.status')"
         :options="[
-          { label: 'Draft', value: 'draft' },
-          { label: 'Published', value: 'published' },
+          { label: t('blog.admin.form.draft'), value: 'draft' },
+          { label: t('blog.admin.form.published'), value: 'published' },
         ]"
       />
 
       <div>
-        <div class="mb-1.5 text-base-medium text-ink-gray-7">Cover image</div>
+        <div class="mb-1.5 text-base-medium text-ink-gray-7">
+          {{ t('blog.admin.form.cover') }}
+        </div>
         <FileUploader
           upload-endpoint="/api/v1/uploads"
           :private="false"
@@ -150,7 +174,7 @@ function onDelete() {
             <div class="flex flex-wrap items-center gap-3">
               <Button
                 type="button"
-                label="Upload cover"
+                :label="t('blog.admin.form.uploadCover')"
                 size="sm"
                 variant="subtle"
                 icon-left="lucide-image-plus"
@@ -158,7 +182,7 @@ function onDelete() {
                 @click="openFileSelector"
               />
               <span v-if="uploading" class="text-p-sm text-ink-gray-5">
-                Uploading {{ progress }}%
+                {{ t('blog.admin.form.uploading', { n: progress }) }}
               </span>
               <span v-if="error" class="text-p-sm text-ink-red-6">{{ error }}</span>
             </div>
@@ -172,7 +196,7 @@ function onDelete() {
           />
           <Button
             type="button"
-            label="Remove"
+            :label="t('blog.admin.form.remove')"
             size="sm"
             variant="ghost"
             theme="red"
@@ -183,7 +207,9 @@ function onDelete() {
       </div>
 
       <div>
-        <div class="mb-1.5 text-base-medium text-ink-gray-7">Body</div>
+        <div class="mb-1.5 text-base-medium text-ink-gray-7">
+          {{ t('blog.admin.form.body') }}
+        </div>
         <div
           class="overflow-hidden rounded-6 border border-outline-gray-1 bg-surface-elevation-2 focus-within:border-outline-gray-3"
         >
@@ -191,7 +217,7 @@ function onDelete() {
             :model-value="form.body"
             :extensions="[RichTextKit]"
             format="html"
-            placeholder="Write your post…"
+            :placeholder="t('blog.admin.form.bodyPlaceholder')"
             @change="onEditorChange"
           >
             <template #default>
@@ -208,7 +234,7 @@ function onDelete() {
         <Button
           v-if="isEdit"
           type="button"
-          label="Delete"
+          :label="t('blog.admin.actions.delete')"
           variant="subtle"
           theme="red"
           icon-left="lucide-trash-2"
@@ -219,13 +245,13 @@ function onDelete() {
         <div class="flex items-center gap-2">
           <Button
             type="button"
-            label="Cancel"
+            :label="t('blog.admin.actions.cancel')"
             variant="ghost"
             :route="{ name: 'BlogAdminList' }"
           />
           <Button
             type="submit"
-            label="Save"
+            :label="t('blog.admin.actions.save')"
             variant="solid"
             theme="blue"
             icon-left="lucide-check"

@@ -99,6 +99,8 @@ class BlogCreateIn(DTOBase):
     body: str = DTOBase.field(..., min_length=1, max_length=1_000_000)
     status: str = DTOBase.field(default="draft", max_length=20)
     cover_image: str | None = DTOBase.field(default=None, alias="coverImage", max_length=500)
+    author: str | None = DTOBase.field(default=None, max_length=200)
+    category: str | None = DTOBase.field(default=None, max_length=100)
 
     @field_validator("body")
     @classmethod
@@ -135,6 +137,14 @@ class BlogCreateIn(DTOBase):
         v = v.strip()
         return v or None
 
+    @field_validator("author", "category")
+    @classmethod
+    def strip_optional(cls, v: str | None) -> str | None:
+        if v is None:
+            return v
+        v = v.strip()
+        return v or None
+
 
 class BlogUpdateIn(DTOBase):
     """Validate a blog post update payload. Slug is immutable after creation."""
@@ -145,6 +155,8 @@ class BlogUpdateIn(DTOBase):
     body: str | None = DTOBase.field(default=None, min_length=1, max_length=1_000_000)
     status: str | None = DTOBase.field(default=None, max_length=20)
     cover_image: str | None = DTOBase.field(default=None, alias="coverImage", max_length=500)
+    author: str | None = DTOBase.field(default=None, max_length=200)
+    category: str | None = DTOBase.field(default=None, max_length=100)
 
     @field_validator("body")
     @classmethod
@@ -166,6 +178,14 @@ class BlogUpdateIn(DTOBase):
     @field_validator("cover_image")
     @classmethod
     def strip_cover_image(cls, v: str | None) -> str | None:
+        if v is None:
+            return v
+        v = v.strip()
+        return v or None
+
+    @field_validator("author", "category")
+    @classmethod
+    def strip_optional(cls, v: str | None) -> str | None:
         if v is None:
             return v
         v = v.strip()

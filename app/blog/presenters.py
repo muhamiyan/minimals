@@ -25,6 +25,9 @@ class BlogPostSummaryOut(PresenterBase):
     id: str
     title: str
     slug: str
+    author: str | None = PresenterBase.field(None)
+    category: str | None = PresenterBase.field(None)
+    read_time: int = PresenterBase.field(1, alias="readTime")
     excerpt: str = PresenterBase.field("", alias="excerpt")
     cover_image: str | None = PresenterBase.field(None, alias="coverImage")
     status: str
@@ -34,12 +37,14 @@ class BlogPostSummaryOut(PresenterBase):
 
     @classmethod
     def from_post(cls, post: BlogPost) -> BlogPostSummaryOut:
-        author = post.author
+        author_user = post.author_user
         return cls.from_model(
             post,
             excerpt=make_excerpt(post.body),
             author_name=(
-                author.full_name or author.username if author is not None else None
+                author_user.full_name or author_user.username
+                if author_user is not None
+                else None
             ),
         )
 

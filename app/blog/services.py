@@ -11,9 +11,16 @@ from app.infra.audit import log as audit_log
 from framework.base import ServiceBase
 from framework.exceptions import Conflict, InvalidOperation, NotFound
 
+READ_WORDS_PER_MINUTE = 200
+
 
 def _slugify(value: str) -> str:
     return re.sub(r"[^a-z0-9]+", "-", value.strip().lower()).strip("-")[:200]
+
+
+def _read_time(body: str) -> int:
+    words = len(re.sub(r"<[^>]+>", " ", body).split())
+    return max(1, (words + READ_WORDS_PER_MINUTE - 1) // READ_WORDS_PER_MINUTE)
 
 
 class BlogService(ServiceBase[BlogRepository]):
@@ -50,6 +57,9 @@ class BlogService(ServiceBase[BlogRepository]):
             body=dto.body,
             status=dto.status,
             cover_image=dto.cover_image,
+            author=dto.author,
+            category=dto.category,
+            read_time=_read_time(dto.body),
             author_id=actor_id,
         )
         if post.status == "published":
@@ -76,8 +86,13 @@ class BlogService(ServiceBase[BlogRepository]):
             post.title = data["title"]
         if "body" in data:
             post.body = data["body"]
+            post.read_time = _read_time(post.body)
         if "cover_image" in data:
             post.cover_image = data["cover_image"]
+        if "author" in data:
+            post.author = data["author"]
+        if "category" in data:
+            post.category = data["category"]
         if "status" in data:
             new_status = data["status"]
             if new_status == "published" and post.status != "published":
