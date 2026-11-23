@@ -61,6 +61,20 @@
     },
     "brand": {
       "title": "Brand",
+      "details": {
+        "help": "Name, tagline, description, and site URL used across the app and in search results.",
+        "name": "App name",
+        "namePlaceholder": "Acme Inc.",
+        "tagline": "Tagline",
+        "taglinePlaceholder": "Work less, achieve more",
+        "description": "Description",
+        "descriptionPlaceholder": "Shown to search engines",
+        "siteUrl": "Site URL",
+        "siteUrlPlaceholder": "https://acme.com",
+        "save": "Save details",
+        "saved": "Details saved.",
+        "failed": "Couldn't save the details."
+      },
       "description": "App-wide logo shown in the sidebar, sign-in screens, and browser favicon.",
       "logo": "Logo",
       "logoDescription": "PNG, JPG, WebP, or GIF up to 5 MB. You'll crop it to a square before saving.",

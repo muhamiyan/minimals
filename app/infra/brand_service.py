@@ -6,8 +6,9 @@ from pathlib import Path
 
 from flask import current_app
 
+from app.infra.brand_dto import BrandMetaIn
 from app.infra.repositories import SettingRepository
-from app.infra.seo import LOGO_KEY
+from app.infra.seo import LOGO_KEY, META_KEYS, normalize_brand, validate_site_url
 from app.infra.uploads import upload_name_from_url
 from framework.base import ServiceBase
 from framework.exceptions import ValidationFailed
@@ -23,6 +24,15 @@ class BrandService(ServiceBase[SettingRepository]):
     def get_logo(self) -> str:
         row = self._repo.get(LOGO_KEY)
         return row.value if row and row.value else ""
+
+    def save_meta(self, meta: BrandMetaIn) -> dict[str, str]:
+        normalized = normalize_brand(meta.to_data())
+        values = {key: normalized[key] for key in META_KEYS}
+        validate_site_url(values["siteUrl"])
+        for key, value in values.items():
+            self._repo.set(key, value)
+        self._commit()
+        return values
 
     def save_logo(self, url: str) -> str:
         if url:
