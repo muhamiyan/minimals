@@ -78,6 +78,16 @@ class InvoiceRepository(RepositoryBase[Invoice]):
             organization_id=org_id, period_start=period_start
         )
 
+    def find_pending_switch(self, org_id: str) -> Invoice | None:
+        """An unpaid self-service switch invoice for the org, if any."""
+        return db.session.scalars(
+            db.select(Invoice).where(
+                Invoice.organization_id == org_id,
+                Invoice.status == "issued",
+                Invoice.plan_id.isnot(None),
+            ).limit(1)
+        ).first()
+
     def transition_status(
         self,
         invoice_id: str,

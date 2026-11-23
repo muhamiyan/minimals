@@ -8,7 +8,9 @@
     "billing": "Penagihan",
     "infrastructure": "Infrastruktur",
     "todo": "Tugas",
-    "goakal": "Goakal"
+    "goakal": "Goakal",
+    "plan": "Paket",
+    "users": "Pengguna"
   },
   "menu": {
     "theme": "Tema",
@@ -17,7 +19,15 @@
     "system": "Sistem",
     "settings": "Pengaturan",
     "logout": "Keluar",
-    "section": "Menu"
+    "section": "Menu",
+    "more": "Lainnya",
+    "menu": "Menu"
+  },
+  "orgSwitcher": {
+    "title": "Organisasi",
+    "switch": "Ganti organisasi",
+    "owner": "Pemilik",
+    "member": "Anggota"
   },
   "orgSwitcher": {
     "title": "Organisasi",
@@ -89,7 +99,8 @@
     "plans": "Paket",
     "infrastructure": "Infrastruktur",
     "billing": "Penagihan",
-    "todo": "Tugas"
+    "todo": "Tugas",
+    "users": "Pengguna"
   },
   "route": {
     "Login": {
@@ -106,7 +117,7 @@
     },
     "Dashboard": {
       "title": "Dasbor",
-      "description": "Ringkasan akun Anda: profil dan peran."
+      "description": "Dasbor Anda: ringkasan akun, peran, dan administrasi."
     },
     "ToDo": {
       "title": "Tugas",
@@ -134,7 +145,11 @@
     },
     "Plans": {
       "title": "Paket",
-      "description": "Katalog paket: tier, durasi, harga, dan paket utama."
+      "description": "Katalog paket: tier, masa, harga, dan default."
+    },
+    "Plan": {
+      "title": "Paket",
+      "description": "Pilih atau ganti paket organisasi."
     },
     "Billing": {
       "title": "Penagihan",
@@ -147,6 +162,10 @@
     "Goakal": {
       "title": "Goakal",
       "description": "Pembayaran Goakal dan rahasia webhook."
+    },
+    "Users": {
+      "title": "Pengguna",
+      "description": "Administrasi pengguna: peran, status, dan grup."
     }
   },
   "field": {
@@ -181,6 +200,38 @@
       "length": "Minimal 8 karakter"
     }
   },
+  "account": {
+    "searchUsers": "Cari pengguna…",
+    "noUsers": "Belum ada pengguna.",
+    "noUsersFound": "Tidak ada pengguna yang cocok.",
+    "columns": {
+      "user": "Pengguna",
+      "appRole": "Peran app",
+      "roles": "Grup",
+      "status": "Status",
+      "actions": "Aksi"
+    },
+    "addUser": "Tambah pengguna",
+    "editUser": "Edit pengguna",
+    "fullName": "Nama lengkap",
+    "appRole": "Peran app",
+    "roleUser": "Pengguna",
+    "roleAdmin": "Admin",
+    "roleNames": "Grup",
+    "rolesPlaceholder": "Pilih grup…",
+    "statusActive": "Aktif",
+    "statusInactive": "Nonaktif",
+    "isActive": "Aktif",
+    "saveChanges": "Simpan perubahan",
+    "createUser": "Buat pengguna",
+    "userUpdated": "Pengguna diperbarui.",
+    "userCreated": "Pengguna ditambahkan.",
+    "errors": {
+      "loadUsersFailed": "Gagal memuat pengguna.",
+      "updateUserFailed": "Gagal memperbarui pengguna.",
+      "createUserFailed": "Gagal menambah pengguna."
+    }
+  },
   "shared": {
     "search": "Cari…",
     "perPage": "{n} / halaman",
@@ -190,7 +241,9 @@
     "ok": "OK",
     "close": "Tutup",
     "forbiddenTitle": "Akses Ditolak",
-    "forbiddenMessage": "Halaman ini memerlukan hak akses administrator. Akun Anda terdaftar sebagai pengguna biasa. Hubungi administrator untuk mendapatkan akses."
+    "forbiddenMessage": "Halaman ini memerlukan hak akses administrator. Akun Anda terdaftar sebagai pengguna biasa. Hubungi administrator untuk mendapatkan akses.",
+    "noResults": "Tidak ada hasil ditemukan",
+    "cancel": "Batal"
   },
   "dash": {
     "welcomeBack": "Selamat datang kembali",
@@ -203,7 +256,26 @@
     "advancedReporting": "Laporan lanjutan",
     "reportingEnabled": "Aktif untuk organisasi ini.",
     "checkingPlan": "Memeriksa paket…",
-    "reportingUpsell": "Bagian dari paket Professional. Tingkatkan langganan organisasi untuk membukanya."
+    "reportingUpsell": "Bagian dari paket Professional. Tingkatkan langganan organisasi untuk membukanya.",
+    "totalUsers": "Total pengguna",
+    "registration": "Registrasi",
+    "registrationOpen": "Terbuka",
+    "registrationClosed": "Tertutup",
+    "adminConsole": "Administrasi",
+    "adminConsoleHint": "Kelola pengguna, peran, dan registrasi.",
+    "manageUsers": "Kelola pengguna",
+    "loadStatsFailed": "Gagal memuat statistik akun",
+    "super": {
+      "totalOrganizations": "Organisasi",
+      "revenuePaid": "Pendapatan terbayar",
+      "orgsPerMonth": "Organisasi per bulan",
+      "organizationsSeries": "Organisasi",
+      "revenuePerMonth": "Pendapatan per bulan",
+      "revenueSeries": "Pendapatan",
+      "subscriptionsByStatus": "Langganan per status",
+      "invoicesByStatus": "Faktur per status",
+      "loadFailed": "Gagal memuat statistik dasbor"
+    }
   },
   "plans": {
     "new": "Paket baru",
@@ -270,6 +342,16 @@
     },
     "featuresTitle": "Fitur",
     "featuresDescription": "Fitur yang diberikan ke organisasi selama paket ini aktif.",
+    "featuresCounter": "{count} dari {total} aktif",
+    "featuresSearchPlaceholder": "Filter fitur…",
+    "featuresEmptySearch": "Tidak ada fitur cocok dengan “{search}”",
+    "featureCategories": {
+      "insights": "Analisis",
+      "support": "Dukungan",
+      "platform": "Platform",
+      "productivity": "Produktivitas",
+      "other": "Lainnya"
+    },
     "validation": {
       "name": "Nama wajib diisi",
       "duration": "Masukkan bilangan bulat antara 1 dan 3650",
@@ -282,6 +364,23 @@
       "create": "Gagal membuat paket",
       "update": "Gagal memperbarui paket",
       "delete": "Gagal menghapus paket"
+    }
+  },
+  "plan": {
+    "currentPlan": "Paket aktif",
+    "unavailable": "Tidak tersedia",
+    "select": "Pilih paket",
+    "confirmTitle": "Minta ganti ke {name}?",
+    "confirmBody": "Faktur senilai {price} akan dibuat. {name} menjadi paket organisasi setelah faktur dibayar — paket saat ini tetap aktif sampai saat itu.",
+    "confirm": "Buat faktur",
+    "switchRequested": "Faktur {number} dibuat — paket berlaku setelah dibayar",
+    "pendingSwitch": "Pergantian ke {name} menunggu pembayaran faktur {number}.",
+    "pendingSwitchGeneric": "Pergantian paket menunggu pembayaran faktur {number}.",
+    "viewBilling": "Lihat tagihan",
+    "empty": "Belum ada paket yang tersedia.",
+    "errors": {
+      "load": "Gagal memuat katalog paket",
+      "switch": "Gagal meminta pergantian paket"
     }
   },
   "billing": {
@@ -319,6 +418,7 @@
     },
     "columns": {
       "invoice": "Faktur",
+      "tier": "Tier",
       "status": "Status",
       "period": "Periode",
       "due": "Jatuh tempo",
@@ -388,7 +488,7 @@
     "subscription": {
       "title": "Langganan",
       "description": "Paket, status, dan masa berlaku organisasi ini.",
-      "plan": "Paket",
+      "plan": "Upgrade Paket",
       "manual": "Faktur manual",
       "status": "Status",
       "expiresOn": "Berlaku hingga",
@@ -868,6 +968,7 @@
       "actions": "Actions"
     },
     "empty": "Belum ada transaksi.",
+    "noTransactionsFound": "Tidak ada transaksi yang cocok.",
     "linked": "Terhubung ke faktur",
     "link": {
       "title": "Tautkan ke faktur",

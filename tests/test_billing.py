@@ -1049,3 +1049,239 @@ class TestPayExtendsExpiry:
 
         superadmin.post(f"/api/v1/billing/invoices/{invoice['id']}/pay", json={})
         assert "expiresOn" not in _subscription(superadmin, org_id)
+
+
+def _owner_org(app, superadmin, username):
+    org_id = _create_org(
+        superadmin, name=username.title(), slug=username
+    ).get_json()["id"]
+    owner, owner_id = _new_user(app, username)
+    _add_member(superadmin, org_id, owner_id, role="owner")
+    return owner, org_id
+
+
+class TestPlanSwitch:
+    def test_owner_switch_creates_switch_invoice_not_new_plan(self, app, superadmin):
+        owner, org_id = _owner_org(app, superadmin, "switcher")
+        target = default_plan_id(superadmin, "professional")
+
+        response = owner.post(
+            f"/api/v1/billing/organizations/{org_id}/plan-switch",
+            json={"planId": target},
+        )
+        assert response.status_code == 201, response.get_json()
+        invoice = response.get_json()
+        assert invoice["tier"] == "professional"
+        assert invoice["amount"] == 500_000
+        assert invoice["status"] == "issued"
+        assert invoice["planId"] == target
+
+        # The subscription keeps the old plan; no invoice yet for the new one.
+        sub = _subscription(owner, org_id)
+        assert sub["tier"] == "community"
+        assert sub["planId"] == default_plan_id(superadmin, "community")
+
+    def test_only_one_switch_can_be_pending(self, app, superadmin):
+        owner, org_id = _owner_org(app, superadmin, "twoswitch")
+        other = _create_plan(superadmin, name="Switch Co", price=100_000)
+        posted = owner.post(
+            f"/api/v1/billing/organizations/{org_id}/plan-switch",
+            json={"planId": default_plan_id(superadmin, "professional")},
+        )
+        assert posted.status_code == 201, posted.get_json()
+
+        response = owner.post(
+            f"/api/v1/billing/organizations/{org_id}/plan-switch",
+            json={"planId": other["id"]},
+        )
+        assert response.status_code == 422
+        assert response.get_json() == {"message": "plan_switch_pending"}
+
+    def test_paying_switch_invoice_applies_plan_and_reanchors_term(
+        self, app, superadmin
+    ):
+        owner, org_id = _owner_org(app, superadmin, "payswitch")
+        target = default_plan_id(superadmin, "professional")
+        invoice = owner.post(
+            f"/api/v1/billing/organizations/{org_id}/plan-switch",
+            json={"planId": target},
+        ).get_json()
+
+        paid = superadmin.post(f"/api/v1/billing/invoices/{invoice['id']}/pay", json={})
+        assert paid.status_code == 200
+
+        sub = _subscription(owner, org_id)
+        assert sub["planId"] == target
+        assert sub["tier"] == "professional"
+        started = datetime.fromisoformat(sub["startedOn"])
+        assert started == datetime.fromisoformat(invoice["periodStart"])
+        assert datetime.fromisoformat(sub["expiresOn"]) == datetime.fromisoformat(
+            invoice["periodEnd"]
+        )
+
+    def test_paying_switch_invoice_reactivates_expired_org(self, app, superadmin):
+        owner, org_id = _owner_org(app, superadmin, "expiredswitch")
+        _set_subscription(
+            app, org_id, expires_on=datetime.now(UTC) - timedelta(days=1),
+            status="expired",
+        )
+        invoice = owner.post(
+            f"/api/v1/billing/organizations/{org_id}/plan-switch",
+            json={"planId": default_plan_id(superadmin, "professional")},
+        ).get_json()
+
+        superadmin.post(f"/api/v1/billing/invoices/{invoice['id']}/pay", json={})
+
+        sub = _subscription(owner, org_id)
+        assert sub["status"] == "active"
+        assert sub["tier"] == "professional"
+
+    def test_paying_switch_invoice_keeps_cancelled_status(self, app, superadmin):
+        owner, org_id = _owner_org(app, superadmin, "cancelledswitch")
+        _set_subscription(app, org_id, status="cancelled")
+        invoice = owner.post(
+            f"/api/v1/billing/organizations/{org_id}/plan-switch",
+            json={"planId": default_plan_id(superadmin, "professional")},
+        ).get_json()
+
+        superadmin.post(f"/api/v1/billing/invoices/{invoice['id']}/pay", json={})
+
+        sub = _subscription(owner, org_id)
+        assert sub["tier"] == "professional"
+        assert sub["status"] == "cancelled"
+
+    def test_switch_preserves_feature_flag_overrides(self, app, superadmin):
+        owner, org_id = _owner_org(app, superadmin, "flagswitch")
+        _assign_plan(
+            superadmin,
+            org_id,
+            default_plan_id(superadmin, "community"),
+            featureFlags={"custom_domain": True},
+        )
+        invoice = owner.post(
+            f"/api/v1/billing/organizations/{org_id}/plan-switch",
+            json={"planId": default_plan_id(superadmin, "professional")},
+        ).get_json()
+
+        superadmin.post(f"/api/v1/billing/invoices/{invoice['id']}/pay", json={})
+
+        assert _subscription(owner, org_id)["featureFlags"] == {"custom_domain": True}
+
+    def test_voiding_switch_invoice_cancels_pending_switch(self, app, superadmin):
+        owner, org_id = _owner_org(app, superadmin, "voidswitch")
+        invoice = owner.post(
+            f"/api/v1/billing/organizations/{org_id}/plan-switch",
+            json={"planId": default_plan_id(superadmin, "professional")},
+        ).get_json()
+
+        voided = superadmin.post(f"/api/v1/billing/invoices/{invoice['id']}/void", json={})
+        assert voided.status_code == 200
+
+        again = owner.post(
+            f"/api/v1/billing/organizations/{org_id}/plan-switch",
+            json={"planId": default_plan_id(superadmin, "professional")},
+        )
+        assert again.status_code == 201
+
+    def test_manual_plan_cannot_be_switched_self_service(self, app, superadmin):
+        plan = _create_plan(superadmin, name="Manual Pro", price=None)
+        owner, org_id = _owner_org(app, superadmin, "manualswitch")
+        response = owner.post(
+            f"/api/v1/billing/organizations/{org_id}/plan-switch",
+            json={"planId": plan["id"]},
+        )
+        assert response.status_code == 422
+        assert response.get_json() == {"message": "plan_not_self_serviceable"}
+
+    def test_same_plan_rejected(self, app, superadmin):
+        owner, org_id = _owner_org(app, superadmin, "sameplan")
+        response = owner.post(
+            f"/api/v1/billing/organizations/{org_id}/plan-switch",
+            json={"planId": default_plan_id(superadmin, "community")},
+        )
+        assert response.status_code == 422
+        assert response.get_json() == {"message": "plan_already_current"}
+
+    def test_inactive_plan_rejected(self, app, superadmin):
+        plan = _create_plan(
+            superadmin, name="Dormant", price=100000, is_active=False
+        )
+        owner, org_id = _owner_org(app, superadmin, "dormantswitch")
+        response = owner.post(
+            f"/api/v1/billing/organizations/{org_id}/plan-switch",
+            json={"planId": plan["id"]},
+        )
+        assert response.status_code == 422
+        assert response.get_json() == {"message": "plan_inactive"}
+
+    def test_unknown_plan_rejected(self, app, superadmin):
+        owner, org_id = _owner_org(app, superadmin, "nosuchplan")
+        response = owner.post(
+            f"/api/v1/billing/organizations/{org_id}/plan-switch",
+            json={"planId": "no-such-plan"},
+        )
+        assert response.status_code == 404
+        assert response.get_json() == {"message": "plan_not_found"}
+
+    def test_plain_member_cannot_switch(self, app, superadmin, member):
+        org_id = _create_org(superadmin).get_json()["id"]
+        member_id = member.get("/api/v1/auth/me").get_json()["id"]
+        _add_member(superadmin, org_id, member_id, role="member")
+        response = member.post(
+            f"/api/v1/billing/organizations/{org_id}/plan-switch",
+            json={"planId": default_plan_id(superadmin, "professional")},
+        )
+        assert response.status_code == 403
+
+    def test_outsider_cannot_switch(self, app, superadmin):
+        org_id = _create_org(superadmin).get_json()["id"]
+        owner, _ = _new_user(app, "switchoutsider")
+        response = owner.post(
+            f"/api/v1/billing/organizations/{org_id}/plan-switch",
+            json={"planId": default_plan_id(superadmin, "professional")},
+        )
+        assert response.status_code == 403
+
+    def test_switch_invoice_listed_with_plan_id(self, app, superadmin):
+        owner, org_id = _owner_org(app, superadmin, "listswitch")
+        posted = owner.post(
+            f"/api/v1/billing/organizations/{org_id}/plan-switch",
+            json={"planId": default_plan_id(superadmin, "professional")},
+        )
+        assert posted.status_code == 201
+
+        body = owner.get(f"/api/v1/billing/organizations/{org_id}/invoices").get_json()
+        switch = next(i for i in body["items"] if i.get("planId"))
+        assert switch["number"] == posted.get_json()["number"]
+
+        # Ordinary invoices omit the planId key.
+        ordinary = [
+            i for i in body["items"] if not i.get("planId")
+        ]
+        assert ordinary == [] or all("planId" not in i for i in ordinary)
+
+
+class TestOrgInvoicesStatusFilter:
+    def test_status_filter_issued_and_paid(self, app, superadmin):
+        org_id = _create_org(superadmin).get_json()["id"]
+        body = superadmin.get(
+            f"/api/v1/billing/organizations/{org_id}/invoices"
+        ).get_json()
+        assert body["items"]
+
+        issued = superadmin.get(
+            f"/api/v1/billing/organizations/{org_id}/invoices?status=issued"
+        ).get_json()
+        paid = superadmin.get(
+            f"/api/v1/billing/organizations/{org_id}/invoices?status=paid"
+        ).get_json()
+        assert [i["status"] for i in issued["items"]] == ["issued"] * len(issued["items"])
+        assert paid["items"] == []
+
+    def test_invalid_status_rejected(self, app, superadmin):
+        org_id = _create_org(superadmin).get_json()["id"]
+        response = superadmin.get(
+            f"/api/v1/billing/organizations/{org_id}/invoices?status=bogus"
+        )
+        assert response.status_code == 400
+        assert response.get_json() == {"message": "invalid_status"}

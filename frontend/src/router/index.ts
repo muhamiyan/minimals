@@ -8,6 +8,7 @@ import {
 
 import { i18n } from '@/app/i18n'
 import AppShell from '@/app/AppShell.vue'
+import { accountRoutes } from '@/features/account/routes'
 import { authRoutes } from '@/features/auth/routes'
 import { useAuthStore } from '@/features/auth/store'
 import { billingRoutes } from '@/features/billing/routes'
@@ -40,6 +41,7 @@ const routes: RouteRecordRaw[] = [
       ...billingRoutes,
       ...goakalRoutes,
       ...infraRoutes,
+      ...accountRoutes,
     ],
   },
   { path: '/:pathMatch(.*)*', redirect: '/' },

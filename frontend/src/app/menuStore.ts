@@ -2,9 +2,9 @@ import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 
 import { i18n } from '@/app/i18n'
+import { api, getErrorMessage } from '@/shared/api'
 import { useAuthStore } from '@/features/auth/store'
 import { useTenancyStore } from '@/features/tenancy/store'
-import { api, getErrorMessage } from '@/shared/api'
 import {
   orderedNavItems,
   visibleNavItems,
@@ -27,18 +27,17 @@ export const useMenuStore = defineStore('menu', () => {
   const saving = ref(false)
   const error = ref('')
 
-  const auth = useAuthStore()
-  const tenancy = useTenancyStore()
-
   let confirmed: MenuPreference = { order: [], hidden: [] }
   let generation = 0
 
+  const auth = useAuthStore()
+  const tenancy = useTenancyStore()
+  const isAdmin = computed(() => auth.user?.appRole === 'admin')
+
   function allowed(item: NavItem): boolean {
+    if (item.requireAdmin && !isAdmin.value) return false
     if (item.feature && !tenancy.hasFeature(item.feature)) return false
     const isSuperadmin = auth.user?.appRole === 'superadmin'
-    // Domain mode only explains why a *feature* is disabled — it never
-    // hides the console menu from the superadmin who manages the plan.
-    // Superadmin bypasses mode; everyone else is hidden during maintenance.
     if (
       item.domain &&
       !isSuperadmin &&

@@ -11,6 +11,7 @@ import {
 } from 'frappe-ui/list'
 
 import ListHead from '@/shared/components/ListHead.vue'
+import { LIST_ROW_SURFACE_CLASS } from '@/shared/listRow'
 
 import { MEMBER_ROLES, roleLabel, useTenancyStore } from '../store'
 
@@ -128,16 +129,21 @@ watch(
     />
   </div>
 
-  <div v-if="store.membersLoading" class="flex justify-center py-6">
-    <Spinner />
-  </div>
-  <ErrorMessage v-else-if="store.membersError" :message="store.membersError" />
+  <div>
+    <div v-if="store.membersLoading" class="flex justify-center py-10">
+      <Spinner />
+    </div>
+    <ErrorMessage v-else-if="store.membersError" :message="store.membersError" />
 
-  <div
-    v-else-if="store.members.length"
-    class="overflow-hidden rounded-6 border border-outline-gray-1"
-  >
-    <List class="list-row-px-3" :columns="memberColumns">
+    <div
+      v-else-if="!store.members.length"
+      class="flex flex-col items-center gap-2 py-10 text-center"
+    >
+      <span class="lucide-users size-8 text-ink-gray-4" aria-hidden="true" />
+      <p class="text-p-sm text-ink-gray-5">{{ t('tenancy.members.empty') }}</p>
+    </div>
+
+    <List v-else class="list-row-px-3" :columns="memberColumns">
       <ListHead>
         <ListHeaderCell>{{ t('tenancy.members.columnMember') }}</ListHeaderCell>
           <ListHeaderCell>{{ t('tenancy.fields.role') }}</ListHeaderCell>
@@ -146,7 +152,7 @@ watch(
           </ListHeaderCell>
       </ListHead>
       <ListRows :items="store.members" row-key="id" v-slot="{ item }">
-        <ListRow>
+        <ListRow :class="LIST_ROW_SURFACE_CLASS">
           <ListCell class="min-w-0">
             <div class="min-w-0">
               <div class="truncate text-base-medium text-ink-gray-8">
@@ -177,8 +183,6 @@ watch(
       </ListRows>
     </List>
   </div>
-
-  <p v-else class="text-p-sm text-ink-gray-5">{{ t('tenancy.members.empty') }}</p>
 
   <Dialog
     v-model:open="memberDialogOpen"

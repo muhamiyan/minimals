@@ -7,17 +7,16 @@ import {
   Combobox,
   Dialog,
   ErrorMessage,
-  FormControl,
-  PageHeader,
   Spinner,
+  TextInput,
   toast,
 } from 'frappe-ui'
-import type { ListColumnsByBreakpoint } from 'frappe-ui/list'
 import { List, ListCell, ListHeaderCell, ListRow, ListRows } from 'frappe-ui/list'
 
-import PageBreadcrumbs from '@/shared/components/PageBreadcrumbs.vue'
+import AppPageHeader from '@/shared/shell/AppPageHeader.vue'
 import ListFoot from '@/shared/components/ListFoot.vue'
 import ListHead from '@/shared/components/ListHead.vue'
+import ListState from '@/shared/components/ListState.vue'
 import ListToolbar from '@/shared/components/ListToolbar.vue'
 import { useListControls } from '@/shared/composables/useListControls'
 import { formatDate, formatRupiah } from '@/shared/format'
@@ -26,10 +25,10 @@ import { useAuthStore } from '@/features/auth/store'
 import { useBillingStore, type Invoice } from '@/features/billing/store'
 import { useGoakalStore, type GoakalTransaction } from '../store'
 
-const listColumns: ListColumnsByBreakpoint = {
-  base: ['minmax(0,1fr)', '140px'],
-  md: ['minmax(0,1fr)', '120px', '130px', '140px'],
-  lg: ['minmax(0,1fr)', '120px', '130px', '140px', '140px'],
+// base: Payer, Status, Actions — md: + Amount, Paid at
+const columns = {
+  base: ['minmax(0,1fr)', '6rem', '6rem'],
+  md: ['minmax(0,2fr)', '6rem', '7rem', '9rem', '6rem'],
 }
 
 const auth = useAuthStore()
@@ -39,23 +38,19 @@ const { t } = useI18n()
 
 const isSuperadmin = computed(() => auth.user?.appRole === 'superadmin')
 
-// Gate: superadmin-only console; render only once myOrgs/listing read is
-// ready so the list never flashes the empty default before real data.
-const gateReady = computed(() => auth.checked && !store.listLoading && store.settings !== null)
+const initialLoaded = ref(false)
+const gateReady = computed(() => auth.checked && initialLoaded.value)
+
+const empty = computed(() => !store.listLoading && store.items.length === 0)
 
 const { search, perPage, reload, goToPage } = useListControls({
-  fetch: (query) => store.fetchList(query),
   setPage: (page) => store.setPage(page),
+  fetch: (query) => store.fetchList(query),
 })
 
-onMounted(() => {
-  store.setPage(1)
-  if (isSuperadmin.value) {
-    void reload()
-    void store.fetchSettings()
-  } else if (auth.checked) {
-    void store.fetchSettings()
-  }
+onMounted(async () => {
+  await Promise.all([reload(), store.fetchSettings()])
+  initialLoaded.value = true
 })
 
 const linkOpen = ref(false)
@@ -90,6 +85,23 @@ async function confirmLink() {
   }
 }
 
+const linkActions = computed(() => [
+  {
+    label: t('shared.cancel'),
+    variant: 'ghost' as const,
+    theme: 'gray' as const,
+    onClick: ({ close }: { close: () => void }) => close(),
+  },
+  {
+    label: t('goakal.actions.link'),
+    variant: 'solid' as const,
+    disabled: !linkInvoiceId.value,
+    onClick: async () => {
+      await confirmLink()
+    },
+  },
+])
+
 const secretOpen = ref(false)
 const secretValue = ref('')
 
@@ -103,6 +115,24 @@ async function confirmSecret() {
   }
 }
 
+const secretActions = computed(() => [
+  {
+    label: t('shared.cancel'),
+    variant: 'ghost' as const,
+    theme: 'gray' as const,
+    onClick: ({ close }: { close: () => void }) => close(),
+  },
+  {
+    label: t('billing.actions.save'),
+    variant: 'solid' as const,
+    loading: store.settingsSaving,
+    disabled: !secretValue.value.trim(),
+    onClick: async () => {
+      await confirmSecret()
+    },
+  },
+])
+
 function statusTheme(status: string): 'green' | 'blue' | 'gray' {
   if (status === 'PAID') return 'green'
   if (status === 'UNPAID') return 'blue'
@@ -111,179 +141,169 @@ function statusTheme(status: string): 'green' | 'blue' | 'gray' {
 </script>
 
 <template>
-  <div class="mx-auto w-full max-w-6xl space-y-3 px-5 py-6">
-    <PageHeader :title="t('nav.goakal')" :subtitle="t('goakal.subtitle')">
-      <PageBreadcrumbs slot="breadcrumb" />
-      <template v-if="isSuperadmin" #actions>
-        <Button :label="t('goakal.actions.settings')" @click="secretOpen = true" />
-      </template>
-    </PageHeader>
+  <AppPageHeader>
+    <template #default>
+      <Button
+        v-if="isSuperadmin"
+        variant="solid"
+        theme="gray"
+        icon-left="lucide-key-round"
+        :label="t('goakal.actions.settings')"
+        @click="secretOpen = true"
+      />
+    </template>
+    <template #suffix>
+      <Button
+        v-if="isSuperadmin"
+        variant="ghost"
+        theme="gray"
+        icon="lucide-key-round"
+        :label="t('goakal.actions.settings')"
+        @click="secretOpen = true"
+      />
+    </template>
+  </AppPageHeader>
 
+  <div v-if="!gateReady" class="flex justify-center py-10">
+    <Spinner />
+  </div>
+
+  <div v-else class="mx-auto w-full max-w-6xl space-y-4 px-5 py-6">
     <p class="text-p-sm text-ink-gray-7">{{ t('goakal.description') }}</p>
 
-    <div
-      v-if="!gateReady"
-      class="flex justify-center rounded-6 border border-outline-gray-1 bg-surface-elevation-2 py-10"
-    >
-      <Spinner />
-    </div>
+    <ListToolbar
+      v-model:search="search"
+      v-model:per-page="perPage"
+      :show-per-page="!empty"
+      :placeholder="t('goakal.filter.search')"
+    />
 
-    <div v-else class="space-y-3">
-      <ListToolbar
-        v-model:search="search"
-        v-model:per-page="perPage"
-        :placeholder="t('goakal.filter.search')"
-      />
-
-      <ErrorMessage v-if="store.listError" :message="store.listError" />
-
-      <div
-        v-if="store.items.length"
-        class="overflow-hidden rounded-6 border border-outline-gray-1 bg-surface-elevation-2"
+    <div>
+      <ListState
+        :loading="store.listLoading"
+        :error="store.listError"
+        :empty="empty"
+        icon="lucide-receipt-text"
+        :empty-message="search ? t('goakal.noTransactionsFound') : t('goakal.empty')"
       >
-        <List class="list-row-px-3" :columns="listColumns">
+        <List :row-height="32" :columns="columns" class="list-row-px-3">
           <ListHead>
             <ListHeaderCell>{{ t('goakal.columns.payer') }}</ListHeaderCell>
-            <ListHeaderCell class="hidden md:flex">{{ t('goakal.columns.status') }}</ListHeaderCell>
-            <ListHeaderCell class="hidden md:flex">{{ t('goakal.columns.amount') }}</ListHeaderCell>
-            <ListHeaderCell class="hidden lg:flex">{{ t('goakal.columns.paidAt') }}</ListHeaderCell>
-            <ListHeaderCell class="hidden justify-end md:flex">
-              <span class="sr-only">{{ t('goakal.columns.actions') }}</span>
+            <ListHeaderCell>{{ t('goakal.columns.status') }}</ListHeaderCell>
+            <ListHeaderCell class="max-md:hidden">
+              {{ t('goakal.columns.amount') }}
+            </ListHeaderCell>
+            <ListHeaderCell class="max-md:hidden">
+              {{ t('goakal.columns.paidAt') }}
+            </ListHeaderCell>
+            <ListHeaderCell class="sr-only">
+              {{ t('goakal.columns.actions') }}
             </ListHeaderCell>
           </ListHead>
-          <ListRows :items="store.items" row-key="id" v-slot="{ item }">
-          <ListRow>
-            <ListCell class="min-w-0">
-              <div class="min-w-0">
-                <div class="truncate text-base-medium text-ink-gray-8">
-                  {{ item.email || item.name || item.externalId }}
-                </div>
-                <div class="truncate text-p-xs text-ink-gray-5">
-                  {{ item.externalId }}
-                </div>
-              </div>
-            </ListCell>
-            <ListCell class="hidden md:flex">
-              <Badge :label="item.status" :theme="statusTheme(item.status)" variant="subtle" />
-            </ListCell>
-            <ListCell class="hidden md:flex">
-              <span class="text-p-sm text-ink-gray-6">
-                {{ item.amount != null ? formatRupiah(item.amount) : '—' }}
-              </span>
-            </ListCell>
-            <ListCell class="hidden lg:flex">
-              <span class="text-p-sm text-ink-gray-6">
-                {{ item.paidOn ? formatDate(item.paidOn) : '—' }}
-              </span>
-            </ListCell>
-            <ListCell class="hidden justify-end md:flex">
-              <Button
-                v-if="!item.invoiceId && isSuperadmin"
-                variant="ghost"
-                :loading="store.linkingId === item.id"
-                :label="t('goakal.actions.link')"
-                @click="openLink(item)"
-              />
-              <span v-else-if="item.invoiceId" class="text-p-sm text-ink-gray-6">
-                {{ t('goakal.linked') }}
-              </span>
-            </ListCell>
-          </ListRow>
-        </ListRows>
-      </List>
-    </div>
 
-    <div
-      v-else-if="store.listError"
-      class="flex justify-center rounded-6 border border-outline-gray-1 bg-surface-elevation-2 py-8"
-    >
-      <Button
-        :label="t('billing.actions.retry')"
-        variant="outline"
-        icon-left="lucide-refresh-cw"
-        @click="reload"
+          <ListRows :items="store.items" v-slot="{ item }">
+            <ListRow :value="item.id">
+              <ListCell>
+                <div class="flex min-w-0 flex-col">
+                  <span class="truncate text-base-medium text-ink-gray-8">
+                    {{ item.email || item.name || item.externalId }}
+                  </span>
+                  <span class="truncate text-p-sm text-ink-gray-5">
+                    {{ item.externalId }}
+                  </span>
+                </div>
+              </ListCell>
+              <ListCell>
+                <Badge
+                  :label="item.status"
+                  :theme="statusTheme(item.status)"
+                  variant="subtle"
+                />
+              </ListCell>
+              <ListCell class="max-md:hidden">
+                <span class="text-p-sm text-ink-gray-6">
+                  {{ item.amount != null ? formatRupiah(item.amount) : '—' }}
+                </span>
+              </ListCell>
+              <ListCell class="max-md:hidden">
+                <span class="text-p-sm text-ink-gray-6">
+                  {{ item.paidOn ? formatDate(item.paidOn) : '—' }}
+                </span>
+              </ListCell>
+              <ListCell>
+                <Button
+                  v-if="!item.invoiceId && isSuperadmin"
+                  variant="ghost"
+                  theme="gray"
+                  icon="lucide-link"
+                  :label="t('goakal.actions.link')"
+                  :loading="store.linkingId === item.id"
+                  @click.stop="openLink(item)"
+                />
+                <Badge
+                  v-else-if="item.invoiceId"
+                  :label="t('goakal.linked')"
+                  theme="green"
+                  variant="subtle"
+                />
+              </ListCell>
+            </ListRow>
+          </ListRows>
+        </List>
+      </ListState>
+
+      <ListFoot
+        v-if="!store.listLoading && !store.listError && !empty"
+        :total="store.total"
+        :page="store.page"
+        :per-page="perPage"
+        @update:page="goToPage"
       />
     </div>
 
-    <div
-      v-else
-      class="rounded-6 border border-outline-gray-1 bg-surface-elevation-2 px-5 py-10 text-center"
-    >
-      <p class="text-p-sm text-ink-gray-5">{{ t('goakal.empty') }}</p>
-    </div>
-
-    <ListFoot
-      :total="store.total"
-      :page="store.page"
-      :per-page="perPage"
-      @page="goToPage"
-    />
-      </div>
-
     <ErrorMessage v-if="gateReady && store.linkError" :message="store.linkError" />
-
-    <Dialog
-      v-model:open="linkOpen"
-      :title="t('goakal.link.title')"
-      :options="{ width: 'md' }"
-    >
-      <template #body>
-        <div class="flex flex-col gap-4 p-5">
-          <Combobox
-            v-model="linkInvoiceId"
-            :options="linkInvoiceOptions"
-            :loading="linkInvoiceLoading"
-            :label="t('goakal.link.invoice')"
-          />
-          <ErrorMessage
-            v-if="!linkInvoiceLoading && linkInvoiceOptions.length === 0"
-            :message="t('goakal.link.noInvoices')"
-          />
-        </div>
-      </template>
-      <template #actions>
-        <div class="flex justify-end gap-2 p-5">
-          <Button variant="ghost" :label="t('billing.actions.cancel')" @click="linkOpen = false" />
-          <Button
-            :label="t('goakal.actions.link')"
-            :disabled="!linkInvoiceId"
-            @click="confirmLink"
-          />
-        </div>
-      </template>
-    </Dialog>
-
-    <Dialog
-      v-model:open="secretOpen"
-      :title="t('goakal.settings.title')"
-      :options="{ width: 'md' }"
-    >
-      <template #body>
-        <div class="flex flex-col gap-4 p-5">
-          <p class="text-p-sm text-ink-gray-7">{{ t('goakal.settings.description') }}</p>
-          <p v-if="store.settings?.configured" class="text-p-sm text-ink-gray-7">
-            {{ t('goakal.settings.configured') }}
-          </p>
-          <FormControl
-            v-model="secretValue"
-            type="text"
-            :label="t('goakal.settings.secret')"
-            :placeholder="t('goakal.settings.secretPlaceholder')"
-          />
-          <ErrorMessage v-if="store.settingsSaveError" :message="store.settingsSaveError" />
-        </div>
-      </template>
-      <template #actions>
-        <div class="flex justify-end gap-2 p-5">
-          <Button variant="ghost" :label="t('billing.actions.cancel')" @click="secretOpen = false" />
-          <Button
-            :label="t('billing.actions.save')"
-            :loading="store.settingsSaving"
-            :disabled="!secretValue.trim()"
-            @click="confirmSecret"
-          />
-        </div>
-      </template>
-    </Dialog>
   </div>
+
+  <Dialog
+    v-model:open="linkOpen"
+    :title="t('goakal.link.title')"
+    icon="lucide-link"
+    size="md"
+    :actions="linkActions"
+  >
+    <div class="space-y-4">
+      <Combobox
+        v-model="linkInvoiceId"
+        :options="linkInvoiceOptions"
+        :loading="linkInvoiceLoading"
+        :label="t('goakal.link.invoice')"
+      />
+      <ErrorMessage
+        v-if="!linkInvoiceLoading && linkInvoiceOptions.length === 0"
+        :message="t('goakal.link.noInvoices')"
+      />
+    </div>
+  </Dialog>
+
+  <Dialog
+    v-model:open="secretOpen"
+    :title="t('goakal.settings.title')"
+    icon="lucide-key-round"
+    size="md"
+    :actions="secretActions"
+  >
+    <div class="space-y-4">
+      <p class="text-p-sm text-ink-gray-7">{{ t('goakal.settings.description') }}</p>
+      <p v-if="store.settings?.configured" class="text-p-sm text-ink-gray-7">
+        {{ t('goakal.settings.configured') }}
+      </p>
+      <TextInput
+        v-model="secretValue"
+        type="text"
+        :label="t('goakal.settings.secret')"
+        :placeholder="t('goakal.settings.secretPlaceholder')"
+      />
+      <ErrorMessage v-if="store.settingsSaveError" :message="store.settingsSaveError" />
+    </div>
+  </Dialog>
 </template>

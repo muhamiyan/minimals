@@ -32,6 +32,11 @@ export interface PlanInput {
   isActive: boolean
 }
 
+export interface FeatureCategory {
+  key: string
+  features: string[]
+}
+
 interface Paged<T> {
   items: T[]
   total: number
@@ -59,6 +64,7 @@ export const usePlansStore = defineStore('plans', () => {
   const loading = ref(false)
   const loadError = ref('')
   const featureKeys = ref<string[]>([])
+  const featureCategories = ref<FeatureCategory[]>([])
   const featureKeysError = ref('')
   const actionError = ref('')
   const saving = ref(false)
@@ -121,9 +127,13 @@ export const usePlansStore = defineStore('plans', () => {
     if (featureKeysInFlight) return featureKeysInFlight
     featureKeysError.value = ''
     const request = api
-      .get<{ features: string[] }>('/plans/features')
+      .get<{ features: string[]; categories?: FeatureCategory[] }>('/plans/features')
       .then(({ data }) => {
-        featureKeys.value = data.features ?? []
+        const keys = data.features ?? []
+        featureKeys.value = keys
+        featureCategories.value = data.categories?.length
+          ? data.categories
+          : [{ key: 'other', features: keys }]
       })
       .catch((e: any) => {
         featureKeysError.value = getErrorMessage(
@@ -203,6 +213,7 @@ export const usePlansStore = defineStore('plans', () => {
     loading.value = false
     loadError.value = ''
     featureKeys.value = []
+    featureCategories.value = []
     featureKeysError.value = ''
     featureKeysInFlight = null
     optionsInFlight = null
@@ -220,6 +231,7 @@ export const usePlansStore = defineStore('plans', () => {
     loading,
     loadError,
     featureKeys,
+    featureCategories,
     featureKeysError,
     actionError,
     saving,

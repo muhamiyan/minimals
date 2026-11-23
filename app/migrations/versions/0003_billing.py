@@ -31,6 +31,7 @@ def upgrade() -> None:
         sa.Column("issued_on", sa.DateTime(timezone=True), nullable=False),
         sa.Column("due_on", sa.DateTime(timezone=True), nullable=False),
         sa.Column("paid_on", sa.DateTime(timezone=True), nullable=True),
+        sa.Column("plan_id", sa.String(length=36), nullable=True),
         sa.Column("created_on", sa.DateTime(timezone=True), nullable=False, server_default=sa.func.now()),
         sa.Column("changed_on", sa.DateTime(timezone=True), nullable=False, server_default=sa.func.now()),
         sa.UniqueConstraint("organization_id", "period_start", name="uq_invoices_org_period"),

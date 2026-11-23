@@ -13,8 +13,10 @@ import {
 } from 'frappe-ui/list'
 
 import ListHead from '@/shared/components/ListHead.vue'
+import ListRowOpenButton from '@/shared/components/ListRowOpenButton.vue'
 import PageBreadcrumbs from '@/shared/components/PageBreadcrumbs.vue'
 import { formatDate, formatRupiah } from '@/shared/format'
+import { LIST_ROW_SURFACE_CLASS } from '@/shared/listRow'
 import InvoicePrintDialog from '@/features/billing/components/InvoicePrintDialog.vue'
 import {
   invoiceStatusLabel,
@@ -98,7 +100,7 @@ watch(
   </PageHeader>
 
   <div class="mx-auto w-full max-w-6xl space-y-4 px-5 py-6">
-    <div v-if="store.myOrgsLoading && !org" class="flex justify-center py-16">
+    <div v-if="store.myOrgsLoading && !org" class="flex justify-center py-10">
       <Spinner />
     </div>
 
@@ -162,19 +164,24 @@ watch(
           </p>
         </div>
 
-        <div v-if="billing.orgInvoicesLoading" class="flex justify-center py-6">
-          <Spinner />
-        </div>
-        <ErrorMessage
-          v-else-if="billing.orgInvoicesError"
-          :message="billing.orgInvoicesError"
-        />
+        <div>
+          <div v-if="billing.orgInvoicesLoading" class="flex justify-center py-10">
+            <Spinner />
+          </div>
+          <ErrorMessage
+            v-else-if="billing.orgInvoicesError"
+            :message="billing.orgInvoicesError"
+          />
 
-        <div
-          v-else-if="billing.orgInvoices.length"
-          class="overflow-hidden rounded-6 border border-outline-gray-1"
-        >
-          <List class="list-row-px-3" :columns="invoiceColumns">
+          <div
+            v-else-if="!billing.orgInvoices.length"
+            class="flex flex-col items-center gap-2 py-10 text-center"
+          >
+            <span class="lucide-receipt-text size-8 text-ink-gray-4" aria-hidden="true" />
+            <p class="text-p-sm text-ink-gray-5">{{ t('billing.org.none') }}</p>
+          </div>
+
+          <List v-else class="list-row-px-3" :columns="invoiceColumns">
             <ListHead>
               <ListHeaderCell>{{ t('billing.columns.invoice') }}</ListHeaderCell>
               <ListHeaderCell class="hidden md:flex">
@@ -189,8 +196,12 @@ watch(
               </ListHeaderCell>
             </ListHead>
             <ListRows :items="billing.orgInvoices" row-key="id" v-slot="{ item }">
-              <ListRow>
+              <ListRow :class="LIST_ROW_SURFACE_CLASS">
                 <ListCell class="min-w-0">
+                  <ListRowOpenButton
+                    :label="`${t('billing.actions.print')}: ${item.number}`"
+                    @click="openPrint(item)"
+                  />
                   <div class="min-w-0">
                     <div class="truncate text-base-medium text-ink-gray-8">
                       {{ item.number }}
@@ -222,6 +233,7 @@ watch(
                     icon="lucide-printer"
                     :label="t('billing.actions.print')"
                     variant="ghost"
+                    class="relative"
                     @click="openPrint(item)"
                   />
                 </ListCell>
@@ -229,8 +241,6 @@ watch(
             </ListRows>
           </List>
         </div>
-
-        <p v-else class="text-p-sm text-ink-gray-5">{{ t('billing.org.none') }}</p>
       </section>
 
       <section
@@ -251,15 +261,11 @@ watch(
       </section>
     </template>
 
-    <div
-      v-else
-      class="rounded-6 border border-outline-gray-1 bg-surface-elevation-2 px-5 py-8"
-    >
+    <div v-else class="space-y-4">
       <ErrorMessage
         :message="store.myOrgsError || t('tenancy.org.notFound')"
       />
       <Button
-        class="mt-4"
         :label="t('tenancy.org.back')"
         variant="outline"
         icon-left="lucide-arrow-left"

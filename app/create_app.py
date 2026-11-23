@@ -118,6 +118,7 @@ def create_app() -> Flask:
         from app.account.preference_api import bp as account_preference_bp
         from app.auth import bp as auth_bp
         from app.billing import bp as billing_bp
+        from app.dashboard import bp as dashboard_bp
         from app.goakal import bp as goakal_bp
         from app.infra.api import bp as app_api_bp
         from app.infra.brand_api import bp as brand_bp
@@ -141,6 +142,7 @@ def create_app() -> Flask:
         app.register_blueprint(account_api_key_bp)
         app.register_blueprint(account_preference_bp)
         app.register_blueprint(tenancy_bp)
+        app.register_blueprint(dashboard_bp)
         app.register_blueprint(todo_bp)
         app.register_blueprint(billing_bp)
         app.register_blueprint(goakal_bp)

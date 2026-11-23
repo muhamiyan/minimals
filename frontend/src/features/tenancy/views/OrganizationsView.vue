@@ -172,100 +172,93 @@ async function submitSettings(): Promise<void> {
 
     <ErrorMessage v-if="store.listError" :message="store.listError" />
 
-    <div
-      v-if="store.items.length"
-      class="overflow-hidden rounded-6 border border-outline-gray-1 bg-surface-elevation-2"
-    >
-      <List class="list-row-px-3" :columns="listColumns">
-        <ListHead>
-          <ListHeaderCell>{{ t('tenancy.console.name') }}</ListHeaderCell>
-          <ListHeaderCell class="hidden md:flex">{{ t('tenancy.console.tier') }}</ListHeaderCell>
-          <ListHeaderCell>{{ t('tenancy.console.status') }}</ListHeaderCell>
-          <ListHeaderCell class="hidden lg:flex">{{ t('tenancy.console.members') }}</ListHeaderCell>
-          <ListHeaderCell class="hidden lg:flex">{{ t('tenancy.console.created') }}</ListHeaderCell>
-        </ListHead>
-        <ListRows :items="store.items" row-key="id" v-slot="{ item }">
-          <ListRow :route="{ name: 'TenancyOrg', params: { orgId: item.id } }">
-            <ListCell class="min-w-0">
-              <div class="min-w-0">
-                <div class="truncate text-base-medium text-ink-gray-8">
-                  {{ item.name }}
+    <div>
+      <div v-if="store.listLoading" class="flex justify-center py-10">
+        <Spinner />
+      </div>
+
+      <div v-else-if="store.listError" class="flex justify-center py-8">
+        <Button
+          :label="t('tenancy.console.retry')"
+          variant="outline"
+          icon-left="lucide-refresh-cw"
+          @click="reload"
+        />
+      </div>
+
+      <div
+        v-else-if="!store.items.length"
+        class="flex flex-col items-center gap-2 py-10 text-center"
+      >
+        <span class="lucide-building-2 size-8 text-ink-gray-4" aria-hidden="true" />
+        <p class="text-p-sm text-ink-gray-5">
+          {{
+            search ? t('tenancy.console.emptySearch') : t('tenancy.console.empty')
+          }}
+        </p>
+        <Button
+          v-if="!search"
+          :label="t('tenancy.console.newOrg')"
+          icon-left="lucide-plus"
+          variant="solid"
+          theme="gray"
+          @click="openCreate"
+        />
+      </div>
+
+      <template v-else>
+        <List class="list-row-px-3" :columns="listColumns">
+          <ListHead>
+            <ListHeaderCell>{{ t('tenancy.console.name') }}</ListHeaderCell>
+            <ListHeaderCell class="hidden md:flex">{{ t('tenancy.console.tier') }}</ListHeaderCell>
+            <ListHeaderCell>{{ t('tenancy.console.status') }}</ListHeaderCell>
+            <ListHeaderCell class="hidden lg:flex">{{ t('tenancy.console.members') }}</ListHeaderCell>
+            <ListHeaderCell class="hidden lg:flex">{{ t('tenancy.console.created') }}</ListHeaderCell>
+          </ListHead>
+          <ListRows :items="store.items" row-key="id" v-slot="{ item }">
+            <ListRow :route="{ name: 'TenancyOrg', params: { orgId: item.id } }">
+              <ListCell class="min-w-0">
+                <div class="min-w-0">
+                  <div class="truncate text-base-medium text-ink-gray-8">
+                    {{ item.name }}
+                  </div>
+                  <div class="truncate text-p-xs text-ink-gray-5">
+                    {{ item.slug }}
+                  </div>
                 </div>
-                <div class="truncate text-p-xs text-ink-gray-5">
-                  {{ item.slug }}
-                </div>
-              </div>
-            </ListCell>
-            <ListCell class="hidden md:flex">
-              <Badge
-                :label="tierLabel(item.subscription)"
-                :theme="tierTheme(item.subscription)"
-                variant="subtle"
-              />
-            </ListCell>
-            <ListCell>
-              <Badge
-                :label="statusLabel(item.subscription)"
-                :theme="statusTheme(item.subscription)"
-                variant="subtle"
-              />
-            </ListCell>
-            <ListCell class="hidden lg:flex">
-              <span class="text-p-sm text-ink-gray-6">{{ item.memberCount }}</span>
-            </ListCell>
-            <ListCell class="hidden lg:flex">
-              <span class="text-p-sm text-ink-gray-5">
-                {{ formatDate(item.createdOn) }}
-              </span>
-            </ListCell>
-          </ListRow>
-        </ListRows>
-      </List>
-      <ListFoot
-        :total="store.total"
-        :page="store.page"
-        :per-page="perPage"
-        @update:page="goToPage"
-      />
-    </div>
-
-    <div
-      v-else-if="store.listLoading"
-      class="flex justify-center rounded-6 border border-outline-gray-1 bg-surface-elevation-2 py-10"
-    >
-      <Spinner />
-    </div>
-
-    <div
-      v-else-if="store.listError"
-      class="flex justify-center rounded-6 border border-outline-gray-1 bg-surface-elevation-2 py-8"
-    >
-      <Button
-        :label="t('tenancy.console.retry')"
-        variant="outline"
-        icon-left="lucide-refresh-cw"
-        @click="reload"
-      />
-    </div>
-
-    <div
-      v-else
-      class="rounded-6 border border-outline-gray-1 bg-surface-elevation-2 px-5 py-10 text-center"
-    >
-      <p class="text-p-sm text-ink-gray-5">
-        {{
-          search ? t('tenancy.console.emptySearch') : t('tenancy.console.empty')
-        }}
-      </p>
-      <Button
-        v-if="!search"
-        class="mt-4"
-        :label="t('tenancy.console.newOrg')"
-        icon-left="lucide-plus"
-        variant="solid"
-        theme="gray"
-        @click="openCreate"
-      />
+              </ListCell>
+              <ListCell class="hidden md:flex">
+                <Badge
+                  :label="tierLabel(item.subscription)"
+                  :theme="tierTheme(item.subscription)"
+                  variant="subtle"
+                />
+              </ListCell>
+              <ListCell>
+                <Badge
+                  :label="statusLabel(item.subscription)"
+                  :theme="statusTheme(item.subscription)"
+                  variant="subtle"
+                />
+              </ListCell>
+              <ListCell class="hidden lg:flex">
+                <span class="text-p-sm text-ink-gray-6">{{ item.memberCount }}</span>
+              </ListCell>
+              <ListCell class="hidden lg:flex">
+                <span class="text-p-sm text-ink-gray-5">
+                  {{ formatDate(item.createdOn) }}
+                </span>
+              </ListCell>
+            </ListRow>
+          </ListRows>
+        </List>
+        <ListFoot
+          :total="store.total"
+          :page="store.page"
+          :per-page="perPage"
+          @update:page="goToPage"
+        />
+      </template>
     </div>
   </div>
 

@@ -10,14 +10,22 @@ months, anchored at the subscription start); amounts are the plan price at
 generation time. Paying can record the amount actually received. Generation
 is idempotent via the unique ``(organization_id, period_start)`` constraint
 and never backfills past periods — the first call covers only the current
-one.
+one. A self-service switch (``request_plan_switch``) creates an invoice
+carrying ``plan_id`` instead: the subscription keeps its plan until that
+invoice is paid, and ``mark_paid`` performs the actual switch — the old
+plan is never observed as changed by an unpaid request.
 """
 from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING
 
-from app.billing.dto import BillingSettingsIn, InvoiceCreateIn, InvoicePayIn
+from app.billing.dto import (
+    BillingSettingsIn,
+    InvoiceCreateIn,
+    InvoicePayIn,
+    PlanSwitchIn,
+)
 from app.billing.models import CURRENCY, Invoice
 from app.billing.repositories import InvoiceRepository
 from app.infra.audit import log as audit_log
@@ -27,6 +35,7 @@ from app.infra.billing_settings import (
     save_billing_settings,
 )
 from app.plans.duration import period_bounds, period_index
+from app.plans.repositories import PlanRepository
 from app.tenancy.repositories import (
     MembershipRepository,
     OrganizationRepository,
@@ -79,11 +88,13 @@ class BillingService(ServiceBase[InvoiceRepository]):
         orgs: OrganizationRepository | None = None,
         subs: SubscriptionRepository | None = None,
         members: MembershipRepository | None = None,
+        plans: PlanRepository | None = None,
     ):
         super().__init__(repo)
         self._organizations = orgs or OrganizationRepository()
         self._subscriptions = subs or SubscriptionRepository()
         self._memberships = members or MembershipRepository()
+        self._plans = plans or PlanRepository()
 
     # --- generation ----------------------------------------------------
     def _next_number(self, year: int) -> str:
@@ -338,6 +349,76 @@ class BillingService(ServiceBase[InvoiceRepository]):
             raise Conflict("invoice_period_exists")
         raise Conflict("integrity_error")
 
+    # --- self-service plan switch --------------------------------------
+    def request_plan_switch(self, org_id: str, dto: PlanSwitchIn, *, actor_id: str) -> Invoice:
+        """Create the invoice a self-service switch is paid with.
+
+        The subscription keeps the old plan until this invoice is paid;
+        ``mark_paid`` performs the actual switch. Only one switch can be
+        pending per organization; a superadmin voiding the invoice cancels
+        the request. Manual plans (no price) cannot be self-served.
+        """
+        org = self._organizations.get(org_id)
+        if org is None:
+            raise NotFound("organization_not_found")
+        if not org.active:
+            raise InvalidOperation("organization_inactive")
+
+        sub = self._subscriptions.find_by_org(org_id)
+        if sub is None:
+            raise NotFound("subscription_not_found")
+
+        plan = self._plans.get(dto.plan_id)
+        if plan is None:
+            raise NotFound("plan_not_found")
+        if not plan.is_active:
+            raise InvalidOperation("plan_inactive")
+        if plan.price is None:
+            raise InvalidOperation("plan_not_self_serviceable")
+        if sub.plan_id == plan.id:
+            raise InvalidOperation("plan_already_current")
+        if self._repo.find_pending_switch(org_id) is not None:
+            raise InvalidOperation("plan_switch_pending")
+
+        now = datetime.now(UTC)
+        start, end = period_bounds(
+            now, 0, plan.duration_value, plan.duration_unit
+        )
+        for _attempt in range(GENERATION_ATTEMPTS):
+            if self._repo.find_by_org_and_period(org_id, start) is not None:
+                raise Conflict("invoice_period_exists")
+            invoice = self._build_invoice(
+                organization_id=org_id,
+                tier=plan.tier,
+                amount=plan.price,
+                start=start,
+                end=end,
+                now=now,
+            )
+            invoice.plan_id = plan.id
+            self._repo.add(invoice)
+            try:
+                self._flush()
+                audit_log(
+                    "plan_switch_requested",
+                    user_id=actor_id,
+                    resource=f"billing/invoices/{invoice.id}",
+                    details={
+                        "number": invoice.number,
+                        "amount": invoice.amount,
+                        "planId": plan.id,
+                        "tier": plan.tier,
+                        "organizationId": org_id,
+                    },
+                )
+                self._commit()
+            except Conflict:
+                continue
+            return invoice
+        if self._repo.find_by_org_and_period(org_id, start) is not None:
+            raise Conflict("invoice_period_exists")
+        raise Conflict("integrity_error")
+
     # --- reads ---------------------------------------------------------
     def list_invoices(
         self,
@@ -385,10 +466,17 @@ class BillingService(ServiceBase[InvoiceRepository]):
         )
 
     def list_org_invoices(
-        self, org_id: str, *, page: int = 1, per_page: int = 20
+        self,
+        org_id: str,
+        *,
+        page: int = 1,
+        per_page: int = 20,
+        status: str | None = None,
     ) -> tuple[list[Invoice], int]:
         self.ensure_generated([org_id])
-        return self._repo.list_invoices(org_ids=[org_id], page=page, per_page=per_page)
+        return self._repo.list_invoices(
+            org_ids=[org_id], status=status, page=page, per_page=per_page
+        )
 
     def get_invoice(self, invoice_id: str) -> Invoice:
         invoice = self._repo.get(invoice_id)
@@ -470,7 +558,37 @@ class BillingService(ServiceBase[InvoiceRepository]):
             raise InvalidOperation("invoice_not_payable")
 
         sub = self._subscriptions.find_by_org(invoice.organization_id)
-        if sub is not None and sub.expires_on is not None:
+        if sub is not None and invoice.plan_id:
+            # A switch invoice: the plan changes only now, anchored to the
+            # paid period — the old plan (and its expiry tail) is replaced.
+            plan = self._plans.get(invoice.plan_id)
+            if plan is not None and plan.is_active:
+                started = _as_utc(invoice.period_start)
+                sub.plan_id = plan.id
+                sub.started_on = started
+                sub.expires_on = period_end
+                if sub.status == "expired":
+                    sub.status = "active"
+                audit_log(
+                    "subscription_plan_switch",
+                    user_id=actor_id,
+                    resource=f"organizations/{sub.organization_id}/subscription",
+                    details={
+                        "planId": plan.id,
+                        "tier": plan.tier,
+                        "invoiceNumber": invoice.number,
+                    },
+                )
+            else:
+                # The target plan disappeared or was deactivated before
+                # payment; the invoice is still paid, the plan stays.
+                audit_log(
+                    "plan_switch_skipped",
+                    user_id=actor_id,
+                    resource=f"billing/invoices/{invoice.id}",
+                    details={"planId": invoice.plan_id, "reason": "plan_unavailable"},
+                )
+        elif sub is not None and sub.expires_on is not None:
             expires = max(_as_utc(sub.expires_on), period_end)
             sub.expires_on = expires
             if sub.status == "expired" and expires > datetime.now(UTC):

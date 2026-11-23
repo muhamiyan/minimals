@@ -5,25 +5,28 @@ import { useI18n } from 'vue-i18n'
 import {
   Avatar,
   DesktopShell,
-  MobileNav,
   MobileNavItem,
   MobileShell,
-  Sidebar,
-  SidebarCollapseToggle,
   SidebarHeader,
-  SidebarItem,
-  SidebarSection,
 } from 'frappe-ui'
 
 import { useAuthStore } from '@/features/auth/store'
 import { useBillingStore } from '@/features/billing/store'
+import { useDashboardStore } from '@/features/dashboard/store'
+import { usePlanStore } from '@/features/plan/store'
 import { usePlansStore } from '@/features/plans/store'
 import { useTenancyStore } from '@/features/tenancy/store'
 import { useTodoStore } from '@/features/todo/store'
 import ForbiddenDialog from '@/shared/components/ForbiddenDialog.vue'
-import { brand, useBrandLogo } from '@/shared/brand'
+import BrandLogo from '@/shared/components/BrandLogo.vue'
+import MobileBottomNav from '@/shared/shell/MobileBottomNav.vue'
+import MobileMenuSheet from '@/shared/shell/MobileMenuSheet.vue'
+import ShellSidebar from '@/shared/shell/ShellSidebar.vue'
+import type { ShellNavItem } from '@/shared/shell/types'
+import { useMediaQuery } from '@/shared/composables/useMediaQuery'
+import { brand } from '@/shared/brand'
 import { useMenuStore } from './menuStore'
-import { useMediaQuery } from './useMediaQuery'
+import { mobileNavItems } from './navigation'
 import ThemeSwitcher from './ThemeSwitcher.vue'
 import UserSettingsDialog from './UserSettingsDialog.vue'
 
@@ -34,6 +37,8 @@ const menu = useMenuStore()
 const tenancy = useTenancyStore()
 const billing = useBillingStore()
 const plans = usePlansStore()
+const dashboard = useDashboardStore()
+const plan = usePlanStore()
 const todo = useTodoStore()
 const { t } = useI18n()
 
@@ -62,8 +67,6 @@ const isFullscreen = computed(
 const isDesktop = useMediaQuery('(min-width: 640px)')
 
 const displayName = computed(() => auth.user?.fullName || auth.user?.email || '')
-
-const { logoSrc, onLogoError } = useBrandLogo()
 
 const sidebarCollapsed = ref(false)
 const settingsOpen = ref(false)
@@ -121,11 +124,34 @@ const headerMenu = computed(() => {
   ]
 })
 
+// The shell components take resolved rows: labels are translated here and the
+// active state follows the route name (nav keys mirror route names).
+const menuItems = computed<ShellNavItem[]>(() =>
+  menu.items.map((item) => ({
+    key: item.key,
+    label: t(item.labelKey),
+    icon: item.icon,
+    route: item.route,
+    active: String(route.name) === item.key,
+  })),
+)
+const tabItems = computed<ShellNavItem[]>(() =>
+  mobileNavItems(menu.items).map((item) => ({
+    key: item.key,
+    label: t(item.mobileLabelKey ?? item.labelKey),
+    icon: item.icon,
+    route: item.route,
+    active: String(route.name) === item.key,
+  })),
+)
+
 async function onLogout() {
   await auth.logout()
   tenancy.resetMyOrgs()
+  dashboard.reset()
   billing.reset()
   plans.reset()
+  plan.reset()
   todo.reset()
   await router.replace('/login')
 }
@@ -136,43 +162,29 @@ async function onLogout() {
 
   <DesktopShell v-else-if="isDesktop" :scroll="route.meta.scroll !== false">
     <template #sidebar>
-      <Sidebar v-model:collapsed="sidebarCollapsed" class="border-r">
-        <SidebarHeader
-          :title="brand.name"
-          :subtitle="displayName"
-          :menu-items="headerMenu"
-        >
-          <template #prefix>
-            <img
-              v-if="logoSrc"
-              :src="logoSrc"
-              alt="Logo"
-              class="h-full w-full object-cover"
-              @error="onLogoError"
-            />
-            <div
-              v-else
-              class="flex h-full w-full items-center justify-center bg-surface-gray-4 text-ink-gray-7"
-            >
-              {{ brand.name.charAt(0).toUpperCase() }}
-            </div>
-          </template>
-        </SidebarHeader>
-        <div class="flex-1 overflow-y-auto space-y-0.5 px-2 pb-2">
-          <SidebarSection :label="t('menu.section')">
-            <SidebarItem
-              v-for="item in menu.items"
-              :key="item.key"
-              :label="t(item.labelKey)"
-              :icon="item.icon"
-              :route="item.route"
-            />
-          </SidebarSection>
-        </div>
-        <div class="px-2 pb-2">
-          <SidebarCollapseToggle />
-        </div>
-      </Sidebar>
+      <ShellSidebar
+        v-model:collapsed="sidebarCollapsed"
+        :items="menuItems"
+        :section-label="t('menu.section')"
+      >
+        <template #header>
+          <SidebarHeader
+            :title="brand.name"
+            :subtitle="displayName"
+            :menu-items="headerMenu"
+          >
+            <template #prefix>
+              <BrandLogo size="fill" :alt="brand.name">
+                <div
+                  class="flex h-full w-full items-center justify-center bg-surface-gray-4 text-ink-gray-7"
+                >
+                  {{ brand.name.charAt(0).toUpperCase() }}
+                </div>
+              </BrandLogo>
+            </template>
+          </SidebarHeader>
+        </template>
+      </ShellSidebar>
     </template>
 
     <router-view />
@@ -182,14 +194,7 @@ async function onLogout() {
     <router-view />
 
     <template #nav>
-      <MobileNav>
-        <MobileNavItem
-          v-for="item in menu.items"
-          :key="item.key"
-          :label="t(item.mobileLabelKey ?? item.labelKey)"
-          :icon="item.icon"
-          :route="item.route"
-        />
+      <MobileBottomNav :items="tabItems">
         <MobileNavItem
           :label="t('settings.profile.title')"
           :active="settingsOpen"
@@ -199,13 +204,16 @@ async function onLogout() {
             <Avatar
               :label="displayName"
               size="md"
+              shape="circle"
               :class="active ? 'ring-2 ring-outline-gray-4' : ''"
             />
           </template>
         </MobileNavItem>
-      </MobileNav>
+      </MobileBottomNav>
     </template>
   </MobileShell>
+
+  <MobileMenuSheet :items="menuItems" :title="t('menu.menu')" @logout="onLogout" />
 
   <UserSettingsDialog
     v-model:open="settingsOpen"

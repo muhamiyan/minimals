@@ -155,6 +155,7 @@ Tidak ada CLI generator di project ini (berbeda dengan root `cells`).
 | GET | /api/v1/account/users | List users (admin) |
 | GET | /api/v1/account/users/:id | Fetch one user (owner or admin) |
 | PATCH | /api/v1/account/users/:id | Update user (admin) |
+| POST | /api/v1/account/users | Create user with chosen appRole (admin) |
 | GET | /api/v1/account/roles | List roles (admin) |
 | POST | /api/v1/account/roles | Create role (admin) |
 | PATCH | /api/v1/account/roles/:id | Update role (admin) |
@@ -186,21 +187,24 @@ Tidak ada CLI generator di project ini (berbeda dengan root `cells`).
 | PUT | /api/v1/tenancy/settings | Update member quota, 0 = no limit (superadmin) |
 | GET | /api/v1/tenancy/settings/modes | Domain operational modes (session) |
 | PUT | /api/v1/tenancy/settings/domains/:domain | Set a domain operational mode (superadmin) |
+| GET | /api/v1/dashboard/stats | Platform statistics: orgs, users, subscriptions, invoices, revenue (superadmin) |
 | GET | /api/v1/todo/organizations/:orgId | List organization todo (paginated, `?search=&completed=&page=&per_page=`), requires `todo` feature (superadmin or member) |
 | POST | /api/v1/todo/organizations/:orgId | Create a todo, requires `todo` feature (superadmin or member) |
 | PUT | /api/v1/todo/organizations/:orgId/:todoId | Update a todo, partial update, requires `todo` feature (superadmin or member) |
 | DELETE | /api/v1/todo/organizations/:orgId/:todoId | Delete a todo, requires `todo` feature (superadmin or member) |
 | GET | /api/v1/plans | List plans (paginated, `?search=&page=&per_page=`), optional `?tier=` filter (superadmin) |
-| GET | /api/v1/plans/features | Feature registry keys for the plan editor (superadmin) |
+| GET | /api/v1/plans/catalog | Plan catalog, active + inactive, for the self-service plan page (session) |
+| GET | /api/v1/plans/features | Feature registry keys + categories for the plan editor (superadmin) |
 | POST | /api/v1/plans | Create a plan (superadmin) |
 | PUT | /api/v1/plans/:id | Update a plan, partial update (superadmin) |
 | DELETE | /api/v1/plans/:id | Delete an unused plan (superadmin) |
 | GET | /api/v1/billing/invoices | List invoices (superadmin or org owner, paginated) |
 | POST | /api/v1/billing/invoices | Create an invoice manually (superadmin) |
+| POST | /api/v1/billing/organizations/:id/plan-switch | Create the invoice that a self-service plan switch is paid with; applies when paid (owner) |
 | GET | /api/v1/billing/invoices/:id | Fetch invoice (superadmin or org owner) |
 | POST | /api/v1/billing/invoices/:id/pay | Mark invoice paid (superadmin) |
 | POST | /api/v1/billing/invoices/:id/void | Void invoice (superadmin) |
-| GET | /api/v1/billing/organizations/:id/invoices | List organization invoices (superadmin or org owner) |
+| GET | /api/v1/billing/organizations/:id/invoices | List organization invoices (superadmin or org owner, paginated, `?status=` filter) |
 | GET | /api/v1/billing/settings | Billing settings: trial, renewal lead (superadmin) |
 | PUT | /api/v1/billing/settings | Update billing settings, partial update (superadmin) |
 | POST | /api/v1/goakal/webhook | Goakal payment webhook (guest, HMAC-verified, CSRF-exempt) |
@@ -418,6 +422,26 @@ src/
   `route.<Name>.*` di **kedua** locale.
 - **401 global**: interceptor fire event `auth:unauthorized` → router
   redirect. **Jangan** tangani 401 per-request.
+- **Async readiness gate di View**: template utama dirender hanya setelah
+  fetch backend selesai, cegah flash UI default. Pola kanonik per View:
+  `const gateReady = computed(...)` dari state store yang sudah ada
+  (tanpa ubah store/API), `onMounted` fetch jika belum terisi, lalu
+  `<Spinner v-if="!gateReady" />` + `<div v-else>...</div>`.
+  Contoh: Dashboard `auth.checked`; Setup
+  `setup.status !== null || setup.statusFailed`; Login
+  `auth.checked && auth.registrationMode !== null`; Register
+  `!!auth.user || auth.registrationMode !== null`. Wajib fail-safe:
+  error fetch tetap membuka gate (store harus set flag `checked`/
+  `statusFailed` di `finally`), jangan spinner selamanya. Jangan
+  tambah `gateReady` ke store kalau computed view cukup. **Gate wajib
+  `v-else`** — jangan dua `v-if` independen.
+- **Pola list**: tanpa card wrapper. Chain state lewat
+  `shared/components/ListState.vue`: `loading` → `<Spinner>` di
+  `flex justify-center py-10`, `error` → `ErrorMessage`, `empty` → icon
+  centered tanpa border + pesan `shared.noResults` (override prop
+  `emptyMessage`) + slot `#action` opsional, lalu default slot untuk
+  `<List>`. `ListFoot` di-guard `v-if="!empty"` di luar `ListState`.
+  Prop `icon` harus literal string. Detail: skill `wiring` §List pages.
 - **Ikon**: `lucide-*` (string, via unplugin-icons). Shape:
   `<span class="lucide-log-in size-6" aria-hidden="true" />` atau
   `:icon-left="'lucide-log-in'"`.

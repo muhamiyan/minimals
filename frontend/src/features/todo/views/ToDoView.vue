@@ -26,9 +26,12 @@ import {
 import PageBreadcrumbs from '@/shared/components/PageBreadcrumbs.vue'
 import ListFoot from '@/shared/components/ListFoot.vue'
 import ListHead from '@/shared/components/ListHead.vue'
+import ListRowOpenButton from '@/shared/components/ListRowOpenButton.vue'
+import ListState from '@/shared/components/ListState.vue'
 import ListToolbar from '@/shared/components/ListToolbar.vue'
 import { useListControls } from '@/shared/composables/useListControls'
 import { formatDate } from '@/shared/format'
+import { LIST_ROW_SURFACE_CLASS } from '@/shared/listRow'
 
 import { useTenancyStore } from '@/features/tenancy/store'
 import {
@@ -83,6 +86,10 @@ const { search, perPage, reload, goToPage } = useListControls({
 
 const isFiltered = computed(
   () => search.value.trim() !== '' || status.value !== 'all',
+)
+
+const empty = computed(
+  () => !store.loading && store.items.length === 0,
 )
 
 function onStatusChange(value: SelectOptionValue | null | undefined): void {
@@ -203,32 +210,20 @@ async function confirmDelete(): Promise<void> {
     />
   </PageHeader>
 
-  <div
-    v-if="!gateReady"
-    class="flex justify-center rounded-6 border border-outline-gray-1 bg-surface-elevation-2 py-10"
-  >
+  <div v-if="!gateReady" class="flex justify-center py-10">
     <Spinner />
   </div>
 
-  <div class="mx-auto w-full max-w-6xl space-y-3 px-5 py-6">
-    <div
-      v-if="!org"
-      class="rounded-6 border border-outline-gray-1 bg-surface-elevation-2 px-5 py-10 text-center text-p-sm text-ink-gray-5"
-    >
+  <div v-else class="mx-auto w-full max-w-6xl space-y-4 px-5 py-6">
+    <div v-if="!org" class="py-10 text-center text-p-sm text-ink-gray-5">
       {{ t('todo.noOrgFeature') }}
     </div>
 
-    <div
-      v-else-if="tenancy.activeFeaturesLoading"
-      class="flex justify-center rounded-6 border border-outline-gray-1 bg-surface-elevation-2 py-10"
-    >
+    <div v-else-if="tenancy.activeFeaturesLoading" class="flex justify-center py-10">
       <Spinner />
     </div>
 
-    <div
-      v-else-if="tenancy.activeFeaturesError"
-      class="space-y-4 rounded-6 border border-outline-gray-1 bg-surface-elevation-2 p-5"
-    >
+    <div v-else-if="tenancy.activeFeaturesError" class="space-y-4">
       <ErrorMessage :message="tenancy.activeFeaturesError" />
       <Button
         :label="t('todo.retry')"
@@ -250,7 +245,7 @@ async function confirmDelete(): Promise<void> {
       <ListToolbar
         v-model:search="search"
         v-model:per-page="perPage"
-        :show-per-page="store.items.length > 0"
+        :show-per-page="!empty"
         :placeholder="t('todo.searchPlaceholder')"
       >
         <Select
@@ -261,12 +256,14 @@ async function confirmDelete(): Promise<void> {
         />
       </ListToolbar>
 
-      <ErrorMessage v-if="store.error" :message="store.error" />
-
-      <div
-        v-if="store.items.length"
-        class="overflow-hidden rounded-6 border border-outline-gray-1 bg-surface-elevation-2"
-      >
+      <div>
+        <ListState
+          :loading="store.loading"
+          :error="store.listError"
+          :empty="empty"
+          icon="lucide-list-todo"
+          :empty-message="isFiltered ? t('todo.emptyFiltered') : t('todo.empty')"
+        >
         <List class="list-row-px-3" :columns="listColumns">
           <ListHead>
             <ListHeaderCell>{{ t('todo.columns.title') }}</ListHeaderCell>
@@ -277,8 +274,12 @@ async function confirmDelete(): Promise<void> {
             </ListHeaderCell>
           </ListHead>
           <ListRows :items="store.items" row-key="id" v-slot="{ item }">
-            <ListRow>
+            <ListRow :class="LIST_ROW_SURFACE_CLASS">
               <ListCell class="min-w-0">
+                <ListRowOpenButton
+                  :label="`${t('todo.edit.title')}: ${item.title}`"
+                  @click="openEdit(item)"
+                />
                 <div class="min-w-0">
                   <div
                     class="truncate text-base-medium"
@@ -308,12 +309,14 @@ async function confirmDelete(): Promise<void> {
                   <Button
                     icon="lucide-check"
                     variant="ghost"
+                    class="relative"
                     :label="item.completed ? t('todo.actions.reopen') : t('todo.actions.complete')"
                     @click="toggle(item)"
                   />
                   <Button
                     icon="lucide-pencil"
                     variant="ghost"
+                    class="relative"
                     :label="t('todo.actions.edit')"
                     @click="openEdit(item)"
                   />
@@ -321,6 +324,7 @@ async function confirmDelete(): Promise<void> {
                     icon="lucide-trash-2"
                     variant="ghost"
                     theme="red"
+                    class="relative"
                     :label="t('todo.actions.delete')"
                     @click="openDelete(item)"
                   />
@@ -329,28 +333,14 @@ async function confirmDelete(): Promise<void> {
             </ListRow>
           </ListRows>
         </List>
+        </ListState>
         <ListFoot
+          v-if="!store.loading && !store.listError && store.items.length"
           :total="store.total"
           :page="store.page"
           :per-page="perPage"
           @update:page="goToPage"
         />
-      </div>
-
-      <div
-        v-else-if="store.loading"
-        class="flex justify-center rounded-6 border border-outline-gray-1 bg-surface-elevation-2 py-10"
-      >
-        <Spinner />
-      </div>
-
-      <div
-        v-else
-        class="rounded-6 border border-outline-gray-1 bg-surface-elevation-2 px-5 py-10 text-center"
-      >
-        <p class="text-p-sm text-ink-gray-5">
-          {{ isFiltered ? t('todo.emptyFiltered') : t('todo.empty') }}
-        </p>
       </div>
     </template>
   </div>
@@ -384,8 +374,16 @@ async function confirmDelete(): Promise<void> {
             :label="t('todo.fields.dueDate')"
             clearable
           />
-          <div class="flex items-center">
-            <Switch v-model="form.completed" :label="t('todo.fields.completed')" />
+          <div class="space-y-1.5">
+            <label
+              for="todo-completed"
+              class="block text-sm leading-tighter text-ink-gray-6"
+            >
+              {{ t('todo.fields.completed') }}
+            </label>
+            <div class="flex h-7 items-center">
+              <Switch id="todo-completed" v-model="form.completed" />
+            </div>
           </div>
         </div>
       </form>

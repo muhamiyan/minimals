@@ -1684,3 +1684,31 @@ class TestMembersQuota:
         assert again.status_code == 200
         assert again.get_json()["alreadyMember"] is True
 
+
+class TestPlanCatalog:
+    def test_catalog_requires_auth(self, client):
+        assert client.get("/api/v1/plans/catalog").status_code == 401
+
+    def test_catalog_returns_all_plans(self, superadmin, member):
+        inactive = superadmin.post(
+            "/api/v1/plans",
+            json={
+                "name": "Hidden",
+                "tier": "professional",
+                "price": 250000,
+                "durationValue": 1,
+                "durationUnit": "months",
+                "isActive": False,
+            },
+        ).get_json()
+        response = member.get("/api/v1/plans/catalog")
+        assert response.status_code == 200
+        names = [p["name"] for p in response.get_json()["items"]]
+        assert "Community" in names
+        assert "Professional" in names
+        assert "Hidden" in names
+        hidden = next(p for p in response.get_json()["items"] if p["name"] == "Hidden")
+        assert hidden["isActive"] is False
+        assert inactive["id"] == hidden["id"]
+
+

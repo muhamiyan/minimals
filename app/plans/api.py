@@ -5,7 +5,7 @@ from flask import request
 from flask_login import current_user, login_required
 
 from app.plans.dto import PlanCreateIn, PlanUpdateIn
-from app.plans.features import FEATURE_KEYS
+from app.plans.features import FEATURE_CATEGORIES, FEATURE_KEYS
 from app.plans.presenters import PlanOut
 from app.plans.services import PlanService
 from framework.api import (
@@ -28,7 +28,23 @@ def list_features():
     if denied := require_role("superadmin"):
         return denied
 
-    return ok({"features": list(FEATURE_KEYS)})
+    return ok(
+        {
+            "features": list(FEATURE_KEYS),
+            "categories": [
+                {"key": category, "features": list(keys)}
+                for category, keys in FEATURE_CATEGORIES.items()
+            ],
+        }
+    )
+
+
+@bp.get("/catalog")
+@login_required
+def list_catalog():
+    return ok(
+        {"items": [PlanOut.from_plan(p).to_dict() for p in PlanService().catalog()]}
+    )
 
 
 @bp.get("")

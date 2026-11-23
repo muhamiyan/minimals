@@ -44,6 +44,7 @@ export const useTodoStore = defineStore('todo', () => {
   const page = ref(1)
   const loading = ref(false)
   const error = ref('')
+  const listError = ref('')
   const saving = ref(false)
   const deletingId = ref<string | null>(null)
   let listSeq = 0
@@ -58,6 +59,7 @@ export const useTodoStore = defineStore('todo', () => {
     const seq = ++listSeq
     loading.value = true
     error.value = ''
+    listError.value = ''
     try {
       const { data } = await api.get<Paged<Todo>>(baseUrl(orgId), {
         params: {
@@ -74,7 +76,7 @@ export const useTodoStore = defineStore('todo', () => {
       page.value = data.page ?? page.value
     } catch (e: any) {
       if (seq !== listSeq) return
-      error.value = getErrorMessage(e, i18n.global.t('todo.errors.list'))
+      listError.value = getErrorMessage(e, i18n.global.t('todo.errors.list'))
     } finally {
       if (seq === listSeq) loading.value = false
     }
@@ -147,6 +149,7 @@ export const useTodoStore = defineStore('todo', () => {
     page.value = 1
     loading.value = false
     error.value = ''
+    listError.value = ''
     saving.value = false
     deletingId.value = null
     lastQuery = { search: '', perPage: 20, completed: 'all' }
@@ -158,6 +161,7 @@ export const useTodoStore = defineStore('todo', () => {
     page,
     loading,
     error,
+    listError,
     saving,
     deletingId,
     list,

@@ -35,6 +35,8 @@ export interface Invoice {
   status: string
   periodStart: string
   periodEnd: string
+  /** Present only on self-service switch invoices — the plan applied on payment. */
+  planId?: string | null
   issuedOn: string
   dueOn: string
   /** Absent on the wire until the invoice is paid (exclude_none). */

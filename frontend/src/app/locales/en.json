@@ -8,7 +8,9 @@
     "billing": "Billing",
     "infrastructure": "Infrastructure",
     "todo": "Todo",
-    "goakal": "Goakal"
+    "goakal": "Goakal",
+    "plan": "Plan",
+    "users": "Users"
   },
   "menu": {
     "theme": "Theme",
@@ -17,7 +19,15 @@
     "system": "System",
     "settings": "Settings",
     "logout": "Log out",
-    "section": "Menu"
+    "section": "Menu",
+    "more": "More",
+    "menu": "Menu"
+  },
+  "orgSwitcher": {
+    "title": "Organizations",
+    "switch": "Switch organization",
+    "owner": "Owner",
+    "member": "Member"
   },
   "orgSwitcher": {
     "title": "Organizations",
@@ -89,7 +99,8 @@
     "plans": "Plans",
     "infrastructure": "Infrastructure",
     "billing": "Billing",
-    "todo": "Todo"
+    "todo": "Todo",
+    "users": "Users"
   },
   "route": {
     "Login": {
@@ -106,7 +117,7 @@
     },
     "Dashboard": {
       "title": "Dashboard",
-      "description": "Your account overview: profile and roles."
+      "description": "Your dashboard: account overview, roles, and administration."
     },
     "ToDo": {
       "title": "Todo",
@@ -136,6 +147,10 @@
       "title": "Plans",
       "description": "Plan catalog: tiers, terms, prices, and defaults."
     },
+    "Plan": {
+      "title": "Plan",
+      "description": "Choose or switch the organization's plan."
+    },
     "Billing": {
       "title": "Billing",
       "description": "Invoices across organizations."
@@ -147,6 +162,10 @@
     "Goakal": {
       "title": "Goakal",
       "description": "Goakal payments and webhook secret."
+    },
+    "Users": {
+      "title": "Users",
+      "description": "User administration: roles, status, and groups."
     }
   },
   "field": {
@@ -181,6 +200,38 @@
       "length": "At least 8 characters"
     }
   },
+  "account": {
+    "searchUsers": "Search users…",
+    "noUsers": "No users yet.",
+    "noUsersFound": "No users match your search.",
+    "columns": {
+      "user": "User",
+      "appRole": "App role",
+      "roles": "Groups",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "addUser": "Add user",
+    "editUser": "Edit user",
+    "fullName": "Full name",
+    "appRole": "App role",
+    "roleUser": "User",
+    "roleAdmin": "Admin",
+    "roleNames": "Groups",
+    "rolesPlaceholder": "Select groups…",
+    "statusActive": "Active",
+    "statusInactive": "Inactive",
+    "isActive": "Active",
+    "saveChanges": "Save changes",
+    "createUser": "Create user",
+    "userUpdated": "User updated.",
+    "userCreated": "User created.",
+    "errors": {
+      "loadUsersFailed": "Couldn't load users.",
+      "updateUserFailed": "Couldn't update the user.",
+      "createUserFailed": "Couldn't create the user."
+    }
+  },
   "shared": {
     "search": "Search…",
     "perPage": "{n} / page",
@@ -190,7 +241,9 @@
     "ok": "OK",
     "close": "Close",
     "forbiddenTitle": "Access denied",
-    "forbiddenMessage": "This page requires administrator privileges. Your account is registered as a regular user. Contact an administrator to get access."
+    "forbiddenMessage": "This page requires administrator privileges. Your account is registered as a regular user. Contact an administrator to get access.",
+    "noResults": "No results found",
+    "cancel": "Cancel"
   },
   "dash": {
     "welcomeBack": "Welcome back",
@@ -203,7 +256,26 @@
     "advancedReporting": "Advanced reporting",
     "reportingEnabled": "Enabled for this organization.",
     "checkingPlan": "Checking plan…",
-    "reportingUpsell": "Part of the Professional plan. Upgrade the organization's subscription to unlock it."
+    "reportingUpsell": "Part of the Professional plan. Upgrade the organization's subscription to unlock it.",
+    "totalUsers": "Total users",
+    "registration": "Registration",
+    "registrationOpen": "Open",
+    "registrationClosed": "Closed",
+    "adminConsole": "Administration",
+    "adminConsoleHint": "Manage users, roles, and registration.",
+    "manageUsers": "Manage users",
+    "loadStatsFailed": "Could not load account stats",
+    "super": {
+      "totalOrganizations": "Organizations",
+      "revenuePaid": "Paid revenue",
+      "orgsPerMonth": "Organizations per month",
+      "organizationsSeries": "Organizations",
+      "revenuePerMonth": "Revenue per month",
+      "revenueSeries": "Revenue",
+      "subscriptionsByStatus": "Subscriptions by status",
+      "invoicesByStatus": "Invoices by status",
+      "loadFailed": "Could not load dashboard statistics"
+    }
   },
   "plans": {
     "new": "New plan",
@@ -270,6 +342,16 @@
     },
     "featuresTitle": "Features",
     "featuresDescription": "Flags granted to organizations while this plan is active.",
+    "featuresCounter": "{count} of {total} active",
+    "featuresSearchPlaceholder": "Filter features…",
+    "featuresEmptySearch": "No features match “{search}”",
+    "featureCategories": {
+      "insights": "Insights",
+      "support": "Support",
+      "platform": "Platform",
+      "productivity": "Productivity",
+      "other": "Other"
+    },
     "validation": {
       "name": "Name is required",
       "duration": "Enter a whole number between 1 and 3650",
@@ -282,6 +364,23 @@
       "create": "Failed to create plan",
       "update": "Failed to update plan",
       "delete": "Failed to delete plan"
+    }
+  },
+  "plan": {
+    "currentPlan": "Current plan",
+    "unavailable": "Unavailable",
+    "select": "Select plan",
+    "confirmTitle": "Request switch to {name}?",
+    "confirmBody": "An invoice for {price} will be created. {name} becomes your organization's plan once the invoice is paid — your current plan stays active until then.",
+    "confirm": "Create invoice",
+    "switchRequested": "Invoice {number} created — the plan applies after payment",
+    "pendingSwitch": "Switch to {name} is pending payment of invoice {number}.",
+    "pendingSwitchGeneric": "A plan switch is pending payment of invoice {number}.",
+    "viewBilling": "View billing",
+    "empty": "No plans are available yet.",
+    "errors": {
+      "load": "Failed to load the plan catalog",
+      "switch": "Failed to request the plan switch"
     }
   },
   "billing": {
@@ -319,6 +418,7 @@
     },
     "columns": {
       "invoice": "Invoice",
+      "tier": "Tier",
       "status": "Status",
       "period": "Period",
       "due": "Due",
@@ -868,6 +968,7 @@
       "actions": "Actions"
     },
     "empty": "No transactions yet.",
+    "noTransactionsFound": "No matching transactions found.",
     "linked": "Linked to invoice",
     "link": {
       "title": "Link to invoice",

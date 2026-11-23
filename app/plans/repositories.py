@@ -25,6 +25,18 @@ class PlanRepository(RepositoryBase[Plan]):
             .limit(1)
         ).first()
 
+    def list_all(self) -> list[Plan]:
+        """Full catalog for the self-service plan page.
+
+        Tiers ascend, prices ascend within a tier (manual-billed last),
+        then name — community plans always precede professional.
+        """
+        return (
+            db.session.query(Plan)
+            .order_by(Plan.tier, Plan.price.is_(None), Plan.price, Plan.name)
+            .all()
+        )
+
     def list_plans(
         self,
         *,
