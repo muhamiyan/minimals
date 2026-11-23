@@ -170,6 +170,7 @@ Tidak ada CLI generator di project ini (berbeda dengan root `cells`).
 | POST | /api/v1/blog/posts | Create post (admin) |
 | PATCH | /api/v1/blog/posts/:slug | Update post (admin) |
 | DELETE | /api/v1/blog/posts/:slug | Delete post (admin) |
+| PUT | /api/v1/brand | Update brand meta (admin) |
 | PUT | /api/v1/brand/logo | Set or clear the brand logo (admin, stored upload only) |
 | GET | /robots.txt | Crawler instructions, brand-driven (public) |
 | GET | /sitemap.xml | Canonical site URL for crawlers (public) |

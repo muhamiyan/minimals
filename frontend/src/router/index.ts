@@ -53,7 +53,8 @@ function applyHead(to: RouteLocationNormalized) {
   const descriptionKey = `route.${String(to.name)}.description`
   const description =
     (te(descriptionKey) ? t(descriptionKey) : to.meta.description) ||
-    brand.description
+    brand.description ||
+    brand.tagline
   let meta = document.querySelector<HTMLMetaElement>('meta[name="description"]')
   if (description) {
     if (!meta) {
@@ -70,6 +71,7 @@ function applyHead(to: RouteLocationNormalized) {
 router.afterEach((to) => applyHead(to))
 
 watch(i18n.global.locale, () => applyHead(router.currentRoute.value))
+window.addEventListener('brand:updated', () => applyHead(router.currentRoute.value))
 
 window.addEventListener('auth:unauthorized', () => {
   const auth = useAuthStore()

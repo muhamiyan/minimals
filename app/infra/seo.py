@@ -19,6 +19,9 @@ limiter.exempt(bp)
 
 LOGO_KEY = "logoUrl"
 
+META_KEYS = ("name", "tagline", "description", "siteUrl")
+BRAND_KEYS = (*META_KEYS, LOGO_KEY)
+
 DEFAULT_BRAND: dict[str, str] = {
     "name": "Minimals",
     "tagline": "",
@@ -34,6 +37,7 @@ BRAND_KEYS = tuple(DEFAULT_BRAND)
 PRIVATE_SEGMENTS = frozenset({"admin", "dashboard", "login", "register", "setup"})
 
 BLOG_LIST_TITLE = "Blog"
+
 
 
 def get_brand() -> dict[str, str]:
@@ -56,12 +60,17 @@ def get_brand() -> dict[str, str]:
     return brand
 
 
+def normalize_brand(brand: dict[str, str]) -> dict[str, str]:
+    """Trim brand values and restore the default name when blank."""
+    values = {key: (brand.get(key) or "").strip() for key in BRAND_KEYS}
+    if not values["name"]:
+        values["name"] = DEFAULT_BRAND["name"]
+    return values
+
+
 def save_brand(session: Session, brand: dict[str, str]) -> None:
     """Upsert brand rows into the given (setup) session."""
-    for key in BRAND_KEYS:
-        value = (brand.get(key) or "").strip()
-        if key == "name" and not value:
-            value = DEFAULT_BRAND["name"]
+    for key, value in normalize_brand(brand).items():
         row = session.execute(
             select(AppSetting).where(AppSetting.key == key)
         ).scalar_one_or_none()
@@ -334,11 +343,13 @@ __all__ = [
     "BRAND_KEYS",
     "DEFAULT_BRAND",
     "LOGO_KEY",
+    "META_KEYS",
     "SUPPORTED_LANGS",
     "bp",
     "get_app_lang",
     "get_brand",
     "index_context",
+    "normalize_brand",
     "save_app_lang",
     "save_brand",
     "validate_site_url",
