@@ -8,6 +8,8 @@ interface Brand {
   logoUrl: string
 }
 
+export type BrandMeta = Pick<Brand, 'name' | 'tagline' | 'description' | 'siteUrl'>
+
 declare global {
   interface Window {
     brand?: Brand
@@ -36,6 +38,14 @@ export function setBrandLogo(url: string) {
   brand.logoUrl = url
   const icon = document.querySelector<HTMLLinkElement>('link[rel="icon"]')
   if (icon) icon.href = url || 'data:,'
+}
+
+export function setBrandMeta(meta: BrandMeta) {
+  brand.name = meta.name
+  brand.tagline = meta.tagline
+  brand.description = meta.description
+  brand.siteUrl = meta.siteUrl
+  window.dispatchEvent(new Event('brand:updated'))
 }
 
 /**

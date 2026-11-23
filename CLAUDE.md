@@ -164,6 +164,7 @@ Tidak ada CLI generator di project ini (berbeda dengan root `cells`).
 | GET | /api/v1/app/roles | Cross-service read API (internal token or admin) |
 | POST | /api/v1/uploads | Upload image (admin, max 5 MiB, png/jpg/jpeg/webp/gif) |
 | DELETE | /api/v1/uploads/:name | Delete uploaded image (admin, idempotent 204) |
+| PUT | /api/v1/brand | Update brand meta (admin) |
 | PUT | /api/v1/brand/logo | Set or clear the brand logo (admin, stored upload only) |
 | GET | /robots.txt | Crawler instructions, brand-driven (public) |
 | GET | /sitemap.xml | Canonical site URL for crawlers (public) |

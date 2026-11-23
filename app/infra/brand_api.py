@@ -4,12 +4,21 @@ from __future__ import annotations
 from flask import request
 from flask_login import login_required
 
-from app.infra.brand_dto import BrandLogoIn
+from app.infra.brand_dto import BrandLogoIn, BrandMetaIn
 from app.infra.brand_service import BrandService
 from framework.api import BlueprintFactory, ok
 from framework.auth.helpers import require_role
 
 bp = BlueprintFactory("brand", __name__, url_prefix="/api/v1/brand")
+
+
+@bp.put("")
+@login_required
+def update_meta():
+    if denied := require_role("admin"):
+        return denied
+    dto = BrandMetaIn.validate(request.get_json(silent=True) or {})
+    return ok(BrandService().save_meta(dto))
 
 
 @bp.put("/logo")
