@@ -189,6 +189,23 @@ def test_setup_rejects_blank_admin_username(client):
     )
 
 
+def test_setup_rejects_admin_username_with_spaces(client):
+    response = client.post(
+        "/api/v1/setup",
+        json={
+            "db": {"engine": "sqlite", "path": "/tmp/minimals-rejected.db"},
+            "admin": {
+                "email": "boss@example.com",
+                "username": "boss user",
+                "password": "Str0ng!Pass",
+                "fullName": "Boss User",
+            },
+        },
+    )
+    assert response.status_code == 400
+    assert response.get_json()["message"].endswith("username_invalid_username")
+
+
 @pytest.fixture()
 def restore_engine(app):
     """Put the original engine back.

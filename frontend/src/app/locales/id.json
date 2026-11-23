@@ -137,6 +137,9 @@
       "digit": "Satu angka",
       "special": "Satu karakter khusus",
       "length": "Minimal 8 karakter"
+    },
+    "usernameRules": {
+      "noSpaces": "Nama pengguna tidak boleh mengandung spasi"
     }
   },
   "account": {
