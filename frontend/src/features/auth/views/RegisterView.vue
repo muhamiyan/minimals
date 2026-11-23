@@ -1,8 +1,9 @@
 <script setup lang="ts">
+import ShimmerPage from '@/shared/components/ShimmerPage.vue'
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { Button, ErrorMessage, FormControl, Spinner, toast } from 'frappe-ui'
+import { Button, ErrorMessage, FormControl, toast } from 'frappe-ui'
 
 import { useAuthStore } from '../store'
 import { isPasswordValid } from '../validation'
@@ -63,7 +64,7 @@ async function onSubmit() {
   <div
     class="flex min-h-screen items-center justify-center bg-surface-base p-4 text-ink-gray-8"
   >
-    <Spinner v-if="!gateReady" />
+    <ShimmerPage v-if="!gateReady" />
     <div
       v-else
       class="w-full max-w-sm rounded-6 border border-outline-gray-1 bg-surface-elevation-2 p-6"

@@ -1,0 +1,86 @@
+<script setup lang="ts">
+import { Badge } from 'frappe-ui'
+import { useI18n } from 'vue-i18n'
+
+import { contact } from '../content'
+
+const { t } = useI18n()
+
+const cards = [
+  {
+    icon: 'lucide-map-pin',
+    label: 'landing.contact.addressLabel',
+    value: contact.address,
+    href: '',
+    external: false,
+  },
+  {
+    icon: 'lucide-mail',
+    label: 'landing.contact.emailLabel',
+    value: contact.email,
+    href: `mailto:${contact.email}`,
+    external: false,
+  },
+  {
+    icon: 'lucide-message-circle',
+    label: 'landing.contact.whatsappLabel',
+    value: '0878 6470 6565',
+    href: contact.whatsapp,
+    external: true,
+  },
+  {
+    icon: 'lucide-facebook',
+    label: 'landing.contact.facebookLabel',
+    value: 'manw.selaparangkediri',
+    href: contact.facebook,
+    external: true,
+  },
+]
+</script>
+
+<template>
+  <section id="contact" class="border-t border-outline-green-2 bg-surface-green-1">
+    <div class="mx-auto w-full max-w-6xl px-5 py-20">
+      <div class="mx-auto max-w-2xl text-center">
+        <Badge theme="green" variant="outline" :label="t('landing.contact.badge')" />
+        <h2 class="mt-4 text-5xl-bold text-ink-gray-9">{{ t('landing.contact.title') }}</h2>
+        <p class="mt-3 text-p-base text-ink-gray-6">{{ t('landing.contact.lead') }}</p>
+      </div>
+
+      <div class="mx-auto mt-12 grid max-w-4xl gap-4 sm:grid-cols-2">
+        <div
+          v-for="item in cards"
+          :key="item.label"
+          class="rounded-6 border border-outline-green-2 bg-surface-base p-5"
+        >
+          <div class="w-fit rounded-4 bg-surface-green-2 p-2 text-ink-green-7">
+            <span :class="item.icon" class="size-5" aria-hidden="true" />
+          </div>
+          <p class="mt-3 text-2xs-medium uppercase tracking-wide text-ink-gray-5">
+            {{ t(item.label) }}
+          </p>
+          <a
+            v-if="item.href"
+            :href="item.href"
+            :target="item.external ? '_blank' : undefined"
+            :rel="item.external ? 'noopener noreferrer' : undefined"
+            class="mt-1 block break-all text-p-sm text-ink-green-7 hover:underline"
+          >
+            {{ item.value }}
+          </a>
+          <p v-else class="mt-1 text-p-sm text-ink-gray-8">{{ item.value }}</p>
+        </div>
+      </div>
+
+      <div class="mt-8 text-center">
+        <router-link
+          :to="{ name: 'Contact' }"
+          class="inline-flex items-center gap-1 text-p-sm-medium text-ink-green-7"
+        >
+          {{ t('landing.contact.formNote') }}
+          <span class="lucide-arrow-right size-3.5" aria-hidden="true" />
+        </router-link>
+      </div>
+    </div>
+  </section>
+</template>

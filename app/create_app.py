@@ -96,19 +96,24 @@ def create_app() -> Flask:
             run_migrations(app)
 
         from app.account.models import ApiKey, UserPreference  # noqa: F401
+        from app.activity.models import Activity  # noqa: F401
         from app.auth.models import Role, User, user_roles  # noqa: F401
         from app.blog.models import BlogPost  # noqa: F401
+        from app.contact.models import ContactMessage  # noqa: F401
         from app.infra.audit import AuditLog  # noqa: F401
         from app.infra.models import AppSetting  # noqa: F401
         from app.infra.roles import ensure_member_role
+        from app.program.models import Program  # noqa: F401
 
         ensure_member_role()
 
         from app.account import bp as account_bp
         from app.account.api_key_api import bp as account_api_key_bp
         from app.account.preference_api import bp as account_preference_bp
+        from app.activity import bp as activity_bp
         from app.auth import bp as auth_bp
         from app.blog import bp as blog_bp
+        from app.contact import bp as contact_bp
         from app.infra.api import bp as app_api_bp
         from app.infra.brand_api import bp as brand_bp
         from app.infra.csrf import bp as csrf_bp
@@ -117,8 +122,10 @@ def create_app() -> Flask:
         from app.infra.seo import index_context
         from app.infra.setup import bp as setup_bp
         from app.infra.uploads import bp as uploads_bp
+        from app.program import bp as program_bp
 
         app.register_blueprint(health_bp)
+        app.register_blueprint(activity_bp)
         app.register_blueprint(csrf_bp)
         app.register_blueprint(setup_bp)
         app.register_blueprint(seo_bp)
@@ -126,6 +133,8 @@ def create_app() -> Flask:
         app.register_blueprint(account_bp)
         app.register_blueprint(account_api_key_bp)
         app.register_blueprint(blog_bp)
+        app.register_blueprint(program_bp)
+        app.register_blueprint(contact_bp)
         app.register_blueprint(account_preference_bp)
         app.register_blueprint(app_api_bp)
         app.register_blueprint(uploads_bp)

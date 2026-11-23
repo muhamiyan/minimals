@@ -59,6 +59,31 @@ Sampai setup selesai, SPA mengarahkan semua navigasi ke `/setup`. Wizard
 + bahasa. Kalau database target beda dari engine aktif, respons meminta
 restart.
 
+Untuk deployment Yayasan Islam Selaparang, isi wizard dengan brand:
+**Yayasan Islam Selaparang**, tagline *"Pendidikan Islam berakar pada akhlak dan
+ilmu"*, `siteUrl` sesuai domain produksi, bahasa `id`.
+
+## Content seeding
+
+Konten publik disimpan version-controlled di `app/*/seed/*.json` dan diimpor
+lewat CLI. Jalankan setelah setup selesai dan pastikan sudah ada user
+`app_role=admin`:
+
+```bash
+uv run python -m app.cli seed-articles     # 12 artikel
+uv run python -m app.cli seed-activities   # 9 kegiatan
+uv run python -m app.cli seed-programs     # 7 jenjang pendidikan
+```
+
+Tiap perintah idempotent: slug yang sudah ada dilewati. Tanggal terbit asli
+dipertahankan; gambar sampul di-download dari situs sumber ke `app/static/uploads/`
+(di-git-ignore) dengan nama UUIDv7. Satu kegiatan bersampul video dilewati
+karena uploader hanya menerima gambar. Form kontak tersimpan di tabel
+`contact_messages` dan dibaca admin lewat halaman `/admin/contact`.
+
+Angka statistik di landing (`3+` siswa, `0` beasiswa) diambil apa adanya dari
+situs sumber dan perlu dikonfirmasi sebelum dipakai publik.
+
 ## White-label & SEO
 
 Brand disimpan di tabel `settings` dan di-inject server-side tiap request

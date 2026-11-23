@@ -9,9 +9,12 @@ from __future__ import annotations
 
 import click
 
+from app.activity.seed import seed_activities
+from app.blog.seed import seed_articles
 from app.infra.seo import SUPPORTED_LANGS, validate_site_url
 from app.infra.setup_dto import AdminCreateIn, BrandIn, DbConfigIn, SetupIn
 from app.infra.setup_service import SetupService
+from app.program.seed import seed_programs
 from framework.exceptions import DomainException
 
 ENGINES = ("mariadb", "sqlite", "postgresql")
@@ -126,6 +129,27 @@ def cli() -> None:
 def setup() -> None:
     """Create the schema, administrator and brand. First run only."""
     _run_setup()
+
+
+@cli.command("seed-articles")
+def seed_articles_command() -> None:
+    """Import the foundation's published articles into the blog."""
+    created, skipped = seed_articles()
+    click.echo(f"Articles created: {created}; skipped: {skipped}")
+
+
+@cli.command("seed-activities")
+def seed_activities_command() -> None:
+    """Import the foundation's published activities."""
+    created, skipped = seed_activities()
+    click.echo(f"Activities created: {created}; skipped: {skipped}")
+
+
+@cli.command("seed-programs")
+def seed_programs_command() -> None:
+    """Import the foundation's education programs."""
+    created, skipped = seed_programs()
+    click.echo(f"Programs created: {created}; skipped: {skipped}")
 
 
 def main() -> None:

@@ -1,21 +1,43 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Button, useColorScheme } from 'frappe-ui'
 
 import { useAuthStore } from '@/features/auth/store'
-import { brand } from '@/shared/brand'
-import { useStartAction } from '../useStartAction'
+import { brand, useBrandLogo } from '@/shared/brand'
 
 const { t } = useI18n()
 const auth = useAuthStore()
-const { loading, start } = useStartAction()
+const { logoSrc, onLogoError } = useBrandLogo()
 
 const { resolvedColorScheme, toggleColorScheme } = useColorScheme()
+
+const mobileMenu = ref<HTMLDetailsElement | null>(null)
+
+function closeMobileMenu() {
+  if (mobileMenu.value) mobileMenu.value.open = false
+}
 
 const themeIcon = computed(() =>
   resolvedColorScheme.value === 'dark' ? 'lucide-sun' : 'lucide-moon',
 )
+
+const anchorLinks = [{ key: 'landing.nav.home', href: '/#top' }]
+
+const infoLinks = [
+  { key: 'landing.nav.ppdb', name: 'Ppdb' },
+  { key: 'landing.nav.profile', name: 'Profile' },
+  { key: 'landing.nav.structure', name: 'Structure' },
+  { key: 'landing.nav.facilities', name: 'Facilities' },
+]
+
+const routeLinks = [
+  { key: 'landing.nav.programs', name: 'ProgramList' },
+  { key: 'landing.nav.contact', name: 'Contact' },
+  { key: 'landing.nav.activities', name: 'ActivityList' },
+  { key: 'landing.nav.gallery', name: 'Gallery' },
+  { key: 'nav.blog', name: 'BlogList' },
+]
 
 function goTop() {
   if (window.location.hash) {
@@ -27,38 +49,61 @@ function goTop() {
 
 <template>
   <header
-    class="sticky top-0 z-40 border-b border-outline-gray-1 bg-surface-base/80 backdrop-blur-md"
+    class="sticky top-0 z-40 border-b border-outline-green-2 bg-surface-base/80 backdrop-blur-md"
   >
     <div class="mx-auto flex h-14 w-full max-w-6xl items-center justify-between gap-3 px-5">
-      <a
-        href="#top"
-        class="flex items-center gap-2 rounded-4"
-        @click.prevent="goTop"
-      >
-        <span class="rounded-4 bg-surface-gray-2 p-1.5 text-ink-gray-7">
-          <span class="lucide-package size-4" aria-hidden="true" />
+      <a href="#top" class="flex min-w-0 items-center gap-2 rounded-4" @click.prevent="goTop">
+        <img
+          v-if="logoSrc"
+          :src="logoSrc"
+          alt=""
+          class="size-7 rounded-4 object-contain"
+          @error="onLogoError"
+        />
+        <span v-else class="rounded-4 bg-surface-green-2 p-1.5 text-ink-green-7">
+          <span class="lucide-school size-4" aria-hidden="true" />
         </span>
-        <span class="text-base-semibold text-ink-gray-9">{{ brand.name }}</span>
+        <span class="truncate text-base-semibold text-ink-gray-9">{{ brand.name }}</span>
       </a>
 
-      <nav class="hidden items-center gap-1 sm:flex">
+      <nav class="hidden items-center gap-0.5 lg:flex">
         <a
-          href="/#features"
-          class="rounded-4 px-3 py-1.5 text-base-medium text-ink-gray-6 transition-colors hover:text-ink-gray-9"
+          v-for="link in anchorLinks"
+          :key="link.key"
+          :href="link.href"
+          class="rounded-4 px-2 py-1.5 text-sm-medium text-ink-gray-6 transition-colors hover:text-ink-gray-9"
         >
-          {{ t('landing.nav.features') }}
+          {{ t(link.key) }}
         </a>
-        <a
-          href="/#about"
-          class="rounded-4 px-3 py-1.5 text-base-medium text-ink-gray-6 transition-colors hover:text-ink-gray-9"
-        >
-          {{ t('landing.nav.about') }}
-        </a>
+
+        <div class="group relative">
+          <Button
+            :label="t('landing.nav.information')"
+            size="sm"
+            variant="ghost"
+            icon-right="lucide-chevron-down"
+          />
+          <div
+            class="invisible absolute left-0 top-full z-10 w-48 rounded-6 border border-outline-green-2 bg-surface-base p-1 opacity-0 shadow-lg transition-opacity group-focus-within:visible group-focus-within:opacity-100 group-hover:visible group-hover:opacity-100"
+          >
+            <router-link
+              v-for="link in infoLinks"
+              :key="link.key"
+              :to="{ name: link.name }"
+              class="block rounded-4 px-3 py-2 text-p-sm text-ink-gray-7 transition-colors hover:bg-surface-green-1 hover:text-ink-gray-9"
+            >
+              {{ t(link.key) }}
+            </router-link>
+          </div>
+        </div>
+
         <router-link
-          :to="{ name: 'BlogList' }"
-          class="rounded-4 px-3 py-1.5 text-base-medium text-ink-gray-6 transition-colors hover:text-ink-gray-9"
+          v-for="link in routeLinks"
+          :key="link.key"
+          :to="{ name: link.name }"
+          class="rounded-4 px-2 py-1.5 text-sm-medium text-ink-gray-6 transition-colors hover:text-ink-gray-9"
         >
-          {{ t('nav.blog') }}
+          {{ t(link.key) }}
         </router-link>
       </nav>
 
@@ -78,25 +123,55 @@ function goTop() {
             class="hidden sm:inline-flex"
             :route="{ name: 'Login' }"
           />
-          <Button
-            :label="t('landing.getStarted')"
-            size="sm"
-            variant="solid"
-            theme="blue"
-            :loading="loading"
-            @click="start"
-          />
         </template>
         <Button
           v-else
           :label="t('nav.dashboard')"
           size="sm"
           variant="solid"
-          theme="blue"
+          theme="green"
           icon-left="lucide-layout-dashboard"
-          :loading="loading"
-          @click="start"
+          :route="{ name: 'Dashboard' }"
         />
+        <details ref="mobileMenu" class="relative lg:hidden">
+          <summary
+            class="flex size-8 cursor-pointer list-none items-center justify-center rounded-4 border border-outline-green-2 bg-surface-base text-ink-gray-7 [&::-webkit-details-marker]:hidden"
+            :aria-label="t('landing.nav.menu')"
+          >
+            <span class="lucide-menu size-4" aria-hidden="true" />
+          </summary>
+          <div
+            class="absolute right-0 top-10 z-20 w-56 rounded-6 border border-outline-green-2 bg-surface-base p-1 shadow-lg"
+          >
+            <a
+              v-for="link in anchorLinks"
+              :key="link.key"
+              :href="link.href"
+              class="block rounded-4 px-3 py-2 text-p-sm text-ink-gray-7"
+              @click="closeMobileMenu"
+            >
+              {{ t(link.key) }}
+            </a>
+            <router-link
+              v-for="link in infoLinks"
+              :key="link.key"
+              :to="{ name: link.name }"
+              class="block rounded-4 px-3 py-2 text-p-sm text-ink-gray-7"
+              @click="closeMobileMenu"
+            >
+              {{ t(link.key) }}
+            </router-link>
+            <router-link
+              v-for="link in routeLinks"
+              :key="link.key"
+              :to="{ name: link.name }"
+              class="block rounded-4 px-3 py-2 text-p-sm text-ink-gray-7"
+              @click="closeMobileMenu"
+            >
+              {{ t(link.key) }}
+            </router-link>
+          </div>
+        </details>
       </div>
     </div>
   </header>

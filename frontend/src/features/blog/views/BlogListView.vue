@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { Button, ErrorMessage, Spinner } from 'frappe-ui'
+import Shimmer from '@/shared/components/Shimmer.vue'
+import ShimmerPage from '@/shared/components/ShimmerPage.vue'
+import { Button, ErrorMessage } from 'frappe-ui'
 import { computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -32,9 +34,9 @@ async function goTo(nextPage: number) {
 <template>
   <div id="top" class="min-h-screen bg-surface-base text-ink-gray-8">
     <LandingNav />
-    <Spinner v-if="!gateReady" class="mx-auto flex py-24" />
+    <ShimmerPage v-if="!gateReady" />
     <main v-else class="mx-auto w-full max-w-6xl px-5 py-12">
-      <header class="mb-10 max-w-2xl">
+      <header class="mb-10 max-w-2xl rounded-6 border border-outline-green-2 bg-surface-green-1 px-6 py-6">
         <h1 class="text-4xl-bold text-ink-gray-9">{{ t('blog.title') }}</h1>
         <p class="mt-3 text-p-sm text-ink-gray-6">
           {{ t('blog.list.subtitle', { name: brand.name }) }}
@@ -44,10 +46,10 @@ async function goTo(nextPage: number) {
       <ErrorMessage v-if="blog.error" :message="blog.error" />
 
       <div v-else-if="blog.loading && !blog.posts.length" class="space-y-4">
-        <div v-for="i in 3" :key="i" class="h-40 animate-pulse rounded-6 bg-surface-elevation-2" />
+        <Shimmer v-for="i in 3" :key="i" class="h-40  rounded-6 bg-surface-green-2" />
       </div>
 
-      <div v-else-if="!blog.posts.length" class="rounded-6 border border-outline-gray-1 bg-surface-elevation-2 p-10 text-center">
+      <div v-else-if="!blog.posts.length" class="rounded-6 border border-outline-green-2 bg-surface-base p-10 text-center">
         <p class="text-p-sm text-ink-gray-5">{{ t('blog.empty') }}</p>
       </div>
 
@@ -56,7 +58,7 @@ async function goTo(nextPage: number) {
           v-for="post in blog.posts"
           :key="post.id"
           :to="{ name: 'BlogPost', params: { slug: post.slug } }"
-          class="group block rounded-6 border border-outline-gray-1 bg-surface-elevation-2 p-5 transition-colors hover:border-outline-gray-2"
+          class="group block rounded-6 border border-outline-green-2 bg-surface-base p-5 transition-colors hover:border-outline-green-3"
         >
           <img
             v-if="post.coverImage"

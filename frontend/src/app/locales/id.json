@@ -3,7 +3,7 @@
     "home": "Beranda",
     "dashboard": "Dasbor",
     "users": "Pengguna",
-    "blog": "Blog"
+    "blog": "Artikel"
   },
   "menu": {
     "theme": "Tema",
@@ -95,15 +95,15 @@
     },
     "Landing": {
       "title": "Beranda",
-      "description": "Minimals — layanan Flask siap produksi dengan SPA Vue 3."
+      "description": "Yayasan Islam Selaparang — pondok pesantren tradisional di Kediri, Lombok Barat, yang memadukan pendidikan agama dan pendidikan formal."
     },
     "BlogList": {
-      "title": "Blog",
-      "description": "Kabar, pembaruan, dan tulisan mendalam."
+      "title": "Artikel",
+      "description": "Artikel dan kabar dari Yayasan Islam Selaparang."
     },
     "BlogPost": {
-      "title": "Blog",
-      "description": "Sebuah tulisan dari blog."
+      "title": "Artikel",
+      "description": "Sebuah artikel dari Yayasan Islam Selaparang."
     },
     "BlogAdminList": {
       "title": "Blog",
@@ -116,6 +116,74 @@
     "BlogAdminEdit": {
       "title": "Sunting tulisan",
       "description": "Sunting tulisan yang sudah ada."
+    },
+    "ActivityList": {
+      "title": "Kegiatan",
+      "description": "Kegiatan dan acara di Yayasan Islam Selaparang."
+    },
+    "ActivityPost": {
+      "title": "Kegiatan",
+      "description": "Sebuah kegiatan di Yayasan Islam Selaparang."
+    },
+    "Gallery": {
+      "title": "Galeri",
+      "description": "Foto dari berbagai kegiatan di Yayasan Islam Selaparang."
+    },
+    "Profile": {
+      "title": "Profil",
+      "description": "Profil, visi, dan misi Yayasan Islam Selaparang."
+    },
+    "Structure": {
+      "title": "Struktur Pengurus",
+      "description": "Struktur dan lembaga di bawah Yayasan Islam Selaparang."
+    },
+    "Facilities": {
+      "title": "Fasilitas Sekolah",
+      "description": "Perpustakaan dan asrama di Pondok Pesantren Selaparang."
+    },
+    "Ppdb": {
+      "title": "PPDB Online",
+      "description": "Masa pendaftaran, tautan formulir, dan lembaga di Yayasan Islam Selaparang."
+    },
+    "Contact": {
+      "title": "Contact",
+      "description": "Kirim pesan ke sekretariat Yayasan Islam Selaparang."
+    },
+    "ContactAdminList": {
+      "title": "Pesan",
+      "description": "Pesan kontak yang masuk ke sekretariat."
+    },
+    "ProgramList": {
+      "title": "Jenjang Pendidikan",
+      "description": "Tujuh jenjang pendidikan di Yayasan Islam Selaparang."
+    },
+    "ProgramPost": {
+      "title": "Jenjang Pendidikan",
+      "description": "Sebuah jenjang pendidikan di Yayasan Islam Selaparang."
+    },
+    "ProgramAdminList": {
+      "title": "Jenjang Pendidikan",
+      "description": "Kelola draf dan jenjang yang diterbitkan."
+    },
+    "ProgramAdminCreate": {
+      "title": "Jenjang baru",
+      "description": "Tulis dan terbitkan jenjang baru."
+    },
+    "ProgramAdminEdit": {
+      "title": "Sunting jenjang",
+      "description": "Sunting jenjang yang sudah ada."
+    },
+    "ActivityAdminList": {
+      "title": "Kegiatan",
+      "description": "Kelola draf dan kegiatan yang diterbitkan."
+    },
+    "ActivityAdminCreate": {
+      "title": "Kegiatan baru",
+      "description": "Tulis dan terbitkan kegiatan baru."
+    },
+    "ActivityAdminEdit": {
+      "title": "Sunting kegiatan",
+      "description": "Sunting kegiatan yang sudah ada."
     }
   },
   "field": {
@@ -205,13 +273,17 @@
     "registrationOpen": "Terbuka",
     "registrationClosed": "Tertutup",
     "adminConsole": "Administrasi",
-    "adminConsoleHint": "Kelola pengguna, peran, dan registrasi.",
+    "adminConsoleHint": "Kelola pengguna, artikel, kegiatan, jenjang, dan pesan.",
     "manageUsers": "Kelola pengguna",
+    "manageBlog": "Artikel",
+    "manageActivities": "Kegiatan",
+    "managePrograms": "Jenjang",
+    "manageMessages": "Pesan",
     "loadStatsFailed": "Gagal memuat statistik akun"
   },
   "blog": {
-    "title": "Blog",
-    "empty": "Belum ada tulisan.",
+    "title": "Artikel",
+    "empty": "Belum ada artikel.",
     "errors": {
       "loadFailed": "Gagal memuat tulisan",
       "notFound": "Tulisan tidak ditemukan",
@@ -220,7 +292,7 @@
       "deleteFailed": "Gagal menghapus tulisan"
     },
     "list": {
-      "subtitle": "Kabar, pembaruan, dan tulisan mendalam dari tim {name}.",
+      "subtitle": "Artikel, kabar, dan cerita dari {name}.",
       "readMore": "Baca selengkapnya"
     },
     "post": {
@@ -267,83 +339,351 @@
       }
     }
   },
+  "contactPage": {
+    "title": "Contact",
+    "lead": "Ada pertanyaan? Kirim pesan ke sekretariat atau hubungi kami melalui WhatsApp dan email.",
+    "success": "Pesan Anda sudah terkirim. Kami akan segera merespons.",
+    "errors": {
+      "sendFailed": "Pesan gagal dikirim",
+      "loadFailed": "Pesan gagal dimuat",
+      "updateFailed": "Pesan gagal diperbarui",
+      "deleteFailed": "Pesan gagal dihapus"
+    },
+    "admin": {
+      "title": "Pesan",
+      "subtitle": "Pesan yang dikirim lewat formulir kontak.",
+      "empty": "Belum ada pesan.",
+      "read": "Dibaca",
+      "columns": {
+        "sender": "Pengirim",
+        "message": "Pesan",
+        "received": "Diterima",
+        "actions": "Aksi"
+      },
+      "actions": {
+        "read": "Tandai dibaca",
+        "unread": "Tandai belum dibaca",
+        "delete": "Hapus"
+      },
+      "toast": {
+        "deleted": "Pesan dihapus"
+      },
+      "confirm": {
+        "title": "Hapus pesan",
+        "message": "Pesan akan dihapus permanen dan tidak dapat dibatalkan."
+      }
+    },
+    "form": {
+      "name": "Nama",
+      "namePlaceholder": "Nama Anda",
+      "phone": "No. Telepon",
+      "phonePlaceholder": "08xxxxxxxxxx",
+      "email": "Email",
+      "emailPlaceholder": "nama\\@contoh.com (opsional)",
+      "message": "Deskripsi",
+      "messagePlaceholder": "Tulis pertanyaan Anda…",
+      "submit": "Kirim pesan"
+    }
+  },
+  "ppdbPage": {
+    "title": "PPDB Online",
+    "lead": "Pendaftaran santri baru Yayasan Islam Selaparang Kediri dibuka.",
+    "formTitle": "Daftar melalui formulir online",
+    "formLead": "Pilih lembaga dan jurusan yang diinginkan, lalu isi formulir pendaftaran. Tautan akan dibuka di tab baru.",
+    "programsTitle": "Lembaga yang menerima pendaftaran"
+  },
+  "profile": {
+    "title": "Profil",
+    "lead": "Pondok Pesantren Selaparang (Perguruan NW) — pondok pesantren tradisional di Kediri, Lombok Barat.",
+    "about": "Pondok Pesantren Selaparang mengintegrasikan pembelajaran agama tradisional dengan kehidupan sehari-hari. Yayasan terus mengembangkan pendidikan terpadu yang mengikuti kurikulum formal dan tetap berakar pada nilai pesantren.",
+    "locationTitle": "Lokasi"
+  },
+  "structure": {
+    "title": "Struktur Pengurus",
+    "lead": "Lembaga-lembaga di bawah Yayasan Islam Selaparang, dari madrasah dasar hingga kajian Islam tingkat tinggi."
+  },
+  "facilitiesPage": {
+    "title": "Fasilitas Sekolah",
+    "lead": "Ruang yang mendukung pembelajaran, tempat tinggal, dan keseharian santri di pesantren."
+  },
+  "program": {
+    "title": "Jenjang Pendidikan",
+    "lead": "Tujuh lembaga dalam satu yayasan, dari madrasah dasar hingga kajian Islam tingkat tinggi.",
+    "empty": "Belum ada jenjang.",
+    "errors": {
+      "loadFailed": "Gagal memuat jenjang",
+      "notFound": "Jenjang tidak ditemukan",
+      "createFailed": "Gagal membuat jenjang",
+      "updateFailed": "Gagal memperbarui jenjang",
+      "deleteFailed": "Gagal menghapus jenjang"
+    },
+    "list": {
+      "readMore": "Selengkapnya"
+    },
+    "post": {
+      "back": "Semua jenjang"
+    },
+    "admin": {
+      "subtitle": "Draf dan jenjang yang diterbitkan.",
+      "newProgram": "Jenjang baru",
+      "createFirst": "Buat jenjang pertama Anda",
+      "editProgram": "Sunting jenjang",
+      "columns": {
+        "title": "Judul",
+        "level": "Jenjang",
+        "status": "Status",
+        "order": "Urutan"
+      },
+      "form": {
+        "title": "Judul",
+        "titlePlaceholder": "Nama jenjang",
+        "slug": "Slug",
+        "slugHint": "Kosongkan agar dibuat otomatis dari judul.",
+        "level": "Jenjang",
+        "levelPlaceholder": "mis. MTs",
+        "order": "Urutan",
+        "status": "Status",
+        "draft": "Draf",
+        "published": "Terbit",
+        "cover": "Gambar sampul",
+        "uploadCover": "Unggah sampul",
+        "uploading": "Mengunggah {n}%",
+        "remove": "Hapus",
+        "body": "Isi jenjang",
+        "bodyPlaceholder": "Tulis tentang jenjang ini…"
+      },
+      "actions": {
+        "delete": "Hapus",
+        "cancel": "Batal",
+        "save": "Simpan"
+      },
+      "toast": {
+        "created": "Jenjang dibuat",
+        "updated": "Jenjang diperbarui",
+        "deleted": "Jenjang dihapus"
+      },
+      "confirm": {
+        "title": "Hapus jenjang",
+        "message": "Jenjang akan dihapus permanen dan tidak dapat dibatalkan."
+      }
+    }
+  },
+  "activity": {
+    "title": "Kegiatan",
+    "badge": "Kegiatan",
+    "lead": "Gathering, pengajian, dan program masyarakat yang menghidupkan pesantren di luar pelajaran.",
+    "all": "Semua kegiatan",
+    "empty": "Belum ada kegiatan.",
+    "errors": {
+      "loadFailed": "Gagal memuat kegiatan",
+      "notFound": "Kegiatan tidak ditemukan",
+      "createFailed": "Gagal membuat kegiatan",
+      "updateFailed": "Gagal memperbarui kegiatan",
+      "deleteFailed": "Gagal menghapus kegiatan"
+    },
+    "list": {
+      "subtitle": "Kegiatan dan kabar dari {name}.",
+      "readMore": "Selengkapnya"
+    },
+    "post": {
+      "back": "Semua kegiatan"
+    },
+    "admin": {
+      "subtitle": "Draf dan kegiatan yang diterbitkan.",
+      "newActivity": "Kegiatan baru",
+      "createFirst": "Buat kegiatan pertama Anda",
+      "editActivity": "Sunting kegiatan",
+      "columns": {
+        "title": "Judul",
+        "status": "Status",
+        "created": "Dibuat"
+      },
+      "form": {
+        "title": "Judul",
+        "titlePlaceholder": "Judul kegiatan",
+        "slug": "Slug",
+        "slugHint": "Kosongkan agar dibuat otomatis dari judul.",
+        "status": "Status",
+        "draft": "Draf",
+        "published": "Terbit",
+        "cover": "Gambar sampul",
+        "uploadCover": "Unggah sampul",
+        "uploading": "Mengunggah {n}%",
+        "remove": "Hapus",
+        "body": "Isi kegiatan",
+        "bodyPlaceholder": "Tulis tentang kegiatan ini…"
+      },
+      "actions": {
+        "delete": "Hapus",
+        "cancel": "Batal",
+        "save": "Simpan"
+      },
+      "toast": {
+        "created": "Kegiatan dibuat",
+        "updated": "Kegiatan diperbarui",
+        "deleted": "Kegiatan dihapus"
+      },
+      "confirm": {
+        "title": "Hapus kegiatan",
+        "message": "Kegiatan akan dihapus permanen dan tidak dapat dibatalkan."
+      }
+    }
+  },
+  "gallery": {
+    "title": "Galeri",
+    "lead": "Momen dari berbagai kegiatan di seluruh yayasan.",
+    "empty": "Belum ada foto.",
+    "allActivities": "Lihat semua kegiatan"
+  },
   "landing": {
-    "getStarted": "Mulai sekarang",
-    "openDashboard": "Buka dasbor",
-    "whatsInside": "Isinya apa",
     "nav": {
-      "features": "Fitur",
-      "about": "Tentang",
-      "theme": "Ganti tema"
+      "home": "Beranda",
+      "profile": "Profil",
+      "information": "Informasi",
+      "ppdb": "PPDB Online",
+      "structure": "Struktur Pengurus",
+      "facilities": "Fasilitas Sekolah",
+      "programs": "Jenjang Pendidikan",
+      "activities": "Kegiatan",
+      "gallery": "Galeri",
+      "contact": "Contact",
+      "theme": "Ganti tema",
+      "menu": "Buka menu"
     },
     "hero": {
-      "badge": "Alpha terbuka",
-      "title": "Flask siap produksi,",
-      "accent": "dengan rasa minimal",
-      "lead": "Minimals adalah layanan Flask yang lengkap untuk cPanel dan VPS di belakang Caddy — arsitektur domain berlapis, autentikasi sesi & API-key, dan SPA Vue 3 yang disajikan oleh Flask sendiri.",
-      "lifecycle": "siklus request",
-      "ok": "200 OK"
+      "title": "Pondok pesantren tradisional,",
+      "accent": "berakar pada ilmu dan akhlak",
+      "lead": "Pondok Pesantren Selaparang (Perguruan NW) menyatu dengan kehidupan sehari-hari — mulai dari MI dan MTs hingga MA, Ma'had, dan STIS Syariah di Kediri, Lombok Barat.",
+      "periodLabel": "Masa pendaftaran",
+      "period": "1 April – 10 Juli 2026",
+      "hoursLabel": "Jam operasional",
+      "hours": "08.00–18.00 WITA · Senin–Sabtu",
+      "locationLabel": "Sekretariat pendaftaran",
+      "location": "Ponpes Selaparang, Kediri, Lombok Barat",
+      "ctaPpdb": "Daftar sekarang",
+      "ctaProfile": "Tentang yayasan",
+      "slide": "Slide {n}"
     },
-    "features": {
-      "badge": "Fitur",
-      "title": "Semua yang tetap akan Anda bangun",
-      "lead": "Panggung produksi yang dibutuhkan setiap layanan Flask — sudah tersedia, sudah diuji, dan sengaja dibuat biasa.",
+    "highlights": {
+      "badge": "Sekilas",
+      "title": "Pembelajaran yang melampaui ruang kelas",
+      "lead": "Nilai pesantren tradisional, pendidikan formal, dan keterampilan praktis dikembangkan bersama.",
       "items": {
-        "layered": {
-          "title": "Domain berlapis",
-          "desc": "Tujuh berkas per domain, dependensi hanya menunjuk ke bawah. Sebuah bug punya tepat satu alamat."
+        "management": {
+          "title": "Manajemen Berbasis Sekolah",
+          "desc": "Tata kelola yang jelas dan tanggung jawab bersama di setiap jenjang yayasan."
         },
-        "auth": {
-          "title": "Autentikasi sesi & API-key",
-          "desc": "Sesi peramban lewat Flask-Login; layanan mengautentikasi dengan API key ber-hash bcrypt di belakang prefiks lookup 10 karakter."
+        "curriculum": {
+          "title": "Kurikulum",
+          "desc": "Kurikulum formal yang selaras dengan standar nasional di setiap jenjang pendidikan."
         },
-        "security": {
-          "title": "Keamanan bawaan",
-          "desc": "CSRF di setiap operasi tulis, rate limit per IP, CSP + HSTS, dan header forwarded yang hanya dipercaya dari peer privat."
+        "accreditation": {
+          "title": "Akreditasi",
+          "desc": "Program yang diakui dengan status akreditasi yang tercatat."
         },
-        "roles": {
-          "title": "Peran & RBAC",
-          "desc": "App role keras untuk pemeriksaan nyata, peran relasional untuk label, dan helper require_role yang langsung return."
+        "teachers": {
+          "title": "Tenaga Pengajar Ahli",
+          "desc": "Pendidik berpengalaman yang membimbing santri dalam ilmu maupun akhlak."
         },
-        "setup": {
-          "title": "Setup awal",
-          "desc": "SQLite, MariaDB, atau PostgreSQL: uji, migrasi, buat admin — mesinnya bisa ditukar, hanya dari loopback."
+        "facilities": {
+          "title": "Fasilitas Mendukung",
+          "desc": "Perpustakaan, asrama putra dan putri, serta ruang belajar sehari-hari."
         },
-        "health": {
-          "title": "Kesehatan & audit",
-          "desc": "Probe /health dan /ready, log berputar, jejak audit per operasi tulis, dan alert yang tidak pernah mengganggu alur bisnis."
+        "network": {
+          "title": "Relasi Luas",
+          "desc": "Hubungan erat dengan alumni, masyarakat, dan lembaga mitra."
         },
-        "spa": {
-          "title": "SPA Vue 3 ikut disertakan",
-          "desc": "frappe-ui di atas token Tailwind, dibangun langsung ke folder static Flask. Satu proses, satu origin, satu deploy."
+        "scholarship": {
+          "title": "Terdapat Beasiswa",
+          "desc": "Dukungan bagi santri agar biaya tidak menjadi penghalang belajar."
         },
-        "migrations": {
-          "title": "Migrasi saat boot",
-          "desc": "Nyalakan MIGRATE_ON_BOOT dan Alembic berjalan sebelum server menerima trafik — skema dan model tetap sinkron di semua mesin."
+        "integrated": {
+          "title": "Pendidikan Terpadu",
+          "desc": "Ilmu agama dan pengetahuan umum dikembangkan sebagai satu jalan, bukan dua jalur terpisah."
         }
       }
     },
     "about": {
-      "badge": "Tentang",
-      "title": "Minimal, bukan sepele.",
-      "body1": "Minimals lahir dari satu pengamatan: setiap layanan Flask produksi mengulang scaffolding yang sama — autentikasi, CSRF, peran, migrasi, health check, dan build frontend. Minimals membungkus lantai dasar itu, dan tidak lebih.",
-      "body2": "Arsitekturnya sengaja membosankan. Service memiliki transaksi, repository memiliki query, dan format wire adalah kontrak yang diuji. Saat ada yang rusak, Anda memperbaikinya di titik masalah — tidak ada riwayat yang perlu digali.",
-      "rules": "Aturan rumah",
+      "badge": "Tentang kami",
+      "title": "Visi & Misi",
+      "visionLabel": "Visi",
+      "vision": "Menjadi lembaga pendidikan Islam yang berhasil membentuk generasi berakhlak mulia, berilmu luas, dan mampu mengintegrasikan nilai-nilai Islam dalam kehidupan modern untuk kemajuan umat dan bangsa.",
+      "missionLabel": "Misi",
+      "mission": "Menyelenggarakan pendidikan yang holistik dan integratif, menggabungkan kurikulum agama tradisional dengan pengetahuan kontemporer.",
+      "body": "Pondok Pesantren Selaparang tetap eksis dalam mendukung pembangunan manusia seutuhnya dengan mengembangkan pendidikan terpadu — pembelajaran sesuai kurikulum formal yang tetap berakar pada nilai pesantren.",
+      "rules": "Prinsip kami",
       "principles": {
-        "p1": "Dependensi hanya menunjuk ke bawah — api, dto, services, repositories, models, presenters.",
-        "p2": "Service memiliki transaksi; repository tidak pernah commit.",
-        "p3": "Objek telanjang saat sukses, satu kunci snake_case saat gagal.",
-        "p4": "Raise exception dari service — jangan pernah return response.",
-        "p5": "Perbaiki di titik masalah. Tidak ada riwayat yang perlu digali."
+        "p1": "Iman dan akhlak mulia lebih utama daripada pencapaian.",
+        "p2": "Ilmu agama dan pengetahuan kontemporer saling menguatkan.",
+        "p3": "Pendidikan membentuk akhlak sekaligus kecerdasan.",
+        "p4": "Guru memberi teladan, dalam perkataan dan perilaku sehari-hari.",
+        "p5": "Pengabdian kepada masyarakat menjadi bagian dari belajar setiap santri."
       }
     },
-    "cta": {
-      "title": "Mulai dari bagian membosankan yang sudah selesai.",
-      "lead": "Jalankan setup sekali — tunjuk ke basis data Anda, buat admin — lalu kirim domain Anda di atas lantai yang sudah siap."
+    "facilities": {
+      "badge": "Fasilitas",
+      "title": "Ruang untuk belajar dan tinggal",
+      "lead": "Fasilitas asrama dan belajar yang mendukung keseharian santri di pesantren.",
+      "items": {
+        "library": {
+          "title": "Perpustakaan",
+          "desc": "Ruang baca yang nyaman dengan buku agama dan buku umum untuk setiap jenjang pendidikan."
+        },
+        "maleDorm": {
+          "title": "Asrama Putra",
+          "desc": "Tempat tinggal santri putra di dua lokasi, di dalam dan di lingkungan sekitar ponpes."
+        },
+        "femaleDorm": {
+          "title": "Asrama Putri",
+          "desc": "Tempat tinggal bagi santri putri yang berasal dari dalam maupun luar daerah."
+        }
+      }
+    },
+    "stats": {
+      "programs": "Program pendidikan",
+      "students": "Total siswa",
+      "teachers": "Pengajar & staf",
+      "scholarships": "Beasiswa"
+    },
+    "programs": {
+      "badge": "Pendidikan",
+      "title": "Jenjang pendidikan",
+      "lead": "Tujuh lembaga dalam satu yayasan, dari madrasah dasar hingga kajian Islam tingkat tinggi."
+    },
+    "posts": {
+      "badge": "Jurnal",
+      "title": "Artikel dan berita",
+      "lead": "Cerita tentang tokoh, sejarah, dan gagasan yang membentuk yayasan.",
+      "all": "Semua artikel"
+    },
+    "ppdb": {
+      "title": "Pendaftaran Yayasan Islam Selaparang Kediri",
+      "lead": "Pendaftaran dibuka 1 April sampai 10 Juli 2026, pukul 08.00–18.00 WITA setiap hari. Pilih lembaga dan jurusan yang diinginkan, lalu isi formulir online.",
+      "period": "1 April – 10 Juli 2026 · 08.00–18.00 WITA",
+      "register": "Daftar online"
+    },
+    "support": {
+      "badge": "Beasiswa",
+      "title": "Dukungan agar belajar tetap terjangkau",
+      "lead": "Program beasiswa membantu biaya pembelajaran bagi siswa di seluruh lembaga yayasan.",
+      "body": "Ponpes Selaparang terus mengembangkan pendidikan terpadu — pembelajaran formal berdampingan dengan pembentukan akhlak — agar setiap siswa memiliki kesempatan yang adil untuk tumbuh.",
+      "note": "Untuk informasi beasiswa, hubungi sekretariat atau gunakan kontak di bawah ini.",
+      "contact": "Hubungi kami"
+    },
+    "contact": {
+      "badge": "Contact",
+      "title": "Ada pertanyaan?",
+      "lead": "Hubungi sekretariat melalui WhatsApp atau email — kami siap membantu soal pendaftaran dan pertanyaan umum.",
+      "addressLabel": "Alamat",
+      "emailLabel": "Email",
+      "whatsappLabel": "WhatsApp",
+      "facebookLabel": "Facebook",
+      "formNote": "Lebih suka formulir? Gunakan halaman contact untuk mengirim pesan ke sekretariat."
     },
     "footer": {
-      "alpha": "alpha terbuka",
-      "copyright": "© 2026 {name}"
+      "tagline": "Pendidikan Islam yang berakar pada akhlak dan ilmu.",
+      "links": "Tautan cepat",
+      "copyright": "© 2026 {name}. Seluruh hak dilindungi."
     }
   },
   "setup": {
@@ -388,9 +728,15 @@
     "registration_disabled": "Pendaftaran dinonaktifkan",
     "email_already_registered": "Email sudah terdaftar",
     "username_taken": "Nama pengguna sudah dipakai",
+    "activity_not_found": "Kegiatan tidak ditemukan",
     "api_key_not_found": "API key tidak ditemukan",
     "bad_request": "Permintaan tidak valid",
     "conflict": "Data bentrok",
+    "contact_message_not_found": "Pesan kontak tidak ditemukan",
+    "invalid_phone": "Nomor telepon tidak valid",
+    "phone_invalid_phone": "Nomor telepon tidak valid",
+    "email_invalid_email": "Email tidak valid",
+    "message_required": "Pesan wajib diisi",
     "cannot_delete_builtin_role": "Tidak bisa menghapus peran bawaan",
     "could_not_generate_unique_name": "Gagal membuat nama unik",
     "csrf_token_invalid": "Token CSRF tidak valid",
@@ -422,6 +768,7 @@
     "malformed": "Format salah",
     "method_not_allowed": "Metode tidak diizinkan",
     "name_required": "Nama wajib diisi",
+    "name_must_be_at_least_1_characters": "Nama wajib diisi",
     "no_fields_to_update": "Tidak ada kolom untuk diperbarui",
     "not_found": "Tidak ditemukan",
     "password_must_contain_digit": "Kata sandi harus mengandung angka",
@@ -430,6 +777,7 @@
     "password_must_contain_uppercase": "Kata sandi harus mengandung huruf besar",
     "payload_too_large": "Ukuran payload terlalu besar",
     "post_not_found": "Tulisan tidak ditemukan",
+    "program_not_found": "Program tidak ditemukan",
     "rate_limit_exceeded": "Batas rate limit tercapai",
     "required": "Wajib diisi",
     "role_already_exists": "Peran sudah ada",

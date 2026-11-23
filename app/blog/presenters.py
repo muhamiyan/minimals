@@ -1,22 +1,9 @@
 """Blog presenters — serialization for blog responses."""
 from __future__ import annotations
 
-import html
-import re
-
 from app.blog.models import BlogPost
 from framework.base import PresenterBase
-
-EXCERPT_LENGTH = 160
-
-
-def make_excerpt(body: str) -> str:
-    text = re.sub(r"<[^>]+>", " ", body)
-    text = html.unescape(text)
-    text = re.sub(r"\s+", " ", text).strip()
-    if len(text) <= EXCERPT_LENGTH:
-        return text
-    return text[:EXCERPT_LENGTH].rstrip() + "…"
+from framework.infra.html import make_excerpt
 
 
 class BlogPostSummaryOut(PresenterBase):

@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { Button, ErrorMessage, FileUploader, FormControl, Spinner, dialog, toast } from 'frappe-ui'
+import Shimmer from '@/shared/components/Shimmer.vue'
+import ShimmerPage from '@/shared/components/ShimmerPage.vue'
+import { Button, ErrorMessage, FileUploader, FormControl, dialog, toast } from 'frappe-ui'
 import { Editor, EditorContent, EditorFixedMenu, RichTextKit, articleToolbar } from 'frappe-ui/editor'
 import { computed, onMounted, reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -105,7 +107,7 @@ function onDelete() {
 </script>
 
 <template>
-  <Spinner v-if="!gateReady" class="mx-auto flex py-24" />
+  <ShimmerPage v-if="!gateReady" />
   <div v-else class="mx-auto w-full max-w-3xl p-6">
     <header class="mb-6">
       <h1 class="text-2xl-semibold text-ink-gray-9">{{ pageTitle }}</h1>
@@ -115,9 +117,9 @@ function onDelete() {
     <ErrorMessage v-if="blog.error && !saving" :message="blog.error" />
 
     <div v-if="isEdit && blog.loadingPost" class="space-y-4">
-      <div class="h-10 w-2/3 animate-pulse rounded-4 bg-surface-elevation-2" />
-      <div class="h-10 w-1/3 animate-pulse rounded-4 bg-surface-elevation-2" />
-      <div class="h-72 animate-pulse rounded-6 bg-surface-elevation-2" />
+      <Shimmer class="h-10 w-2/3  rounded-4 bg-surface-elevation-2" />
+      <Shimmer class="h-10 w-1/3  rounded-4 bg-surface-elevation-2" />
+      <Shimmer class="h-72  rounded-6 bg-surface-elevation-2" />
     </div>
 
     <form v-else class="space-y-5" @submit.prevent="onSave">
@@ -237,7 +239,7 @@ function onDelete() {
             type="submit"
             :label="t('blog.admin.actions.save')"
             variant="solid"
-            theme="blue"
+            theme="green"
             icon-left="lucide-check"
             :loading="saving"
             :disabled="!canSave"

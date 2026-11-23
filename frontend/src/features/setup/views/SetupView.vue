@@ -1,16 +1,8 @@
 <script setup lang="ts">
+import ShimmerPage from '@/shared/components/ShimmerPage.vue'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import {
-  Alert,
-  Button,
-  ErrorMessage,
-  FormControl,
-  Select,
-  Spinner,
-  toast,
-  type SelectOptionValue,
-} from 'frappe-ui'
+import { Alert, Button, ErrorMessage, FormControl, Select, toast, type SelectOptionValue } from 'frappe-ui'
 
 import { isPasswordValid } from '@/features/auth/validation'
 import PasswordRules from '@/shared/components/PasswordRules.vue'
@@ -188,7 +180,7 @@ function goToLogin() {
 
 <template>
   <div class="flex min-h-screen items-center justify-center bg-surface-base p-4 text-ink-gray-8">
-    <Spinner v-if="!gateReady" />
+    <ShimmerPage v-if="!gateReady" />
     <div
       v-else
       class="w-full max-w-md rounded-6 border border-outline-gray-1 bg-surface-elevation-2 p-6"

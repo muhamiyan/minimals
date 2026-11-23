@@ -1,69 +1,111 @@
-export const stack = [
-  'Flask',
-  'Vue 3',
-  'SQLAlchemy',
-  'Alembic',
-  'frappe-ui',
-  'Tailwind',
-  'waitress',
-  'Caddy',
-]
+export const PPDB_URL = 'https://forms.gle/b979B8YdGVm1Me2t7'
 
-export const pipeline = [
-  'api',
-  'dto',
-  'services',
-  'repositories',
-  'models',
-  'presenters',
-]
+export const contact = {
+  address: 'Jl. TGH Abdul Hafidz, Kediri, Lombok Barat, Nusa Tenggara Barat',
+  email: 'siimad.ponpesselaparang@gmail.com',
+  whatsapp: 'https://wa.me/087864706565',
+  facebook: 'https://www.facebook.com/manw.selaparangkediri',
+}
 
-export interface Feature {
+export interface Highlight {
   icon: string
   title: string
   desc: string
 }
 
-export const features: Feature[] = [
+export const highlights: Highlight[] = [
   {
-    icon: 'lucide-layers-3',
-    title: 'landing.features.items.layered.title',
-    desc: 'landing.features.items.layered.desc',
+    icon: 'lucide-school',
+    title: 'landing.highlights.items.management.title',
+    desc: 'landing.highlights.items.management.desc',
   },
   {
-    icon: 'lucide-key-round',
-    title: 'landing.features.items.auth.title',
-    desc: 'landing.features.items.auth.desc',
+    icon: 'lucide-book-open',
+    title: 'landing.highlights.items.curriculum.title',
+    desc: 'landing.highlights.items.curriculum.desc',
   },
   {
     icon: 'lucide-shield-check',
-    title: 'landing.features.items.security.title',
-    desc: 'landing.features.items.security.desc',
+    title: 'landing.highlights.items.accreditation.title',
+    desc: 'landing.highlights.items.accreditation.desc',
   },
   {
     icon: 'lucide-users',
-    title: 'landing.features.items.roles.title',
-    desc: 'landing.features.items.roles.desc',
+    title: 'landing.highlights.items.teachers.title',
+    desc: 'landing.highlights.items.teachers.desc',
   },
   {
-    icon: 'lucide-rocket',
-    title: 'landing.features.items.setup.title',
-    desc: 'landing.features.items.setup.desc',
+    icon: 'lucide-wrench',
+    title: 'landing.highlights.items.facilities.title',
+    desc: 'landing.highlights.items.facilities.desc',
   },
   {
-    icon: 'lucide-heart-pulse',
-    title: 'landing.features.items.health.title',
-    desc: 'landing.features.items.health.desc',
+    icon: 'lucide-handshake',
+    title: 'landing.highlights.items.network.title',
+    desc: 'landing.highlights.items.network.desc',
   },
   {
-    icon: 'lucide-panels-top-left',
-    title: 'landing.features.items.spa.title',
-    desc: 'landing.features.items.spa.desc',
+    icon: 'lucide-gift',
+    title: 'landing.highlights.items.scholarship.title',
+    desc: 'landing.highlights.items.scholarship.desc',
   },
   {
-    icon: 'lucide-git-branch',
-    title: 'landing.features.items.migrations.title',
-    desc: 'landing.features.items.migrations.desc',
+    icon: 'lucide-graduation-cap',
+    title: 'landing.highlights.items.integrated.title',
+    desc: 'landing.highlights.items.integrated.desc',
+  },
+]
+
+export interface Stat {
+  icon: string
+  value: string
+  label: string
+}
+
+export const stats: Stat[] = [
+  {
+    icon: 'lucide-graduation-cap',
+    value: '7+',
+    label: 'landing.stats.programs',
+  },
+  {
+    icon: 'lucide-users',
+    value: '3+',
+    label: 'landing.stats.students',
+  },
+  {
+    icon: 'lucide-user-check',
+    value: '100+',
+    label: 'landing.stats.teachers',
+  },
+  {
+    icon: 'lucide-heart',
+    value: '0',
+    label: 'landing.stats.scholarships',
+  },
+]
+
+export interface Facility {
+  icon: string
+  title: string
+  desc: string
+}
+
+export const facilities: Facility[] = [
+  {
+    icon: 'lucide-book-open',
+    title: 'landing.facilities.items.library.title',
+    desc: 'landing.facilities.items.library.desc',
+  },
+  {
+    icon: 'lucide-house',
+    title: 'landing.facilities.items.maleDorm.title',
+    desc: 'landing.facilities.items.maleDorm.desc',
+  },
+  {
+    icon: 'lucide-users',
+    title: 'landing.facilities.items.femaleDorm.title',
+    desc: 'landing.facilities.items.femaleDorm.desc',
   },
 ]
 
@@ -74,3 +116,12 @@ export const principles = [
   'landing.about.principles.p4',
   'landing.about.principles.p5',
 ]
+
+const assetBase = import.meta.env.BASE_URL
+
+export const heroSlides = [
+  `${assetBase}hero/hero-1.jpg`,
+  `${assetBase}hero/hero-2.jpg`,
+  `${assetBase}hero/hero-3.jpg`,
+]
+

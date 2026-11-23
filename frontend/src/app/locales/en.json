@@ -3,7 +3,7 @@
     "home": "Home",
     "dashboard": "Dashboard",
     "users": "Users",
-    "blog": "Blog"
+    "blog": "Articles"
   },
   "menu": {
     "theme": "Theme",
@@ -95,15 +95,15 @@
     },
     "Landing": {
       "title": "Home",
-      "description": "Minimals — a batteries-included Flask service with a Vue 3 SPA."
+      "description": "Yayasan Islam Selaparang — a traditional pesantren in Kediri, West Lombok, integrating Islamic learning with formal education."
     },
     "BlogList": {
-      "title": "Blog",
-      "description": "News, updates, and deep dives."
+      "title": "Articles",
+      "description": "Articles and news from Yayasan Islam Selaparang."
     },
     "BlogPost": {
-      "title": "Blog",
-      "description": "A post from the blog."
+      "title": "Article",
+      "description": "An article from Yayasan Islam Selaparang."
     },
     "BlogAdminList": {
       "title": "Blog",
@@ -116,6 +116,74 @@
     "BlogAdminEdit": {
       "title": "Edit post",
       "description": "Edit an existing post."
+    },
+    "ActivityList": {
+      "title": "Activities",
+      "description": "Activities and events at Yayasan Islam Selaparang."
+    },
+    "ActivityPost": {
+      "title": "Activity",
+      "description": "An activity at Yayasan Islam Selaparang."
+    },
+    "Gallery": {
+      "title": "Gallery",
+      "description": "Photos from activities across Yayasan Islam Selaparang."
+    },
+    "Profile": {
+      "title": "Profile",
+      "description": "Profile, vision, and mission of Yayasan Islam Selaparang."
+    },
+    "Structure": {
+      "title": "Organization",
+      "description": "The organization and institutions of Yayasan Islam Selaparang."
+    },
+    "Facilities": {
+      "title": "Facilities",
+      "description": "Library and dormitories at Pondok Pesantren Selaparang."
+    },
+    "Ppdb": {
+      "title": "Online admission",
+      "description": "Admission period, registration link, and institutions at Yayasan Islam Selaparang."
+    },
+    "Contact": {
+      "title": "Contact",
+      "description": "Send a message to the secretariat of Yayasan Islam Selaparang."
+    },
+    "ContactAdminList": {
+      "title": "Messages",
+      "description": "Contact messages sent to the secretariat."
+    },
+    "ProgramList": {
+      "title": "Education programs",
+      "description": "Seven education programs under Yayasan Islam Selaparang."
+    },
+    "ProgramPost": {
+      "title": "Program",
+      "description": "An education program at Yayasan Islam Selaparang."
+    },
+    "ProgramAdminList": {
+      "title": "Education programs",
+      "description": "Manage drafts and published programs."
+    },
+    "ProgramAdminCreate": {
+      "title": "New program",
+      "description": "Write and publish a new program."
+    },
+    "ProgramAdminEdit": {
+      "title": "Edit program",
+      "description": "Edit an existing program."
+    },
+    "ActivityAdminList": {
+      "title": "Activities",
+      "description": "Manage drafts and published activities."
+    },
+    "ActivityAdminCreate": {
+      "title": "New activity",
+      "description": "Write and publish a new activity."
+    },
+    "ActivityAdminEdit": {
+      "title": "Edit activity",
+      "description": "Edit an existing activity."
     }
   },
   "field": {
@@ -205,13 +273,17 @@
     "registrationOpen": "Open",
     "registrationClosed": "Closed",
     "adminConsole": "Administration",
-    "adminConsoleHint": "Manage users, roles, and registration.",
+    "adminConsoleHint": "Manage users, articles, activities, programs, and messages.",
     "manageUsers": "Manage users",
+    "manageBlog": "Articles",
+    "manageActivities": "Activities",
+    "managePrograms": "Programs",
+    "manageMessages": "Messages",
     "loadStatsFailed": "Could not load account stats"
   },
   "blog": {
-    "title": "Blog",
-    "empty": "No posts yet.",
+    "title": "Articles",
+    "empty": "No articles yet.",
     "errors": {
       "loadFailed": "Could not load posts",
       "notFound": "Post not found",
@@ -220,7 +292,7 @@
       "deleteFailed": "Could not delete post"
     },
     "list": {
-      "subtitle": "News, updates, and deep dives from the {name} team.",
+      "subtitle": "Articles, news, and stories from {name}.",
       "readMore": "Read more"
     },
     "post": {
@@ -267,83 +339,351 @@
       }
     }
   },
+  "contactPage": {
+    "title": "Contact",
+    "lead": "Have a question? Send a message to the secretariat or reach us through WhatsApp or email.",
+    "success": "Your message has been sent. We will get back to you soon.",
+    "errors": {
+      "sendFailed": "Could not send the message",
+      "loadFailed": "Could not load messages",
+      "updateFailed": "Could not update the message",
+      "deleteFailed": "Could not delete the message"
+    },
+    "admin": {
+      "title": "Messages",
+      "subtitle": "Messages sent through the contact form.",
+      "empty": "No messages yet.",
+      "read": "Read",
+      "columns": {
+        "sender": "Sender",
+        "message": "Message",
+        "received": "Received",
+        "actions": "Actions"
+      },
+      "actions": {
+        "read": "Mark as read",
+        "unread": "Mark as unread",
+        "delete": "Delete"
+      },
+      "toast": {
+        "deleted": "Message deleted"
+      },
+      "confirm": {
+        "title": "Delete message",
+        "message": "This permanently removes the message and cannot be undone."
+      }
+    },
+    "form": {
+      "name": "Name",
+      "namePlaceholder": "Your name",
+      "phone": "Phone number",
+      "phonePlaceholder": "08xxxxxxxxxx",
+      "email": "Email",
+      "emailPlaceholder": "you\\@example.com (optional)",
+      "message": "Message",
+      "messagePlaceholder": "Write your question…",
+      "submit": "Send message"
+    }
+  },
+  "ppdbPage": {
+    "title": "Online admission",
+    "lead": "Registration for new students at Yayasan Islam Selaparang Kediri is open.",
+    "formTitle": "Register through the online form",
+    "formLead": "Choose the institution and programme you need, then complete the registration form. The link opens in a new tab.",
+    "programsTitle": "Institutions accepting students"
+  },
+  "profile": {
+    "title": "Profile",
+    "lead": "Pondok Pesantren Selaparang (Perguruan NW) — a traditional pesantren in Kediri, West Lombok.",
+    "about": "Pondok Pesantren Selaparang integrates traditional Islamic learning into everyday life. The foundation continues to develop integrated education that follows the formal curriculum while staying rooted in the values of the pesantren.",
+    "locationTitle": "Location"
+  },
+  "structure": {
+    "title": "Organization",
+    "lead": "The institutions under Yayasan Islam Selaparang, from elementary madrasah to higher Islamic studies."
+  },
+  "facilitiesPage": {
+    "title": "Facilities",
+    "lead": "Spaces that support learning, living, and daily life at the pesantren."
+  },
+  "program": {
+    "title": "Education programs",
+    "lead": "Seven institutions under one foundation, from elementary madrasah to higher Islamic studies.",
+    "empty": "No programs yet.",
+    "errors": {
+      "loadFailed": "Could not load programs",
+      "notFound": "Program not found",
+      "createFailed": "Could not create program",
+      "updateFailed": "Could not update program",
+      "deleteFailed": "Could not delete program"
+    },
+    "list": {
+      "readMore": "Read more"
+    },
+    "post": {
+      "back": "All programs"
+    },
+    "admin": {
+      "subtitle": "Drafts and published programs.",
+      "newProgram": "New program",
+      "createFirst": "Create your first program",
+      "editProgram": "Edit program",
+      "columns": {
+        "title": "Title",
+        "level": "Level",
+        "status": "Status",
+        "order": "Order"
+      },
+      "form": {
+        "title": "Title",
+        "titlePlaceholder": "Program title",
+        "slug": "Slug",
+        "slugHint": "Leave empty to generate it from the title.",
+        "level": "Level",
+        "levelPlaceholder": "e.g. MTs",
+        "order": "Order",
+        "status": "Status",
+        "draft": "Draft",
+        "published": "Published",
+        "cover": "Cover image",
+        "uploadCover": "Upload cover",
+        "uploading": "Uploading {n}%",
+        "remove": "Remove",
+        "body": "Body",
+        "bodyPlaceholder": "Write about the program…"
+      },
+      "actions": {
+        "delete": "Delete",
+        "cancel": "Cancel",
+        "save": "Save"
+      },
+      "toast": {
+        "created": "Program created",
+        "updated": "Program updated",
+        "deleted": "Program deleted"
+      },
+      "confirm": {
+        "title": "Delete program",
+        "message": "This permanently removes the program and cannot be undone."
+      }
+    }
+  },
+  "activity": {
+    "title": "Activities",
+    "badge": "Activities",
+    "lead": "Gatherings, study circles, and community programmes that keep the pesantren active beyond lessons.",
+    "all": "All activities",
+    "empty": "No activities yet.",
+    "errors": {
+      "loadFailed": "Could not load activities",
+      "notFound": "Activity not found",
+      "createFailed": "Could not create activity",
+      "updateFailed": "Could not update activity",
+      "deleteFailed": "Could not delete activity"
+    },
+    "list": {
+      "subtitle": "Activities and news from {name}.",
+      "readMore": "Read more"
+    },
+    "post": {
+      "back": "All activities"
+    },
+    "admin": {
+      "subtitle": "Drafts and published activities.",
+      "newActivity": "New activity",
+      "createFirst": "Create your first activity",
+      "editActivity": "Edit activity",
+      "columns": {
+        "title": "Title",
+        "status": "Status",
+        "created": "Created"
+      },
+      "form": {
+        "title": "Title",
+        "titlePlaceholder": "Activity title",
+        "slug": "Slug",
+        "slugHint": "Leave empty to generate it from the title.",
+        "status": "Status",
+        "draft": "Draft",
+        "published": "Published",
+        "cover": "Cover image",
+        "uploadCover": "Upload cover",
+        "uploading": "Uploading {n}%",
+        "remove": "Remove",
+        "body": "Body",
+        "bodyPlaceholder": "Write about the activity…"
+      },
+      "actions": {
+        "delete": "Delete",
+        "cancel": "Cancel",
+        "save": "Save"
+      },
+      "toast": {
+        "created": "Activity created",
+        "updated": "Activity updated",
+        "deleted": "Activity deleted"
+      },
+      "confirm": {
+        "title": "Delete activity",
+        "message": "This permanently removes the activity and cannot be undone."
+      }
+    }
+  },
+  "gallery": {
+    "title": "Gallery",
+    "lead": "Moments from activities across the foundation.",
+    "empty": "No photos yet.",
+    "allActivities": "See all activities"
+  },
   "landing": {
-    "getStarted": "Get started",
-    "openDashboard": "Open dashboard",
-    "whatsInside": "What's inside",
     "nav": {
-      "features": "Features",
-      "about": "About",
-      "theme": "Toggle theme"
+      "home": "Home",
+      "profile": "Profile",
+      "information": "Information",
+      "ppdb": "Online admission",
+      "structure": "Organization",
+      "facilities": "Facilities",
+      "programs": "Programs",
+      "activities": "Activities",
+      "gallery": "Gallery",
+      "contact": "Contact",
+      "theme": "Toggle theme",
+      "menu": "Open menu"
     },
     "hero": {
-      "badge": "Open alpha",
-      "title": "Production-ready Flask,",
-      "accent": "thoughtfully minimal",
-      "lead": "Minimals is a batteries-included Flask service for cPanel and VPS behind Caddy — layered domain architecture, session & API-key auth, and a Vue 3 SPA served by Flask itself.",
-      "lifecycle": "request lifecycle",
-      "ok": "200 OK"
+      "title": "A traditional pesantren,",
+      "accent": "grounded in knowledge and character",
+      "lead": "Pondok Pesantren Selaparang (Perguruan NW) weaves Islamic learning into daily life — from MI and MTs to MA, Ma'had, and STIS Syariah in Kediri, West Lombok.",
+      "periodLabel": "Admission period",
+      "period": "1 April – 10 July 2026",
+      "hoursLabel": "Office hours",
+      "hours": "08.00–18.00 WITA · Mon–Sat",
+      "locationLabel": "Registration desk",
+      "location": "Ponpes Selaparang, Kediri, West Lombok",
+      "ctaPpdb": "Register now",
+      "ctaProfile": "About the foundation",
+      "slide": "Slide {n}"
     },
-    "features": {
-      "badge": "Features",
-      "title": "Everything you'd build anyway",
-      "lead": "The production floor every Flask service needs — included, tested, and deliberately unexciting.",
+    "highlights": {
+      "badge": "At a glance",
+      "title": "Learning that reaches beyond the classroom",
+      "lead": "Traditional pesantren values, formal education, and practical skills developed together.",
       "items": {
-        "layered": {
-          "title": "Layered domains",
-          "desc": "Seven files per domain, dependencies pointing only downward. A bug has exactly one address."
+        "management": {
+          "title": "School-based management",
+          "desc": "Clear governance and shared responsibility across every level of the foundation."
         },
-        "auth": {
-          "title": "Session & API-key auth",
-          "desc": "Browser sessions via Flask-Login; services authenticate with bcrypt-hashed API keys behind a 10-char lookup prefix."
+        "curriculum": {
+          "title": "Curriculum",
+          "desc": "A formal curriculum aligned with national standards at each level of study."
         },
-        "security": {
-          "title": "Security defaults",
-          "desc": "CSRF on every write, per-IP rate limits, CSP + HSTS, and forwarded headers believed only from private peers."
+        "accreditation": {
+          "title": "Accreditation",
+          "desc": "Recognised programmes with a recorded accreditation status."
         },
-        "roles": {
-          "title": "Roles & RBAC",
-          "desc": "A hard-coded app role for real checks, relational roles for labels, and require_role helpers that return."
+        "teachers": {
+          "title": "Dedicated teachers",
+          "desc": "Experienced educators who guide students in both knowledge and conduct."
         },
-        "setup": {
-          "title": "First-run setup",
-          "desc": "SQLite, MariaDB or PostgreSQL: test, migrate, create the admin — the engine hot-swaps, loopback-only."
+        "facilities": {
+          "title": "Supporting facilities",
+          "desc": "A library, male and female dormitories, and spaces for daily study."
         },
-        "health": {
-          "title": "Health & audit",
-          "desc": "/health and /ready probes, rotating logs, an audit trail per write, and alerts that never break the business flow."
+        "network": {
+          "title": "Wide network",
+          "desc": "Strong ties with alumni, communities, and partner institutions."
         },
-        "spa": {
-          "title": "Vue 3 SPA included",
-          "desc": "frappe-ui on Tailwind tokens, built straight into Flask's static folder. One process, one origin, one deploy."
+        "scholarship": {
+          "title": "Scholarships",
+          "desc": "Support for students so that cost is not a barrier to learning."
         },
-        "migrations": {
-          "title": "Migrations on boot",
-          "desc": "Flip MIGRATE_ON_BOOT and Alembic runs before the server accepts traffic — schema and models stay in step across engines."
+        "integrated": {
+          "title": "Integrated education",
+          "desc": "Religious and formal learning developed as one path, not two separate tracks."
         }
       }
     },
     "about": {
-      "badge": "About",
-      "title": "Minimal, not trivial.",
-      "body1": "Minimals started from an observation: every production Flask service re-implements the same scaffolding — auth, CSRF, roles, migrations, health checks, a frontend build. Minimals packages that floor, and nothing above it.",
-      "body2": "The architecture is deliberately boring. Services own transactions, repositories own queries, and the wire format is a tested contract. When something breaks, you fix it at the point of failure — there is no history to dig through.",
-      "rules": "House rules",
+      "badge": "About us",
+      "title": "Vision & mission",
+      "visionLabel": "Vision",
+      "vision": "To become an Islamic educational institution that successfully shapes a generation of noble character, broad knowledge, and the ability to integrate Islamic values into modern life for the progress of the community and the nation.",
+      "missionLabel": "Mission",
+      "mission": "To provide holistic and integrated education, combining traditional religious curriculum with contemporary knowledge.",
+      "body": "Pondok Pesantren Selaparang remains committed to developing the whole person through integrated education — learning that follows the formal curriculum while staying rooted in the values of the pesantren.",
+      "rules": "Our principles",
       "principles": {
-        "p1": "Dependencies point only downward — api, dto, services, repositories, models, presenters.",
-        "p2": "Services own the transaction; repositories never commit.",
-        "p3": "Bare objects on success, a single snake_case key on failure.",
-        "p4": "Raise exceptions from services — never return responses.",
-        "p5": "Fix at the point of failure. No history to dig through."
+        "p1": "Faith and noble conduct come before achievement.",
+        "p2": "Religious knowledge and contemporary knowledge strengthen each other.",
+        "p3": "Education forms character as well as intellect.",
+        "p4": "Teachers lead by example, in words and in daily practice.",
+        "p5": "Service to the community is part of every student's learning."
       }
     },
-    "cta": {
-      "title": "Start where the boring parts are already done.",
-      "lead": "Run setup once — point at your database, create the admin — then ship your domain on a floor that's ready."
+    "facilities": {
+      "badge": "Facilities",
+      "title": "Spaces for learning and living",
+      "lead": "Boarding and study facilities that support daily life at the pesantren.",
+      "items": {
+        "library": {
+          "title": "Library",
+          "desc": "A comfortable reading room with religious and general books for every level of study."
+        },
+        "maleDorm": {
+          "title": "Male dormitory",
+          "desc": "Accommodation for male students in two locations, inside and near the pesantren."
+        },
+        "femaleDorm": {
+          "title": "Female dormitory",
+          "desc": "Accommodation for female students coming from within the region and beyond."
+        }
+      }
+    },
+    "stats": {
+      "programs": "Education programs",
+      "students": "Total students",
+      "teachers": "Teachers & staff",
+      "scholarships": "Scholarships"
+    },
+    "programs": {
+      "badge": "Education",
+      "title": "Paths of study",
+      "lead": "Seven institutions under one foundation, from elementary madrasah to higher Islamic studies."
+    },
+    "posts": {
+      "badge": "Journal",
+      "title": "Articles & news",
+      "lead": "Stories about the people, history, and ideas that shape the foundation.",
+      "all": "All articles"
+    },
+    "ppdb": {
+      "title": "Admission is open at Yayasan Islam Selaparang",
+      "lead": "Registration runs from 1 April to 10 July 2026, 08.00–18.00 WITA every day. Choose the institution and programme you need, then complete the online form.",
+      "period": "1 April – 10 July 2026 · 08.00–18.00 WITA",
+      "register": "Register online"
+    },
+    "support": {
+      "badge": "Scholarship",
+      "title": "Support that keeps learning within reach",
+      "lead": "Scholarships help cover the cost of study for students across the foundation.",
+      "body": "Ponpes Selaparang continues to develop integrated education — formal learning alongside character building — so that every student has a fair chance to grow.",
+      "note": "For scholarship information, contact the secretariat or reach out through the contact details below.",
+      "contact": "Get in touch"
+    },
+    "contact": {
+      "badge": "Contact",
+      "title": "Have a question?",
+      "lead": "Reach the secretariat by WhatsApp or email — we are happy to help with admission and general enquiries.",
+      "addressLabel": "Address",
+      "emailLabel": "Email",
+      "whatsappLabel": "WhatsApp",
+      "facebookLabel": "Facebook",
+      "formNote": "Prefer a form? Use the contact page to send the secretariat a message."
     },
     "footer": {
-      "alpha": "open alpha",
-      "copyright": "© 2026 {name}"
+      "tagline": "Islamic education rooted in character and knowledge.",
+      "links": "Quick links",
+      "copyright": "© 2026 {name}. All rights reserved."
     }
   },
   "setup": {
@@ -388,9 +728,15 @@
     "registration_disabled": "Registration is disabled",
     "email_already_registered": "Email already registered",
     "username_taken": "Username already taken",
+    "activity_not_found": "Activity not found",
     "api_key_not_found": "Api key not found",
     "bad_request": "Bad request",
     "conflict": "Conflicting data",
+    "contact_message_not_found": "Contact message not found",
+    "invalid_phone": "Invalid phone number",
+    "phone_invalid_phone": "Invalid phone number",
+    "email_invalid_email": "Invalid email",
+    "message_required": "Message is required",
     "cannot_delete_builtin_role": "Cannot delete builtin role",
     "could_not_generate_unique_name": "Could not generate unique name",
     "csrf_token_invalid": "Csrf token invalid",
@@ -422,6 +768,7 @@
     "malformed": "Malformed",
     "method_not_allowed": "Method not allowed",
     "name_required": "Name required",
+    "name_must_be_at_least_1_characters": "Name is required",
     "no_fields_to_update": "No fields to update",
     "not_found": "Not found",
     "password_must_contain_digit": "Password must contain digit",
@@ -430,6 +777,7 @@
     "password_must_contain_uppercase": "Password must contain uppercase",
     "payload_too_large": "Payload too large",
     "post_not_found": "Post not found",
+    "program_not_found": "Program not found",
     "rate_limit_exceeded": "Rate limit exceeded",
     "required": "Required",
     "role_already_exists": "Role already exists",

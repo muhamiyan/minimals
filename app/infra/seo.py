@@ -12,6 +12,7 @@ from app.infra.models import AppSetting
 from framework.exceptions import ValidationFailed
 from framework.extensions import db
 from framework.extensions.rate_limit import limiter
+from framework.infra.html import make_excerpt
 
 bp = Blueprint("seo", __name__)
 
@@ -34,6 +35,17 @@ BRAND_KEYS = tuple(DEFAULT_BRAND)
 PRIVATE_SEGMENTS = frozenset({"admin", "dashboard", "login", "register", "setup"})
 
 BLOG_LIST_TITLE = "Blog"
+ACTIVITY_LIST_TITLE = "Activities"
+PROGRAM_LIST_TITLE = "Programs"
+
+STATIC_PUBLIC_PAGES = {
+    "/profile": "Profile",
+    "/structure": "Organization",
+    "/facilities": "Facilities",
+    "/gallery": "Gallery",
+    "/ppdb": "Admission",
+    "/contact": "Contact",
+}
 
 
 def get_brand() -> dict[str, str]:
@@ -192,6 +204,38 @@ def _published_post_by_slug(slug: str):
         return None
 
 
+def _published_activity_by_slug(slug: str):
+    """Published activity for a slug — ``None`` on miss, bad slug or storage error."""
+    from app.activity.models import Activity
+
+    if not slug or "/" in slug:
+        return None
+    try:
+        return db.session.scalar(
+            select(Activity).where(
+                Activity.slug == slug, Activity.status == "published"
+            )
+        )
+    except Exception:
+        db.session.rollback()
+        return None
+
+
+def _published_program_by_slug(slug: str):
+    """Published program for a slug — ``None`` on miss, bad slug or storage error."""
+    from app.program.models import Program
+
+    if not slug or "/" in slug:
+        return None
+    try:
+        return db.session.scalar(
+            select(Program).where(Program.slug == slug, Program.status == "published")
+        )
+    except Exception:
+        db.session.rollback()
+        return None
+
+
 def _seo_for_path(brand: dict[str, str], path: str) -> dict:
     """SEO head payload for one SPA path.
 
@@ -205,6 +249,8 @@ def _seo_for_path(brand: dict[str, str], path: str) -> dict:
     lang = _request_lang()
     description = brand.get("description") or brand.get("tagline") or ""
     blog_title = f"{BLOG_LIST_TITLE} · {name}"
+    activity_title = f"{ACTIVITY_LIST_TITLE} · {name}"
+    program_title = f"{PROGRAM_LIST_TITLE} · {name}"
 
     def _base(title: str, robots: str, canonical: str) -> dict:
         payload = {
@@ -227,12 +273,56 @@ def _seo_for_path(brand: dict[str, str], path: str) -> dict:
         return _base(name, "index, follow", site)
     if path == "/blog":
         return _base(blog_title, "index, follow", f"{site}/blog" if site else "")
+    if path == "/activities":
+        return _base(
+            activity_title, "index, follow", f"{site}/activities" if site else ""
+        )
+    if path.startswith("/activities/"):
+        activity = _published_activity_by_slug(path[len("/activities/") :])
+        if activity is None:
+            return _base(activity_title, "noindex, nofollow", "")
+        payload = _base(
+            f"{activity.title} · {name}",
+            "index, follow",
+            f"{site}/activities/{activity.slug}" if site else "",
+        )
+        payload["description"] = make_excerpt(activity.body)
+        payload["og_type"] = "article"
+        if site and activity.cover_image:
+            cover = activity.cover_image
+            payload["image"] = (
+                cover
+                if cover.startswith(("http://", "https://"))
+                else f"{site}{cover}"
+            )
+        return payload
+    if path == "/programs":
+        return _base(
+            program_title, "index, follow", f"{site}/programs" if site else ""
+        )
+    if path.startswith("/programs/"):
+        program = _published_program_by_slug(path[len("/programs/") :])
+        if program is None:
+            return _base(program_title, "noindex, nofollow", "")
+        payload = _base(
+            f"{program.title} · {name}",
+            "index, follow",
+            f"{site}/programs/{program.slug}" if site else "",
+        )
+        payload["description"] = make_excerpt(program.body)
+        payload["og_type"] = "article"
+        if site and program.cover_image:
+            cover = program.cover_image
+            payload["image"] = (
+                cover
+                if cover.startswith(("http://", "https://"))
+                else f"{site}{cover}"
+            )
+        return payload
     if path.startswith("/blog/"):
         post = _published_post_by_slug(path[len("/blog/") :])
         if post is None:
             return _base(blog_title, "noindex, nofollow", "")
-        from app.blog.presenters import make_excerpt
-
         payload = _base(
             f"{post.title} · {name}",
             "index, follow",
@@ -248,6 +338,9 @@ def _seo_for_path(brand: dict[str, str], path: str) -> dict:
                 else f"{site}{cover}"
             )
         return payload
+    if path in STATIC_PUBLIC_PAGES:
+        title = f"{STATIC_PUBLIC_PAGES[path]} · {name}"
+        return _base(title, "index, follow", f"{site}{path}" if site else "")
     # Unknown SPA path (404 inside the router) — never indexed.
     return _base(name, "noindex, nofollow", "")
 
@@ -290,26 +383,54 @@ def robots_txt():
 
 
 def _sitemap_entries() -> list[tuple[str, str | None]]:
-    """``[(path, lastmod)]`` — root, blog index, published posts only.
+    """``[(path, lastmod)]`` — root, indexes, published posts, activities, programs.
 
     Never raises: on a storage error the root entry alone is returned so
     the crawler endpoint keeps serving what it can.
     """
+    from app.activity.models import Activity
     from app.blog.models import BlogPost
+    from app.program.models import Program
 
-    entries: list[tuple[str, str | None]] = [("/", None), ("/blog", None)]
+    entries: list[tuple[str, str | None]] = [
+        ("/", None),
+        ("/blog", None),
+        ("/activities", None),
+        ("/programs", None),
+        *((path, None) for path in STATIC_PUBLIC_PAGES),
+    ]
     try:
-        rows = db.session.execute(
+        posts = db.session.execute(
             select(BlogPost.slug, BlogPost.published_on, BlogPost.changed_on)
             .where(BlogPost.status == "published")
             .order_by(BlogPost.published_on.desc(), BlogPost.slug)
         ).all()
+        activities = db.session.execute(
+            select(Activity.slug, Activity.published_on, Activity.changed_on)
+            .where(Activity.status == "published")
+            .order_by(Activity.published_on.desc(), Activity.slug)
+        ).all()
+        programs = db.session.execute(
+            select(Program.slug, Program.published_on, Program.changed_on)
+            .where(Program.status == "published")
+            .order_by(Program.order_index, Program.slug)
+        ).all()
     except Exception:
         db.session.rollback()
         return entries[:1]
-    for slug, published_on, changed_on in rows:
+    for slug, published_on, changed_on in posts:
         last = published_on or changed_on
         entries.append((f"/blog/{slug}", last.date().isoformat() if last else None))
+    for slug, published_on, changed_on in activities:
+        last = published_on or changed_on
+        entries.append(
+            (f"/activities/{slug}", last.date().isoformat() if last else None)
+        )
+    for slug, published_on, changed_on in programs:
+        last = published_on or changed_on
+        entries.append(
+            (f"/programs/{slug}", last.date().isoformat() if last else None)
+        )
     return entries
 
 

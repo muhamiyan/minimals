@@ -1,19 +1,26 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { Badge, Button, ErrorMessage, Spinner } from 'frappe-ui'
+import { Badge, Button, ErrorMessage } from 'frappe-ui'
 
 import { useAccountStore } from '@/features/account/store'
 import PanelCard from '@/shared/components/PanelCard.vue'
+import ShimmerPage from '@/shared/components/ShimmerPage.vue'
 import StatTile from '@/shared/components/StatTile.vue'
 import { useAuthStore } from '@/features/auth/store'
 import { getErrorMessage } from '@/shared/api'
 
 const auth = useAuthStore()
 const account = useAccountStore()
-const router = useRouter()
 const { t } = useI18n()
+
+const consoleLinks = [
+  { key: 'dash.manageUsers', icon: 'lucide-users', name: 'Users' },
+  { key: 'dash.manageBlog', icon: 'lucide-file-text', name: 'BlogAdminList' },
+  { key: 'dash.manageActivities', icon: 'lucide-calendar-check', name: 'ActivityAdminList' },
+  { key: 'dash.managePrograms', icon: 'lucide-graduation-cap', name: 'ProgramAdminList' },
+  { key: 'dash.manageMessages', icon: 'lucide-mail', name: 'ContactAdminList' },
+]
 
 const user = computed(() => auth.user)
 const userTotal = ref<number | null>(null)
@@ -45,7 +52,7 @@ onMounted(async () => {
       <p class="text-p-sm text-ink-gray-5">{{ user?.email }}</p>
     </PanelCard>
 
-    <Spinner v-if="!statsReady" class="mx-auto" />
+    <ShimmerPage v-if="!statsReady" />
 
     <template v-else>
       <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -63,18 +70,22 @@ onMounted(async () => {
         </StatTile>
       </div>
 
-      <PanelCard class="flex flex-wrap items-center justify-between gap-3">
+      <PanelCard>
         <div>
           <div class="text-base-medium text-ink-gray-8">{{ t('dash.adminConsole') }}</div>
-          <p class="text-p-sm text-ink-gray-5">{{ t('dash.adminConsoleHint') }}</p>
+          <p class="mt-1 text-p-sm text-ink-gray-5">{{ t('dash.adminConsoleHint') }}</p>
         </div>
-        <Button
-          variant="solid"
-          theme="gray"
-          icon-left="lucide-users"
-          :label="t('dash.manageUsers')"
-          @click="router.push({ name: 'Users' })"
-        />
+        <div class="mt-4 flex flex-wrap gap-2">
+          <Button
+            v-for="link in consoleLinks"
+            :key="link.name"
+            variant="subtle"
+            theme="gray"
+            :icon-left="link.icon"
+            :label="t(link.key)"
+            :route="{ name: link.name }"
+          />
+        </div>
       </PanelCard>
 
       <PanelCard :title="t('dash.roles')">

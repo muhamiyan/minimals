@@ -37,7 +37,13 @@ class BlogService(ServiceBase[BlogRepository]):
             raise NotFound("post_not_found")
         return post
 
-    def create(self, dto: BlogCreateIn, *, actor_id: str) -> BlogPost:
+    def create(
+        self,
+        dto: BlogCreateIn,
+        *,
+        actor_id: str,
+        published_on: datetime | None = None,
+    ) -> BlogPost:
         slug = dto.slug or _slugify(dto.title)
         if not slug:
             raise InvalidOperation("slug_required")
@@ -53,7 +59,7 @@ class BlogService(ServiceBase[BlogRepository]):
             author_id=actor_id,
         )
         if post.status == "published":
-            post.published_on = datetime.now(UTC)
+            post.published_on = published_on or datetime.now(UTC)
 
         self._repo.add(post)
         self._flush()

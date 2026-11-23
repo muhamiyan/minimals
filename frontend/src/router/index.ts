@@ -9,12 +9,16 @@ import {
 import { i18n } from '@/app/i18n'
 import AppShell from '@/app/AppShell.vue'
 import { accountRoutes } from '@/features/account/routes'
+import { activityAdminRoutes, activityRoutes } from '@/features/activity/routes'
 import { authRoutes } from '@/features/auth/routes'
+import { contactAdminRoutes } from '@/features/contact/routes'
 import { useAuthStore } from '@/features/auth/store'
 import { blogAdminRoutes, blogRoutes } from '@/features/blog/routes'
 import { dashboardRoutes } from '@/features/dashboard/routes'
 import { landingRoutes } from '@/features/landing/routes'
+import { programAdminRoutes, programRoutes } from '@/features/program/routes'
 import { setupRoutes } from '@/features/setup/routes'
+import { siteRoutes } from '@/features/site/routes'
 import { brand } from '@/shared/brand'
 import { authGuard } from './guard'
 
@@ -23,6 +27,9 @@ const routes: RouteRecordRaw[] = [
   ...setupRoutes,
   ...landingRoutes,
   ...blogRoutes,
+  ...activityRoutes,
+  ...programRoutes,
+  ...siteRoutes,
   {
     path: '/dashboard',
     component: AppShell,
@@ -32,6 +39,21 @@ const routes: RouteRecordRaw[] = [
     path: '/admin/blog',
     component: AppShell,
     children: [...blogAdminRoutes],
+  },
+  {
+    path: '/admin/activities',
+    component: AppShell,
+    children: [...activityAdminRoutes],
+  },
+  {
+    path: '/admin/programs',
+    component: AppShell,
+    children: [...programAdminRoutes],
+  },
+  {
+    path: '/admin/contact',
+    component: AppShell,
+    children: [...contactAdminRoutes],
   },
   { path: '/:pathMatch(.*)*', redirect: '/' },
 ]

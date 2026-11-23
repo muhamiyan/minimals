@@ -170,6 +170,22 @@ Tidak ada CLI generator di project ini (berbeda dengan root `cells`).
 | POST | /api/v1/blog/posts | Create post (admin) |
 | PATCH | /api/v1/blog/posts/:slug | Update post (admin) |
 | DELETE | /api/v1/blog/posts/:slug | Delete post (admin) |
+| GET | /api/v1/activity/activities | List published activities (public, paginated) |
+| GET | /api/v1/activity/activities/:slug | Fetch one activity (public; drafts admin-only) |
+| GET | /api/v1/activity/admin/activities | List all activities incl. drafts (admin, paginated) |
+| POST | /api/v1/activity/activities | Create activity (admin) |
+| PATCH | /api/v1/activity/activities/:slug | Update activity (admin) |
+| DELETE | /api/v1/activity/activities/:slug | Delete activity (admin) |
+| GET | /api/v1/program/programs | List published programs (public, paginated) |
+| GET | /api/v1/program/programs/:slug | Fetch one program (public; drafts admin-only) |
+| GET | /api/v1/program/admin/programs | List all programs incl. drafts (admin, paginated) |
+| POST | /api/v1/program/programs | Create program (admin) |
+| PATCH | /api/v1/program/programs/:slug | Update program (admin) |
+| DELETE | /api/v1/program/programs/:slug | Delete program (admin) |
+| POST | /api/v1/contact/messages | Send a contact message (public, rate-limited) |
+| GET | /api/v1/contact/admin/messages | List contact messages (admin, paginated) |
+| PATCH | /api/v1/contact/admin/messages/:id | Mark a contact message read/unread (admin) |
+| DELETE | /api/v1/contact/admin/messages/:id | Delete a contact message (admin) |
 | PUT | /api/v1/brand/logo | Set or clear the brand logo (admin, stored upload only) |
 | GET | /robots.txt | Crawler instructions, brand-driven (public) |
 | GET | /sitemap.xml | Canonical site URL for crawlers (public) |

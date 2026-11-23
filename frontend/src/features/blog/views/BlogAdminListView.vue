@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { Badge, Button, ErrorMessage, Spinner } from 'frappe-ui'
+import Shimmer from '@/shared/components/Shimmer.vue'
+import ShimmerPage from '@/shared/components/ShimmerPage.vue'
+import { Badge, Button, ErrorMessage } from 'frappe-ui'
 import { List, ListCell, ListHeader, ListHeaderCell, ListRow, ListRows } from 'frappe-ui/list'
 import { computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -27,7 +29,7 @@ async function goTo(nextPage: number) {
 </script>
 
 <template>
-  <Spinner v-if="!gateReady" class="mx-auto flex py-24" />
+  <ShimmerPage v-if="!gateReady" />
   <div v-else class="mx-auto w-full max-w-5xl p-6">
     <header class="mb-6 flex flex-wrap items-center justify-between gap-3">
       <div>
@@ -37,7 +39,7 @@ async function goTo(nextPage: number) {
       <Button
         :label="t('blog.admin.newPost')"
         variant="solid"
-        theme="blue"
+        theme="green"
         icon-left="lucide-plus"
         :route="{ name: 'BlogAdminCreate' }"
       />
@@ -46,7 +48,7 @@ async function goTo(nextPage: number) {
     <ErrorMessage v-if="blog.error" :message="blog.error" />
 
     <div v-else-if="blog.loading && !blog.posts.length" class="space-y-3">
-      <div v-for="i in 4" :key="i" class="h-14 animate-pulse rounded-6 bg-surface-elevation-2" />
+      <Shimmer v-for="i in 4" :key="i" class="h-14  rounded-6 bg-surface-elevation-2" />
     </div>
 
     <div
@@ -78,7 +80,7 @@ async function goTo(nextPage: number) {
           <ListCell>
             <Badge
               :label="item.status"
-              :theme="item.status === 'published' ? 'blue' : 'gray'"
+              :theme="item.status === 'published' ? 'green' : 'gray'"
               variant="subtle"
             />
           </ListCell>

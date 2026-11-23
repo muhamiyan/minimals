@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
+from urllib.request import Request, urlopen
 from uuid import UUID
 
 from flask import current_app, request
@@ -92,4 +93,24 @@ def delete_image(name: str):
     return no_content()
 
 
-__all__ = ["bp", "upload_name_from_url"]
+def store_remote_image(url: str) -> str | None:
+    """Download an image into the upload folder; return its servable URL."""
+    ext = url.rsplit(".", 1)[-1].lower() if "." in url else ""
+    if ext not in ALLOWED_EXTENSIONS:
+        return None
+    try:
+        request = Request(url, headers={"User-Agent": "minimals-seed/1.0"})
+        with urlopen(request, timeout=30) as response:
+            data = response.read()
+    except OSError:
+        return None
+    if not data or len(data) > MAX_IMAGE_BYTES:
+        return None
+    folder = Path(current_app.config["UPLOAD_FOLDER"])
+    folder.mkdir(parents=True, exist_ok=True)
+    name = f"{uuid7()}.{ext}"
+    (folder / name).write_bytes(data)
+    return f"{UPLOAD_URL_PREFIX}{name}"
+
+
+__all__ = ["bp", "store_remote_image", "upload_name_from_url"]
