@@ -84,7 +84,8 @@
   },
   "crumb": {
     "dashboard": "Dasbor",
-    "users": "Pengguna"
+    "users": "Pengguna",
+    "blog": "Blog"
   },
   "route": {
     "Login": {
@@ -226,6 +227,7 @@
   "blog": {
     "title": "Blog",
     "empty": "Belum ada tulisan.",
+    "loading": "Memuat tulisan…",
     "errors": {
       "loadFailed": "Gagal memuat tulisan",
       "notFound": "Tulisan tidak ditemukan",
@@ -246,10 +248,13 @@
       "newPost": "Tulisan baru",
       "createFirst": "Buat tulisan pertama Anda",
       "editPost": "Sunting tulisan",
+      "searchPosts": "Cari tulisan…",
+      "noPostsFound": "Tidak ada tulisan yang cocok.",
       "columns": {
         "title": "Judul",
         "status": "Status",
-        "created": "Dibuat"
+        "created": "Dibuat",
+        "actions": "Aksi"
       },
       "form": {
         "title": "Judul",
@@ -260,6 +265,8 @@
         "authorPlaceholder": "Nama penulis",
         "category": "Kategori",
         "categoryPlaceholder": "mis. Berita",
+        "createCategory": "Buat kategori baru",
+        "noCategories": "Belum ada kategori",
         "status": "Status",
         "draft": "Draf",
         "published": "Terbit",
@@ -277,6 +284,7 @@
       },
       "toast": {
         "created": "Tulisan dibuat",
+        "categoryCreated": "Kategori dibuat",
         "updated": "Tulisan diperbarui",
         "deleted": "Tulisan dihapus"
       },

@@ -4,6 +4,7 @@ ITEM_KEYS = {
     "slug",
     "excerpt",
     "readTime",
+    "author",
     "status",
     "createdOn",
     "authorName",
@@ -313,10 +314,10 @@ def test_create_post_accepts_author_and_category(admin):
     assert body["readTime"] == 1
 
 
-def test_blank_author_and_category_are_omitted(admin):
+def test_blank_author_falls_back_and_blank_category_is_omitted(admin):
     response = create_post(admin, slug="blank-meta", author="   ", category="  ")
     assert response.status_code == 201
-    assert "author" not in response.get_json()
+    assert response.get_json()["author"] == "Admin User"
     assert "category" not in response.get_json()
 
 
@@ -342,3 +343,104 @@ def test_update_author_and_category(admin):
     assert response.status_code == 200
     assert response.get_json()["author"] == "Jane Doe"
     assert response.get_json()["category"] == "Tutorial"
+
+
+def test_author_falls_back_to_account_name(admin):
+    body = create_post(admin, slug="author-fallback").get_json()
+    assert body["author"] == "Admin User"
+    assert body["authorName"] == "Admin User"
+
+    patched = admin.patch(
+        "/api/v1/blog/posts/author-fallback", json={"author": "  "}
+    )
+    assert patched.status_code == 200
+    assert patched.get_json()["author"] == "Admin User"
+
+
+def test_explicit_author_wins(admin):
+    body = create_post(admin, slug="author-explicit", author="Guest Writer").get_json()
+    assert body["author"] == "Guest Writer"
+    assert body["authorName"] == "Admin User"
+
+
+def test_category_endpoints_are_admin_only(admin, member):
+    assert member.get("/api/v1/blog/categories").status_code == 403
+    assert member.post("/api/v1/blog/categories", json={"name": "News"}).status_code == 403
+
+    created = admin.post("/api/v1/blog/categories", json={"name": "  News  "})
+    assert created.status_code == 201
+    assert created.get_json()["name"] == "News"
+
+    duplicate = admin.post("/api/v1/blog/categories", json={"name": "news"})
+    assert duplicate.status_code == 200
+    assert duplicate.get_json()["id"] == created.get_json()["id"]
+
+    items = admin.get("/api/v1/blog/categories").get_json()["items"]
+    assert [item["name"] for item in items] == ["News"]
+
+
+def test_post_category_is_persisted_and_reused(admin):
+    first = create_post(admin, slug="cat-one", category="Tutorial").get_json()
+    assert first["category"] == "Tutorial"
+
+    second = create_post(admin, slug="cat-two", category="tutorial").get_json()
+    assert second["category"] == "Tutorial"
+
+    items = admin.get("/api/v1/blog/categories").get_json()["items"]
+    assert [item["name"] for item in items] == ["Tutorial"]
+
+    patched = admin.patch("/api/v1/blog/posts/cat-one", json={"category": "News"})
+    assert patched.status_code == 200
+    assert patched.get_json()["category"] == "News"
+
+
+def test_category_can_be_cleared(admin):
+    create_post(admin, slug="cat-clear", category="News")
+    patched = admin.patch("/api/v1/blog/posts/cat-clear", json={"category": ""})
+    assert patched.status_code == 200
+    assert "category" not in patched.get_json()
+
+
+def test_migration_0003_backfills_and_downgrades(tmp_path):
+    import sqlite3
+
+    from alembic import command
+    from alembic.config import Config
+
+    from app.infra.setup_service import MIGRATIONS_DIR
+
+    target = tmp_path / "migration.db"
+    cfg = Config()
+    cfg.set_main_option("script_location", MIGRATIONS_DIR)
+    cfg.set_main_option("sqlalchemy.url", f"sqlite:///{target.as_posix()}")
+    command.upgrade(cfg, "0002")
+
+    conn = sqlite3.connect(target)
+    conn.execute(
+        "INSERT INTO users (id, email, username, password, full_name) "
+        "VALUES ('u1', 'old@example.com', 'olduser', 'x', 'Old Author')"
+    )
+    conn.execute(
+        "INSERT INTO blog_posts "
+        "(id, title, slug, body, status, category, author_id, read_time, created_on, changed_on) "
+        "VALUES ('p1', 'Post', 'post', '<p>x</p>', 'published', 'News', 'u1', 1, "
+        "CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)"
+    )
+    conn.commit()
+    conn.close()
+
+    command.upgrade(cfg, "0003")
+    conn = sqlite3.connect(target)
+    assert conn.execute("SELECT name FROM blog_categories").fetchall() == [("News",)]
+    assert conn.execute("SELECT author FROM blog_posts WHERE id = 'p1'").fetchone()[0] == "Old Author"
+    conn.close()
+
+    command.downgrade(cfg, "0002")
+    conn = sqlite3.connect(target)
+    cols = [row[1] for row in conn.execute("PRAGMA table_info(blog_posts)")]
+    assert "category" in cols
+    assert "category_id" not in cols
+    assert conn.execute("SELECT category FROM blog_posts WHERE id = 'p1'").fetchone()[0] == "News"
+    tables = [row[0] for row in conn.execute("SELECT name FROM sqlite_master WHERE type='table'")]
+    assert "blog_categories" not in tables
+    conn.close()

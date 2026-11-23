@@ -97,7 +97,7 @@ def create_app() -> Flask:
 
         from app.account.models import ApiKey, UserPreference  # noqa: F401
         from app.auth.models import Role, User, user_roles  # noqa: F401
-        from app.blog.models import BlogPost  # noqa: F401
+        from app.blog.models import BlogCategory, BlogPost  # noqa: F401
         from app.infra.audit import AuditLog  # noqa: F401
         from app.infra.models import AppSetting  # noqa: F401
         from app.infra.roles import ensure_member_role

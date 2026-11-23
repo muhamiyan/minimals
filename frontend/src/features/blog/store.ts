@@ -30,6 +30,17 @@ interface BlogListResponse {
   perPage: number
 }
 
+export interface BlogQuery {
+  search?: string
+  page?: number
+  perPage?: number
+}
+
+export interface BlogCategory {
+  id: string
+  name: string
+}
+
 export interface BlogPostInput {
   title: string
   slug?: string
@@ -43,6 +54,8 @@ export interface BlogPostInput {
 export const useBlogStore = defineStore('blog', () => {
   const posts = ref<BlogSummary[]>([])
   const post = ref<BlogPostDetail | null>(null)
+  const categories = ref<BlogCategory[]>([])
+  const categoryError = ref('')
   const total = ref(0)
   const page = ref(1)
   const perPage = ref(10)
@@ -92,16 +105,20 @@ export const useBlogStore = defineStore('blog', () => {
     }
   }
 
-  async function fetchAdminList(nextPage = 1): Promise<boolean> {
+  async function fetchAdminList(query: BlogQuery = {}): Promise<boolean> {
     loading.value = true
     error.value = ''
     try {
-      const { data } = await api.get<BlogListResponse>('/blog/admin/posts', {
-        params: { page: nextPage, per_page: perPage.value },
-      })
-      posts.value = data.items
-      total.value = data.total
-      page.value = data.page
+      const params: Record<string, string | number> = {
+        page: query.page ?? page.value,
+        per_page: query.perPage ?? perPage.value,
+      }
+      if (query.search) params.search = query.search
+      const { data } = await api.get<BlogListResponse>('/blog/admin/posts', { params })
+      posts.value = data.items ?? []
+      total.value = data.total ?? 0
+      page.value = data.page ?? 1
+      perPage.value = data.perPage ?? perPage.value
       return true
     } catch (e: unknown) {
       error.value = getErrorMessage(e, i18n.global.t('blog.errors.loadFailed'))
@@ -148,6 +165,33 @@ export const useBlogStore = defineStore('blog', () => {
     }
   }
 
+  async function fetchCategories(): Promise<boolean> {
+    categoryError.value = ''
+    try {
+      const { data } = await api.get<{ items: BlogCategory[] }>('/blog/categories')
+      categories.value = data.items ?? []
+      return true
+    } catch (e: unknown) {
+      categoryError.value = getErrorMessage(e, i18n.global.t('blog.errors.loadFailed'))
+      return false
+    }
+  }
+
+  async function createCategory(name: string): Promise<BlogCategory | null> {
+    categoryError.value = ''
+    try {
+      const { data } = await api.post<BlogCategory>('/blog/categories', { name })
+      if (!categories.value.some((item) => item.id === data.id)) {
+        categories.value.push(data)
+      }
+      categories.value.sort((a, b) => a.name.localeCompare(b.name))
+      return data
+    } catch (e: unknown) {
+      categoryError.value = getErrorMessage(e, i18n.global.t('blog.errors.createFailed'))
+      return null
+    }
+  }
+
   function clearError(): void {
     error.value = ''
   }
@@ -155,6 +199,8 @@ export const useBlogStore = defineStore('blog', () => {
   return {
     posts,
     post,
+    categories,
+    categoryError,
     total,
     page,
     perPage,
@@ -167,6 +213,8 @@ export const useBlogStore = defineStore('blog', () => {
     fetchList,
     fetchPost,
     fetchAdminList,
+    fetchCategories,
+    createCategory,
     createPost,
     updatePost,
     removePost,

@@ -29,9 +29,15 @@ const routes: RouteRecordRaw[] = [
     children: [...dashboardRoutes, ...accountRoutes],
   },
   {
-    path: '/admin/blog',
+    path: '/blog',
     component: AppShell,
     children: [...blogAdminRoutes],
+  },
+  { path: '/admin/blog', redirect: '/blog/manage' },
+  { path: '/admin/blog/new', redirect: '/blog/new' },
+  {
+    path: '/admin/blog/:slug/edit',
+    redirect: (to) => `/blog/${String(to.params.slug)}/edit`,
   },
   { path: '/:pathMatch(.*)*', redirect: '/' },
 ]

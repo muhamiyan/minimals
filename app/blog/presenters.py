@@ -10,6 +10,13 @@ from framework.base import PresenterBase
 EXCERPT_LENGTH = 160
 
 
+class BlogCategoryOut(PresenterBase):
+    """Blog category — picker and management responses."""
+
+    id: str
+    name: str
+
+
 def make_excerpt(body: str) -> str:
     text = re.sub(r"<[^>]+>", " ", body)
     text = html.unescape(text)
@@ -41,6 +48,7 @@ class BlogPostSummaryOut(PresenterBase):
         return cls.from_model(
             post,
             excerpt=make_excerpt(post.body),
+            category=post.category.name if post.category is not None else None,
             author_name=(
                 author_user.full_name or author_user.username
                 if author_user is not None
@@ -55,4 +63,4 @@ class BlogPostOut(BlogPostSummaryOut):
     body: str
 
 
-__all__ = ["BlogPostOut", "BlogPostSummaryOut", "make_excerpt"]
+__all__ = ["BlogCategoryOut", "BlogPostOut", "BlogPostSummaryOut", "make_excerpt"]

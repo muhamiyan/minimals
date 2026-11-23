@@ -84,7 +84,8 @@
   },
   "crumb": {
     "dashboard": "Dashboard",
-    "users": "Users"
+    "users": "Users",
+    "blog": "Blog"
   },
   "route": {
     "Login": {
@@ -226,6 +227,7 @@
   "blog": {
     "title": "Blog",
     "empty": "No posts yet.",
+    "loading": "Loading posts…",
     "errors": {
       "loadFailed": "Could not load posts",
       "notFound": "Post not found",
@@ -246,10 +248,13 @@
       "newPost": "New post",
       "createFirst": "Create your first post",
       "editPost": "Edit post",
+      "searchPosts": "Search posts…",
+      "noPostsFound": "No posts match your search.",
       "columns": {
         "title": "Title",
         "status": "Status",
-        "created": "Created"
+        "created": "Created",
+        "actions": "Actions"
       },
       "form": {
         "title": "Title",
@@ -260,6 +265,8 @@
         "authorPlaceholder": "Author name",
         "category": "Category",
         "categoryPlaceholder": "e.g. News",
+        "createCategory": "Create new category",
+        "noCategories": "No categories",
         "status": "Status",
         "draft": "Draft",
         "published": "Published",
@@ -277,6 +284,7 @@
       },
       "toast": {
         "created": "Post created",
+        "categoryCreated": "Category created",
         "updated": "Post updated",
         "deleted": "Post deleted"
       },

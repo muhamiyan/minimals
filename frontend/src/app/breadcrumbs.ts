@@ -19,4 +19,13 @@ interface Crumb {
 export const breadcrumbMap: Record<string, Crumb> = {
   Dashboard: { label: 'crumb.dashboard' },
   Users: { label: 'crumb.users' },
+  BlogAdminList: { label: 'crumb.blog' },
+  BlogAdminCreate: {
+    label: 'blog.admin.newPost',
+    parent: { label: 'crumb.blog', route: { name: 'BlogAdminList' } },
+  },
+  BlogAdminEdit: {
+    label: 'blog.admin.editPost',
+    parent: { label: 'crumb.blog', route: { name: 'BlogAdminList' } },
+  },
 }

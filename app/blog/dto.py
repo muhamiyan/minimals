@@ -198,4 +198,18 @@ class BlogUpdateIn(DTOBase):
         return self
 
 
-__all__ = ["BlogCreateIn", "BlogUpdateIn"]
+class BlogCategoryCreateIn(DTOBase):
+    """Validate a blog category creation payload."""
+
+    name: str = DTOBase.field(..., min_length=1, max_length=100)
+
+    @field_validator("name")
+    @classmethod
+    def strip_name(cls, v: str) -> str:
+        v = v.strip()
+        if not v:
+            raise ValueError("invalid")
+        return v
+
+
+__all__ = ["BlogCategoryCreateIn", "BlogCreateIn", "BlogUpdateIn"]

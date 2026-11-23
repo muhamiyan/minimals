@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { Button, ErrorMessage, FileUploader, FormControl, Spinner, dialog, toast } from 'frappe-ui'
+import { Button, Combobox, ErrorMessage, FileUploader, FormControl, Spinner, dialog, toast } from 'frappe-ui'
 import { Editor, EditorContent, EditorFixedMenu, RichTextKit, articleToolbar } from 'frappe-ui/editor'
 import { computed, onMounted, reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 
 import { fetchCsrfToken } from '@/shared/api'
+import AppPageHeader from '@/shared/shell/AppPageHeader.vue'
 
 import { useBlogStore } from '../store'
 
@@ -29,17 +30,66 @@ const form = reactive({
 const saving = ref(false)
 const deleting = ref(false)
 
-const pageTitle = computed(() =>
-  isEdit.value ? t('blog.admin.editPost') : t('blog.admin.newPost'),
-)
 const gateReady = computed(() => !isEdit.value || blog.checked)
 const canSave = computed(
   () => Boolean(form.title.trim() && form.body.trim() && !saving.value),
 )
 
+const categoryOptions = computed(() => [
+  ...blog.categories.map((category) => ({
+    label: category.name,
+    value: category.name,
+  })),
+  {
+    type: 'custom' as const,
+    key: 'new-category',
+    label: t('blog.admin.form.createCategory'),
+    icon: 'lucide-plus',
+    onClick: ({ query }: { query: string }) => openCreateCategory(query),
+  },
+])
+
+function onCategoryChange(value: unknown) {
+  form.category = typeof value === 'string' ? value : ''
+}
+
+function openCreateCategory(query = '') {
+  dialog.prompt({
+    title: t('blog.admin.form.createCategory'),
+    fields: [
+      {
+        name: 'name',
+        label: t('blog.admin.form.category'),
+        placeholder: t('blog.admin.form.categoryPlaceholder'),
+        defaultValue: query,
+        required: true,
+      },
+    ],
+    confirmLabel: t('blog.admin.form.createCategory'),
+    onConfirm: async ({ values }) => {
+      const name = String(values.name ?? '').trim()
+      if (!name) return
+
+      const existing = blog.categories.find(
+        (category) => category.name.toLowerCase() === name.toLowerCase(),
+      )
+      if (existing) {
+        form.category = existing.name
+        return
+      }
+
+      const created = await blog.createCategory(name)
+      if (!created) throw new Error(blog.categoryError)
+      form.category = created.name
+      toast.success(t('blog.admin.toast.categoryCreated'))
+    },
+  })
+}
+
 onMounted(async () => {
   blog.clearError()
   await fetchCsrfToken().catch(() => '')
+  await blog.fetchCategories()
   if (isEdit.value) {
     const loaded = await blog.fetchPost(slug.value)
     if (loaded && blog.post) {
@@ -111,12 +161,13 @@ function onDelete() {
 </script>
 
 <template>
-  <Spinner v-if="!gateReady" class="mx-auto flex py-24" />
+  <AppPageHeader />
+
+  <div v-if="!gateReady" class="flex justify-center py-10">
+    <Spinner />
+  </div>
   <div v-else class="mx-auto w-full max-w-3xl p-6">
-    <header class="mb-6">
-      <h1 class="text-2xl-semibold text-ink-gray-9">{{ pageTitle }}</h1>
-      <p v-if="isEdit" class="mt-1 text-p-sm text-ink-gray-5">/{{ slug }}</p>
-    </header>
+    <p v-if="isEdit" class="mb-6 text-p-sm text-ink-gray-5">/{{ slug }}</p>
 
     <ErrorMessage v-if="blog.error && !saving" :message="blog.error" />
 
@@ -145,20 +196,25 @@ function onDelete() {
         :label="t('blog.admin.form.author')"
         :placeholder="t('blog.admin.form.authorPlaceholder')"
       />
-      <FormControl
-        v-model="form.category"
-        :label="t('blog.admin.form.category')"
-        :placeholder="t('blog.admin.form.categoryPlaceholder')"
-      />
-      <FormControl
-        v-model="form.status"
-        type="select"
-        :label="t('blog.admin.form.status')"
-        :options="[
-          { label: t('blog.admin.form.draft'), value: 'draft' },
-          { label: t('blog.admin.form.published'), value: 'published' },
-        ]"
-      />
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <Combobox
+          :model-value="form.category || null"
+          :options="categoryOptions"
+          :label="t('blog.admin.form.category')"
+          :placeholder="t('blog.admin.form.categoryPlaceholder')"
+          :empty-text="t('blog.admin.form.noCategories')"
+          @update:model-value="onCategoryChange"
+        />
+        <FormControl
+          v-model="form.status"
+          type="select"
+          :label="t('blog.admin.form.status')"
+          :options="[
+            { label: t('blog.admin.form.draft'), value: 'draft' },
+            { label: t('blog.admin.form.published'), value: 'published' },
+          ]"
+        />
+      </div>
 
       <div>
         <div class="mb-1.5 text-base-medium text-ink-gray-7">
@@ -230,7 +286,7 @@ function onDelete() {
         </div>
       </div>
 
-      <div class="flex items-center justify-between gap-3 pt-2">
+      <div class="flex flex-wrap items-center justify-between gap-2 border-t border-outline-gray-1 pt-4">
         <Button
           v-if="isEdit"
           type="button"
@@ -241,19 +297,19 @@ function onDelete() {
           :loading="deleting"
           @click="onDelete"
         />
-        <span v-else />
-        <div class="flex items-center gap-2">
+        <div class="ml-auto flex items-center gap-2">
           <Button
             type="button"
             :label="t('blog.admin.actions.cancel')"
             variant="ghost"
+            theme="gray"
             :route="{ name: 'BlogAdminList' }"
           />
           <Button
             type="submit"
             :label="t('blog.admin.actions.save')"
             variant="solid"
-            theme="blue"
+            theme="gray"
             icon-left="lucide-check"
             :loading="saving"
             :disabled="!canSave"

@@ -17,21 +17,21 @@ export const blogRoutes: RouteRecordRaw[] = [
 
 export const blogAdminRoutes: RouteRecordRaw[] = [
   {
-    path: '',
+    path: 'manage',
     name: 'BlogAdminList',
     component: () => import('./views/BlogAdminListView.vue'),
-    meta: { requiresAuth: true, requiresAdmin: true, title: 'Blog' },
+    meta: { requiresAuth: true, title: 'Blog' },
   },
   {
     path: 'new',
     name: 'BlogAdminCreate',
     component: () => import('./views/BlogAdminEditView.vue'),
-    meta: { requiresAuth: true, requiresAdmin: true, title: 'New post' },
+    meta: { requiresAuth: true, title: 'New post' },
   },
   {
     path: ':slug/edit',
     name: 'BlogAdminEdit',
     component: () => import('./views/BlogAdminEditView.vue'),
-    meta: { requiresAuth: true, requiresAdmin: true, title: 'Edit post' },
+    meta: { requiresAuth: true, title: 'Edit post' },
   },
 ]
