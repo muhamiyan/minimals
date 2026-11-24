@@ -1,6 +1,6 @@
-# CLAUDE.md
+# AGENTS.md
 
-Guidance untuk Claude saat bekerja di project **minimals**.
+Guidance untuk agent saat bekerja di project **minimals**.
 
 > **Project ini berbeda dari root repo `cells`.** `minimals` adalah Flask app
 > **single-service** mandiri: punya `app/` + `framework/` sendiri, tidak ada
@@ -515,9 +515,9 @@ Ini gotcha paling sering terlewat.
 
 ## Deployment
 
-`Dockerfile` (python:3.11-slim, non-root `appuser`, `/app/data` volume) +
-`docker-compose.yml` (bind `127.0.0.1:8000`, `MIGRATE_ON_BOOT=true`) +
-`Caddyfile` (TLS + reverse proxy). Setup: build FE → `.env` dengan `SECRET_KEY`
+`deploy/Dockerfile` (python:3.11-slim, non-root `appuser`, `/app/data` volume) +
+`deploy/docker-compose.yml` (bind `127.0.0.1:8000`, `MIGRATE_ON_BOOT=true`) +
+`deploy/Caddyfile` (TLS + reverse proxy). Setup: build FE → `.env` dengan `SECRET_KEY`
 nyata → Caddy → `TRUSTED_PROXY=true` di belakang proxy.
 
 Known gaps ada di README § *Security notes* (`/uploads/*` tanpa auth,

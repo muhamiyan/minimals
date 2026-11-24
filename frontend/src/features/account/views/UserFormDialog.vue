@@ -12,6 +12,7 @@ import {
   toast,
 } from 'frappe-ui'
 
+import { isUsernameValid } from '@/features/auth/validation'
 import PasswordRules from '@/shared/components/PasswordRules.vue'
 import { useAccountStore, type AdminUser } from '../store'
 
@@ -38,6 +39,12 @@ const isActive = ref(true)
 const roleNames = ref<string[]>([])
 const saving = ref(false)
 const error = ref('')
+
+const usernameError = computed(() =>
+  username.value.trim() && !isUsernameValid(username.value)
+    ? t('auth.usernameRules.noSpaces')
+    : '',
+)
 
 function resetForm() {
   const user = props.user
@@ -78,6 +85,7 @@ const actions = computed(() => [
     label: isCreate.value ? t('account.createUser') : t('account.saveChanges'),
     variant: 'solid' as const,
     loading: saving.value,
+    disabled: isCreate.value && !!usernameError.value,
     onClick: async () => {
       await onSave()
     },
@@ -85,6 +93,7 @@ const actions = computed(() => [
 ])
 
 async function onSave() {
+  if (isCreate.value && usernameError.value) return
   saving.value = true
   error.value = ''
 
@@ -148,6 +157,7 @@ async function onSave() {
         v-model="username"
         :label="t('field.username')"
         placeholder="abdulah"
+        :error="usernameError"
         required
         autocomplete="off"
       />

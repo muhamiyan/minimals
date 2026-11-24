@@ -5,7 +5,7 @@ import re
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
-DOC = REPO / "CLAUDE.md"
+DOC = REPO / "AGENTS.md"
 
 TABLE_ROW = re.compile(r"^\|\s*(GET|POST|PUT|PATCH|DELETE)\s*\|\s*([/\w{}<>:.-]+)\s*\|")
 PARAM = re.compile(r"<[^>]+>|:[A-Za-z_]\w*")

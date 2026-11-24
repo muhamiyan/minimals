@@ -201,6 +201,9 @@
       "digit": "One number",
       "special": "One special character",
       "length": "At least 8 characters"
+    },
+    "usernameRules": {
+      "noSpaces": "Username cannot contain spaces"
     }
   },
   "account": {
