@@ -21,8 +21,8 @@ tests/
 .mypy_cache/
 .coverage
 htmlcov/
-docker-compose*.yml
-Dockerfile
+deploy/docker-compose*.yml
+deploy/Caddyfile
 .dockerignore
 README.md
 .idea/

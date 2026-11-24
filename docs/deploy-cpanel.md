@@ -2,7 +2,7 @@
 
 Runbook untuk men-deploy Minimals ke shared hosting cPanel yang punya menu
 **Setup Python App** (Phusion Passenger). Ini jalur alternatif dari
-`Dockerfile`/`Caddyfile` — di cPanel tidak ada container, tidak ada TLS
+`deploy/Dockerfile`/`deploy/Caddyfile` — di cPanel tidak ada container, tidak ada TLS
 proxy sendiri, dan **tidak ada waitress**: Passenger yang meng-import WSGI
 callable dari `passenger_wsgi.py`.
 

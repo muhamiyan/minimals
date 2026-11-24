@@ -94,7 +94,7 @@ yarn typecheck
 
 1. `cd frontend && yarn install && yarn build`
 2. `.env` dengan `SECRET_KEY` asli + `DATABASE_URL`
-3. Arahkan Caddy (`Caddyfile`) ke `localhost:8000`
+3. Arahkan Caddy (`deploy/Caddyfile`) ke `localhost:8000`
 4. `TRUSTED_PROXY=true` (hanya di belakang proxy) — `FORCE_HTTPS=true`
    (default) asalkan Caddy kirim `X-Forwarded-Proto`
 5. `uv run python -m app.run`
@@ -105,8 +105,11 @@ Shared hosting cPanel (Passenger, tanpa container) punya jalur sendiri — lihat
 ## Docker
 
 ```bash
-docker compose up --build
+docker compose -f deploy/docker-compose.yml up --build
 ```
+
+Jalankan dari root repo: `context`, `env_file`, dan volume di compose
+di-resolve relatif terhadap `deploy/`.
 
 Bind `127.0.0.1:8000` (Caddy di depan), `MIGRATE_ON_BOOT=true` sudah
 diset. Kalau SQLite dipakai dan host volume `./data` tak writable oleh
@@ -118,7 +121,7 @@ Database dari dalam container tidak persist — set `DATABASE_URL` di `.env`.
 Satu service dengan domain berlapis (`api → dto → services → repositories →
 models → presenters`); commit hanya di service; response camelCase, error
 `{"message": "<snake_case_key>"}`. Detail & konvensi lengkap:
-[`CLAUDE.md`](CLAUDE.md), [`framework/README.md`](framework/README.md).
+[`AGENTS.md`](AGENTS.md), [`framework/README.md`](framework/README.md).
 
 ## Security notes
 
