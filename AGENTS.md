@@ -1,6 +1,6 @@
-# CLAUDE.md
+# AGENTS.md
 
-Guidance untuk Claude saat bekerja di project **minimals**.
+Guidance untuk agent saat bekerja di project **minimals**.
 
 > **Project ini berbeda dari root repo `cells`.** `minimals` adalah Flask app
 > **single-service** mandiri: punya `app/` + `framework/` sendiri, tidak ada
@@ -219,6 +219,7 @@ Tidak ada CLI generator di project ini (berbeda dengan root `cells`).
 | GET | /api/v1/app/roles | Cross-service read API (internal token or admin) |
 | POST | /api/v1/uploads | Upload image (admin, max 5 MiB, png/jpg/jpeg/webp/gif) |
 | DELETE | /api/v1/uploads/:name | Delete uploaded image (admin, idempotent 204) |
+| PUT | /api/v1/brand | Update brand meta (admin) |
 | PUT | /api/v1/brand/logo | Set or clear the brand logo (admin, stored upload only) |
 | GET | /robots.txt | Crawler instructions, brand-driven (public) |
 | GET | /sitemap.xml | Canonical site URL for crawlers (public) |
@@ -519,9 +520,9 @@ Ini gotcha paling sering terlewat.
 
 ## Deployment
 
-`Dockerfile` (python:3.11-slim, non-root `appuser`, `/app/data` volume) +
-`docker-compose.yml` (bind `127.0.0.1:8000`, `MIGRATE_ON_BOOT=true`) +
-`Caddyfile` (TLS + reverse proxy). Setup: build FE → `.env` dengan `SECRET_KEY`
+`deploy/Dockerfile` (python:3.11-slim, non-root `appuser`, `/app/data` volume) +
+`deploy/docker-compose.yml` (bind `127.0.0.1:8000`, `MIGRATE_ON_BOOT=true`) +
+`deploy/Caddyfile` (TLS + reverse proxy). Setup: build FE → `.env` dengan `SECRET_KEY`
 nyata → Caddy → `TRUSTED_PROXY=true` di belakang proxy.
 
 Known gaps ada di README § *Security notes* (`/uploads/*` tanpa auth,

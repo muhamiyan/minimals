@@ -7,6 +7,15 @@ from app.infra.uploads import upload_name_from_url
 from framework.base import DTOBase
 
 
+class BrandMetaIn(DTOBase):
+    """Validate editable brand meta fields."""
+
+    name: str = DTOBase.field(..., min_length=1, max_length=64)
+    tagline: str = DTOBase.field(default="", max_length=120)
+    description: str = DTOBase.field(default="", max_length=300)
+    site_url: str = DTOBase.field(default="", alias="siteUrl", max_length=512)
+
+
 class BrandLogoIn(DTOBase):
     """Validate a brand logo update payload.
 
@@ -27,4 +36,4 @@ class BrandLogoIn(DTOBase):
         return value
 
 
-__all__ = ["BrandLogoIn"]
+__all__ = ["BrandLogoIn", "BrandMetaIn"]

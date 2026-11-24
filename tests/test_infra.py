@@ -86,7 +86,7 @@ class TestDatabaseTest:
         _use_url(monkeypatch, "postgresql+psycopg://user:pw@127.0.0.1:1/nope")
         response = superadmin.post("/api/v1/infra/database/test")
         assert response.status_code == 422
-        # Snake_case key, not a sentence — see CLAUDE.md § Wire format.
+        # Snake_case key, not a sentence — see AGENTS.md § Wire format.
         assert response.get_json()["message"] in {
             "db_unreachable",
             "db_timeout",

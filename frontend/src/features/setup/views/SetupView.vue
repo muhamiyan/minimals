@@ -12,7 +12,7 @@ import {
   type SelectOptionValue,
 } from 'frappe-ui'
 
-import { isPasswordValid } from '@/features/auth/validation'
+import { isPasswordValid, isUsernameValid } from '@/features/auth/validation'
 import PasswordRules from '@/shared/components/PasswordRules.vue'
 import { brand } from '@/shared/brand'
 import { languageOptions } from '@/app/i18n'
@@ -72,6 +72,11 @@ const isSqlite = computed(() => engine.value === 'sqlite')
 const isTurso = computed(() => engine.value === 'turso')
 
 const passwordValid = computed(() => isPasswordValid(adminPassword.value))
+const usernameError = computed(() =>
+  username.value.trim() && !isUsernameValid(username.value)
+    ? t('auth.usernameRules.noSpaces')
+    : '',
+)
 
 const brandDisabled = computed(() => !brandName.value.trim())
 
@@ -85,6 +90,7 @@ const adminDisabled = computed(
     submitting.value ||
     !email.value.trim() ||
     !fullName.value.trim() ||
+    !!usernameError.value ||
     !passwordValid.value,
 )
 
@@ -404,6 +410,7 @@ function goToLogin() {
             :label="t('field.username')"
             :placeholder="t('setup.usernamePlaceholder')"
             autocomplete="username"
+            :error="usernameError"
           />
           <FormControl
             v-model="email"

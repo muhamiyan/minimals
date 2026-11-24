@@ -68,6 +68,20 @@
     },
     "brand": {
       "title": "Brand",
+      "details": {
+        "help": "Nama, tagline, deskripsi, dan URL situs yang dipakai di seluruh aplikasi serta hasil pencarian.",
+        "name": "Nama aplikasi",
+        "namePlaceholder": "Acme Inc.",
+        "tagline": "Tagline",
+        "taglinePlaceholder": "Kerja lebih sedikit, capai lebih banyak",
+        "description": "Deskripsi",
+        "descriptionPlaceholder": "Tampil di mesin pencari",
+        "siteUrl": "URL situs",
+        "siteUrlPlaceholder": "https://acme.com",
+        "save": "Simpan detail",
+        "saved": "Detail disimpan.",
+        "failed": "Detail gagal disimpan."
+      },
       "description": "Logo untuk seluruh aplikasi, tampil di sidebar, halaman masuk, dan favicon browser.",
       "logo": "Logo",
       "logoDescription": "PNG, JPG, WebP, atau GIF maksimal 5 MB. Anda akan memotongnya menjadi persegi sebelum disimpan.",
@@ -198,6 +212,9 @@
       "digit": "Satu angka",
       "special": "Satu karakter khusus",
       "length": "Minimal 8 karakter"
+    },
+    "usernameRules": {
+      "noSpaces": "Nama pengguna tidak boleh mengandung spasi"
     }
   },
   "account": {

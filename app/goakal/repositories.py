@@ -55,7 +55,7 @@ class UserEmailRepository:
     """Email lookup for webhook auto-matching, without importing the auth model.
 
     The shared ``users`` table is queried by column name so the goakal
-    service never imports ``app.auth.models.User`` directly (CLAUDE.md:
+    service never imports ``app.auth.models.User`` directly (AGENTS.md:
     cross-domain via repository).
     """
 

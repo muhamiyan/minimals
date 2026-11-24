@@ -5,7 +5,12 @@ import { useI18n } from 'vue-i18n'
 import { Button, ErrorMessage, FormControl, Spinner, toast } from 'frappe-ui'
 
 import { useAuthStore } from '../store'
-import { checkPassword, isPasswordValid, passwordRules } from '../validation'
+import {
+  checkPassword,
+  isPasswordValid,
+  isUsernameValid,
+  passwordRules,
+} from '../validation'
 import { brand, useBrandLogo } from '@/shared/brand'
 
 const router = useRouter()
@@ -29,12 +34,18 @@ onMounted(async () => {
 
 const passwordChecks = computed(() => checkPassword(password.value))
 const passwordValid = computed(() => isPasswordValid(password.value))
+const usernameError = computed(() =>
+  username.value.trim() && !isUsernameValid(username.value)
+    ? t('auth.usernameRules.noSpaces')
+    : '',
+)
 
 const disabled = computed(
   () =>
     submitting.value ||
     !fullName.value.trim() ||
     !username.value.trim() ||
+    !!usernameError.value ||
     !email.value.trim() ||
     !passwordValid.value,
 )
@@ -105,6 +116,7 @@ async function onSubmit() {
           :label="t('field.username')"
           placeholder="abdulah"
           autocomplete="username"
+          :error="usernameError"
           required
         />
         <FormControl

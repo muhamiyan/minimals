@@ -7,7 +7,7 @@
 > ini bertentangan → kode yang menang**, lalu perbarui dokumen ini.
 >
 > Konvensi umum (layering, wire format, error contract, CSRF, migrations) tetap
-> di [`CLAUDE.md`](CLAUDE.md) — dokumen ini hanya melengkapi, bukan mengganti.
+> di [`AGENTS.md`](AGENTS.md) — dokumen ini hanya melengkapi, bukan mengganti.
 
 ---
 
