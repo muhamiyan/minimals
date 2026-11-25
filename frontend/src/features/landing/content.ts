@@ -135,8 +135,8 @@ export const contacts: Contact[] = [
   {
     icon: 'lucide-mail',
     label: 'landing.contact.email',
-    value: 'mitra@nusalargepelago.com',
-    href: 'mailto:mitra@nusalargepelago.com',
+    value: 'admiral@nusalargepelago.com',
+    href: 'mailto:admiral@nusalargepelago.com',
     note: 'landing.contact.emailNote',
   },
   {

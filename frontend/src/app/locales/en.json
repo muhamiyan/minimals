@@ -346,7 +346,7 @@
         "kids": {
           "title": "Coding for children",
           "desc": "Computer programming for children. Computational thinking through Tantangan Bebras Sikecil, Siaga, Penggalang & Penegak and teacher training — and, in time, computer programming brought into coding clubs at schools.",
-          "artifact": "Learn to Code · Tantangan Bebras · Guide for Teachers"
+          "artifact": "Learn to Code · Tantangan Bebras"
         },
         "education": {
           "title": "Education technology",
@@ -414,7 +414,7 @@
       "title": "Contact Us",
       "lead": "A community grown from research, engineering and outreach. Our focus: digital transformation through world-class open-source software. A research question, technology, a partner school, or a community that wants to grow together. Tell us — we want to hear it. Let's begin.",
       "email": "Email",
-      "emailNote": "Partnership",
+      "emailNote": "Person in Charge",
       "whatsapp": "WhatsApp",
       "whatsappNote": "Ibjan Syarif Hidayatullah",
       "location": "Based in",
