@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ErrorMessage, Spinner } from 'frappe-ui'
+import { ErrorMessage } from 'frappe-ui'
 import { computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
@@ -7,8 +7,9 @@ import { useI18n } from 'vue-i18n'
 import LandingFooter from '@/features/landing/components/LandingFooter.vue'
 import LandingNav from '@/features/landing/components/LandingNav.vue'
 import { brand } from '@/shared/brand'
-import { formatDate } from '@/shared/format'
 
+import BlogPostSkeleton from '../components/BlogPostSkeleton.vue'
+import PostMeta from '../components/PostMeta.vue'
 import { useBlogStore } from '../store'
 
 const route = useRoute()
@@ -40,7 +41,7 @@ watch(locale, applyTitle)
 <template>
   <div id="top" class="min-h-screen bg-surface-base text-ink-gray-8">
     <LandingNav />
-    <Spinner v-if="!gateReady" class="mx-auto flex py-24" />
+    <BlogPostSkeleton v-if="!gateReady" />
     <main v-else class="mx-auto w-full max-w-3xl px-5 py-12">
       <router-link
         :to="{ name: 'BlogList' }"
@@ -50,23 +51,21 @@ watch(locale, applyTitle)
         {{ t('blog.post.back') }}
       </router-link>
 
-      <div v-if="blog.loadingPost" class="space-y-4">
-        <div class="h-10 w-3/4 animate-pulse rounded-4 bg-surface-elevation-2" />
-        <div class="h-6 w-1/3 animate-pulse rounded-4 bg-surface-elevation-2" />
-        <div class="h-72 animate-pulse rounded-6 bg-surface-elevation-2" />
-      </div>
+      <BlogPostSkeleton v-if="blog.loadingPost" />
 
       <ErrorMessage v-else-if="blog.error" :message="blog.error" />
 
       <article v-else-if="blog.post">
         <header>
           <h1 class="text-4xl-bold text-ink-gray-9">{{ blog.post.title }}</h1>
-          <div class="mt-3 flex flex-wrap items-center gap-2 text-p-sm text-ink-gray-5">
-            <span v-if="blog.post.publishedOn">{{ formatDate(blog.post.publishedOn) }}</span>
-            <span v-if="blog.post.author || blog.post.authorName">· {{ blog.post.author || blog.post.authorName }}</span>
-            <span v-if="blog.post.category">· {{ blog.post.category }}</span>
-            <span v-if="blog.post.readTime">· {{ t('blog.list.readTime', { n: blog.post.readTime }) }}</span>
-          </div>
+          <PostMeta
+            class="mt-3"
+            :published-on="blog.post.publishedOn"
+            :author="blog.post.author"
+            :author-name="blog.post.authorName"
+            :category="blog.post.category"
+            :read-time="blog.post.readTime"
+          />
         </header>
 
         <img
