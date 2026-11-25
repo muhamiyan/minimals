@@ -7,7 +7,6 @@ import {
   Dialog,
   ErrorMessage,
   FormControl,
-  PageHeader,
   Spinner,
   Switch,
   TextInput,
@@ -22,7 +21,7 @@ import {
   ListRows,
 } from 'frappe-ui/list'
 
-import PageBreadcrumbs from '@/shared/components/PageBreadcrumbs.vue'
+import AppPageHeader from '@/shared/shell/AppPageHeader.vue'
 import ListHead from '@/shared/components/ListHead.vue'
 import ListFoot from '@/shared/components/ListFoot.vue'
 import ListRowOpenButton from '@/shared/components/ListRowOpenButton.vue'
@@ -274,22 +273,25 @@ async function confirmDelete(): Promise<void> {
 </script>
 
 <template>
-  <PageHeader>
-    <PageBreadcrumbs />
-    <Badge
-      v-if="isDev"
-      :label="t('plans.dev')"
-      theme="violet"
-      variant="subtle"
-    />
-    <Button
-      :label="t('plans.new')"
-      icon-left="lucide-plus"
-      variant="solid"
-      theme="gray"
-      @click="openCreate"
-    />
-  </PageHeader>
+  <AppPageHeader>
+    <template #leading>
+      <Badge
+        v-if="isDev"
+        :label="t('plans.dev')"
+        theme="violet"
+        variant="subtle"
+      />
+    </template>
+    <template #actions>
+      <Button
+        :label="t('plans.new')"
+        icon-left="lucide-plus"
+        variant="solid"
+        theme="gray"
+        @click="openCreate"
+      />
+    </template>
+  </AppPageHeader>
 
   <div v-if="!gateReady" class="flex justify-center py-10">
     <Spinner />

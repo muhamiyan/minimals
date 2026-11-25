@@ -11,8 +11,14 @@ import AppShell from '@/app/AppShell.vue'
 import { accountRoutes } from '@/features/account/routes'
 import { authRoutes } from '@/features/auth/routes'
 import { useAuthStore } from '@/features/auth/store'
+import { billingRoutes } from '@/features/billing/routes'
 import { dashboardRoutes } from '@/features/dashboard/routes'
+import { infraRoutes } from '@/features/infra/routes'
+import { planRoutes } from '@/features/plan/routes'
+import { plansRoutes } from '@/features/plans/routes'
 import { setupRoutes } from '@/features/setup/routes'
+import { tenancyRoutes } from '@/features/tenancy/routes'
+import { todoRoutes } from '@/features/todo/routes'
 import { brand } from '@/shared/brand'
 import { authGuard } from './guard'
 
@@ -22,7 +28,16 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/',
     component: AppShell,
-    children: [...dashboardRoutes, ...accountRoutes],
+    children: [
+      ...dashboardRoutes,
+      ...accountRoutes,
+      ...tenancyRoutes,
+      ...billingRoutes,
+      ...todoRoutes,
+      ...plansRoutes,
+      ...planRoutes,
+      ...infraRoutes,
+    ],
   },
   { path: '/:pathMatch(.*)*', redirect: '/' },
 ]

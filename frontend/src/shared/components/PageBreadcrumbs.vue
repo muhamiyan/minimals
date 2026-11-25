@@ -11,16 +11,22 @@ const props = defineProps<{
 }>()
 
 const route = useRoute()
-const { t } = useI18n()
+const { t, te } = useI18n()
 
 const crumbs = computed<BreadcrumbItem[]>(() => {
   const entry = breadcrumbMap[route.name as string]
   if (!entry) return []
-  if (route.name === 'Dashboard') return []
   return [
     ...(entry.parent ? [{ ...entry.parent, label: t(entry.parent.label) }] : []),
     { label: props.title || t(entry.label) },
   ]
+})
+
+const fallbackTitle = computed(() => {
+  const name = String(route.name ?? '')
+  const key = `route.${name}.title`
+  if (name && te(key)) return t(key)
+  return typeof route.meta.title === 'string' ? route.meta.title : ''
 })
 </script>
 
@@ -42,6 +48,12 @@ const crumbs = computed<BreadcrumbItem[]>(() => {
         /
       </span>
       <Breadcrumbs v-if="crumbs.length" :items="crumbs" />
+      <span
+        v-else-if="fallbackTitle"
+        class="text-base-medium text-ink-gray-8"
+      >
+        {{ fallbackTitle }}
+      </span>
     </div>
   </nav>
 </template>

@@ -2,7 +2,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
-import { Badge, Button, ErrorMessage, PageHeader, Spinner } from 'frappe-ui'
+import { Badge, Button, ErrorMessage, Spinner } from 'frappe-ui'
 import type { ListColumnsByBreakpoint } from 'frappe-ui/list'
 import {
   List,
@@ -14,7 +14,7 @@ import {
 
 import ListHead from '@/shared/components/ListHead.vue'
 import ListRowOpenButton from '@/shared/components/ListRowOpenButton.vue'
-import PageBreadcrumbs from '@/shared/components/PageBreadcrumbs.vue'
+import AppPageHeader from '@/shared/shell/AppPageHeader.vue'
 import { formatDate, formatRupiah } from '@/shared/format'
 import { LIST_ROW_SURFACE_CLASS } from '@/shared/listRow'
 import InvoicePrintDialog from '@/features/billing/components/InvoicePrintDialog.vue'
@@ -95,9 +95,7 @@ watch(
 </script>
 
 <template>
-  <PageHeader>
-    <PageBreadcrumbs :title="org?.name" />
-  </PageHeader>
+  <AppPageHeader :title="org?.name" />
 
   <div class="mx-auto w-full max-w-6xl space-y-4 px-5 py-6">
     <div v-if="store.myOrgsLoading && !org" class="flex justify-center py-10">

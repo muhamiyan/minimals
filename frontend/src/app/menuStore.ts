@@ -4,6 +4,7 @@ import { defineStore } from 'pinia'
 import { i18n } from '@/app/i18n'
 import { api, getErrorMessage } from '@/shared/api'
 import { useAuthStore } from '@/features/auth/store'
+import { useTenancyStore } from '@/features/tenancy/store'
 import {
   orderedNavItems,
   visibleNavItems,
@@ -30,9 +31,21 @@ export const useMenuStore = defineStore('menu', () => {
   let generation = 0
 
   const auth = useAuthStore()
-  const isAdmin = computed(() => auth.user?.appRole === 'admin')
+  const tenancy = useTenancyStore()
+  const isSuperadmin = computed(() => auth.user?.appRole === 'superadmin')
+  const isAdmin = computed(
+    () => auth.user?.appRole === 'admin' || isSuperadmin.value,
+  )
+  const isOwner = computed(
+    () => isSuperadmin.value || tenancy.currentOrg?.myRole === 'owner',
+  )
   const visibleForRole = (items: NavItem[]) =>
-    items.filter((item) => !item.requireAdmin || isAdmin.value)
+    items.filter(
+      (item) =>
+        (!item.requireAdmin || isAdmin.value) &&
+        (!item.requireSuperadmin || isSuperadmin.value) &&
+        (!item.requireOwner || isOwner.value),
+    )
 
   const allItems = computed(() => visibleForRole(orderedNavItems(order.value)))
   const items = computed(() =>

@@ -19,4 +19,23 @@ interface Crumb {
 export const breadcrumbMap: Record<string, Crumb> = {
   Dashboard: { label: 'crumb.dashboard' },
   Users: { label: 'crumb.users' },
+  ToDo: { label: 'crumb.todo' },
+  Onboarding: { label: 'crumb.onboarding' },
+  MyOrganizations: { label: 'crumb.organizations' },
+  MyOrganization: {
+    label: 'crumb.organization',
+    parent: {
+      label: 'crumb.organizations',
+      route: { name: 'MyOrganizations' },
+    },
+  },
+  Tenancy: { label: 'crumb.tenancy' },
+  TenancyOrg: {
+    label: 'crumb.organization',
+    parent: { label: 'crumb.tenancy', route: { name: 'Tenancy' } },
+  },
+  Plans: { label: 'crumb.plans' },
+  Plan: { label: 'crumb.plan' },
+  Billing: { label: 'crumb.billing' },
+  Infrastructure: { label: 'crumb.infrastructure' },
 }

@@ -100,10 +100,12 @@
   },
   "crumb": {
     "dashboard": "Dashboard",
+    "onboarding": "Onboarding",
     "organizations": "Organizations",
     "organization": "Organization",
     "tenancy": "Tenancy",
     "plans": "Plans",
+    "plan": "Plan",
     "infrastructure": "Infrastructure",
     "billing": "Billing",
     "todo": "Todo",
@@ -280,6 +282,7 @@
       "revenueSeries": "Revenue",
       "subscriptionsByStatus": "Subscriptions by status",
       "invoicesByStatus": "Invoices by status",
+      "noData": "No data yet.",
       "loadFailed": "Could not load dashboard statistics"
     }
   },

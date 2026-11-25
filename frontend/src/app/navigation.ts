@@ -7,6 +7,8 @@ export interface NavItem {
   icon: string
   route: RouteDestination
   requireAdmin?: boolean
+  requireSuperadmin?: boolean
+  requireOwner?: boolean
   mobile?: boolean
 }
 
@@ -29,6 +31,53 @@ const NAV_ITEMS: NavItem[] = [
     icon: 'lucide-users',
     route: { name: 'Users' },
     requireAdmin: true,
+  },
+  {
+    key: 'MyOrganizations',
+    labelKey: 'nav.organizations',
+    icon: 'lucide-building-2',
+    route: { name: 'MyOrganizations' },
+  },
+  {
+    key: 'ToDo',
+    labelKey: 'nav.todo',
+    icon: 'lucide-list-todo',
+    route: { name: 'ToDo' },
+  },
+  {
+    key: 'Plan',
+    labelKey: 'nav.plan',
+    icon: 'lucide-credit-card',
+    route: { name: 'Plan' },
+    requireOwner: true,
+  },
+  {
+    key: 'Billing',
+    labelKey: 'nav.billing',
+    icon: 'lucide-receipt',
+    route: { name: 'Billing' },
+    requireOwner: true,
+  },
+  {
+    key: 'Plans',
+    labelKey: 'nav.plans',
+    icon: 'lucide-layout-grid',
+    route: { name: 'Plans' },
+    requireSuperadmin: true,
+  },
+  {
+    key: 'Tenancy',
+    labelKey: 'nav.tenancy',
+    icon: 'lucide-building',
+    route: { name: 'Tenancy' },
+    requireSuperadmin: true,
+  },
+  {
+    key: 'Infrastructure',
+    labelKey: 'nav.infrastructure',
+    icon: 'lucide-database',
+    route: { name: 'Infrastructure' },
+    requireSuperadmin: true,
   },
 ]
 

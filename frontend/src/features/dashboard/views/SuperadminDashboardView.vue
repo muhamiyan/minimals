@@ -2,7 +2,12 @@
 import { computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ErrorMessage, Spinner } from 'frappe-ui'
-import { BarChart, DonutChart, NumberCard } from 'frappe-ui/charts'
+import {
+  BarChart,
+  ChartCard,
+  DonutChart,
+  NumberCard,
+} from 'frappe-ui/charts'
 
 import { formatRupiah } from '@/shared/format'
 import { useDashboardStore } from '../store'
@@ -28,39 +33,43 @@ const monthLabel = (month: string): string =>
     timeZone: 'UTC',
   })
 
-const organizationsPerMonth = computed(() =>
-  (store.stats?.organizationsPerMonth ?? []).map((row) => ({
+const organizationsPerMonth = computed(() => {
+  const rows = (store.stats?.organizationsPerMonth ?? []).map((row) => ({
     month: monthLabel(row.month),
     count: row.count,
-  })),
-)
+  }))
+  return rows.some((row) => row.count > 0) ? rows : []
+})
 
-const revenuePerMonth = computed(() =>
-  (store.stats?.revenuePerMonth ?? []).map((row) => ({
+const revenuePerMonth = computed(() => {
+  const rows = (store.stats?.revenuePerMonth ?? []).map((row) => ({
     month: monthLabel(row.month),
     amount: row.amount,
-  })),
-)
+  }))
+  return rows.some((row) => row.amount > 0) ? rows : []
+})
 
 const subscriptionRows = computed(() => {
   const s = store.stats?.subscriptions
   if (!s) return []
-  return [
+  const rows = [
     { status: t('tenancy.status.trial'), count: s.trial },
     { status: t('tenancy.status.active'), count: s.active },
     { status: t('tenancy.status.expired'), count: s.expired },
     { status: t('tenancy.status.cancelled'), count: s.cancelled },
   ]
+  return rows.some((row) => row.count > 0) ? rows : []
 })
 
 const invoiceRows = computed(() => {
   const i = store.stats?.invoices
   if (!i) return []
-  return [
+  const rows = [
     { status: t('billing.status.issued'), count: i.issued },
     { status: t('billing.status.paid'), count: i.paid },
     { status: t('billing.status.void'), count: i.void },
   ]
+  return rows.some((row) => row.count > 0) ? rows : []
 })
 
 onMounted(() => {
@@ -96,51 +105,85 @@ onMounted(() => {
         </div>
 
         <div class="grid gap-4 md:grid-cols-2">
-          <BarChart
-            :title="t('dash.super.orgsPerMonth')"
-            :data="organizationsPerMonth"
-            x="month"
-            y="count"
-            :series-config="{ count: { label: t('dash.super.organizationsSeries') } }"
-            :echart-options="flatChartOptions"
-            :loading="store.loading"
-          />
-          <BarChart
-            :title="t('dash.super.revenuePerMonth')"
-            :data="revenuePerMonth"
-            x="month"
-            y="amount"
-            :series-config="{
-              amount: {
-                label: t('dash.super.revenueSeries'),
-                format: formatRupiah,
-              },
-            }"
-            :y-axis="{ format: compactRupiah }"
-            :echart-options="flatChartOptions"
-            :loading="store.loading"
-          />
+          <ChartCard class="h-80">
+            <BarChart
+              :title="t('dash.super.orgsPerMonth')"
+              :data="organizationsPerMonth"
+              x="month"
+              y="count"
+              :series-config="{
+                count: { label: t('dash.super.organizationsSeries') },
+              }"
+              :echart-options="flatChartOptions"
+              :loading="store.loading"
+            >
+              <template #empty>
+                <span class="text-p-sm text-ink-gray-5">
+                  {{ t('dash.super.noData') }}
+                </span>
+              </template>
+            </BarChart>
+          </ChartCard>
+          <ChartCard class="h-80">
+            <BarChart
+              :title="t('dash.super.revenuePerMonth')"
+              :data="revenuePerMonth"
+              x="month"
+              y="amount"
+              :series-config="{
+                amount: {
+                  label: t('dash.super.revenueSeries'),
+                  format: formatRupiah,
+                },
+              }"
+              :y-axis="{ format: compactRupiah }"
+              :echart-options="flatChartOptions"
+              :loading="store.loading"
+            >
+              <template #empty>
+                <span class="text-p-sm text-ink-gray-5">
+                  {{ t('dash.super.noData') }}
+                </span>
+              </template>
+            </BarChart>
+          </ChartCard>
         </div>
 
         <div class="grid gap-4 md:grid-cols-2">
-          <DonutChart
-            :title="t('dash.super.subscriptionsByStatus')"
-            :data="subscriptionRows"
-            category="status"
-            value="count"
-            :center-label="t('dash.super.subscriptionsByStatus')"
-            :echart-options="flatChartOptions"
-            :loading="store.loading"
-          />
-          <DonutChart
-            :title="t('dash.super.invoicesByStatus')"
-            :data="invoiceRows"
-            category="status"
-            value="count"
-            :center-label="t('dash.super.invoicesByStatus')"
-            :echart-options="flatChartOptions"
-            :loading="store.loading"
-          />
+          <ChartCard class="h-80">
+            <DonutChart
+              :title="t('dash.super.subscriptionsByStatus')"
+              :data="subscriptionRows"
+              category="status"
+              value="count"
+              :center-label="t('dash.super.subscriptionsByStatus')"
+              :echart-options="flatChartOptions"
+              :loading="store.loading"
+            >
+              <template #empty>
+                <span class="text-p-sm text-ink-gray-5">
+                  {{ t('dash.super.noData') }}
+                </span>
+              </template>
+            </DonutChart>
+          </ChartCard>
+          <ChartCard class="h-80">
+            <DonutChart
+              :title="t('dash.super.invoicesByStatus')"
+              :data="invoiceRows"
+              category="status"
+              value="count"
+              :center-label="t('dash.super.invoicesByStatus')"
+              :echart-options="flatChartOptions"
+              :loading="store.loading"
+            >
+              <template #empty>
+                <span class="text-p-sm text-ink-gray-5">
+                  {{ t('dash.super.noData') }}
+                </span>
+              </template>
+            </DonutChart>
+          </ChartCard>
         </div>
       </template>
     </template>

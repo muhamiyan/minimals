@@ -59,5 +59,8 @@ const mobileTitle = computed(() => {
     <template v-else-if="slots.suffix" #suffix>
       <slot name="suffix" />
     </template>
+    <template v-else-if="slots.actions" #suffix>
+      <slot name="actions" />
+    </template>
   </PageHeaderMobile>
 </template>

@@ -2,7 +2,7 @@
 import { onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
-import { Badge, Button, ErrorMessage, PageHeader, Spinner, toast } from 'frappe-ui'
+import { Badge, Button, ErrorMessage, Spinner, toast } from 'frappe-ui'
 import type { ListColumnsByBreakpoint } from 'frappe-ui/list'
 import {
   List,
@@ -12,7 +12,7 @@ import {
   ListRows,
 } from 'frappe-ui/list'
 
-import PageBreadcrumbs from '@/shared/components/PageBreadcrumbs.vue'
+import AppPageHeader from '@/shared/shell/AppPageHeader.vue'
 import ListHead from '@/shared/components/ListHead.vue'
 import ListRowOpenButton from '@/shared/components/ListRowOpenButton.vue'
 import { LIST_ROW_SURFACE_CLASS } from '@/shared/listRow'
@@ -66,9 +66,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <PageHeader>
-    <PageBreadcrumbs />
-  </PageHeader>
+  <AppPageHeader />
 
   <div class="mx-auto w-full max-w-6xl space-y-3 px-5 py-6">
     <ErrorMessage v-if="store.myOrgsError" :message="store.myOrgsError" />

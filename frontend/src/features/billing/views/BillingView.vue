@@ -9,7 +9,6 @@ import {
   Dialog,
   ErrorMessage,
   FormControl,
-  PageHeader,
   Select,
   Spinner,
   toast,
@@ -24,7 +23,7 @@ import {
   ListRows,
 } from 'frappe-ui/list'
 
-import PageBreadcrumbs from '@/shared/components/PageBreadcrumbs.vue'
+import AppPageHeader from '@/shared/shell/AppPageHeader.vue'
 import ListFoot from '@/shared/components/ListFoot.vue'
 import ListHead from '@/shared/components/ListHead.vue'
 import ListRowOpenButton from '@/shared/components/ListRowOpenButton.vue'
@@ -402,30 +401,33 @@ async function submitSettings(): Promise<void> {
 </script>
 
 <template>
-  <PageHeader>
-    <PageBreadcrumbs />
-    <Badge
-      v-if="isDev"
-      :label="t('billing.dev')"
-      theme="violet"
-      variant="subtle"
-    />
-    <div v-if="isSuperadmin && !isMaintenance" class="flex items-center gap-2">
-      <Button
-        :label="t('billing.actions.settings')"
-        icon-left="lucide-settings"
-        variant="outline"
-        @click="openSettings"
+  <AppPageHeader>
+    <template #leading>
+      <Badge
+        v-if="isDev"
+        :label="t('billing.dev')"
+        theme="violet"
+        variant="subtle"
       />
-      <Button
-        :label="t('billing.actions.create')"
-        icon-left="lucide-plus"
-        variant="solid"
-        theme="gray"
-        @click="openCreate"
-      />
-    </div>
-  </PageHeader>
+    </template>
+    <template #actions>
+      <div v-if="isSuperadmin && !isMaintenance" class="flex items-center gap-2">
+        <Button
+          :label="t('billing.actions.settings')"
+          icon-left="lucide-settings"
+          variant="outline"
+          @click="openSettings"
+        />
+        <Button
+          :label="t('billing.actions.create')"
+          icon-left="lucide-plus"
+          variant="solid"
+          theme="gray"
+          @click="openCreate"
+        />
+      </div>
+    </template>
+  </AppPageHeader>
 
   <div v-if="!gateReady" class="flex justify-center py-10">
     <Spinner />

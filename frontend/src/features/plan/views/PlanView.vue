@@ -7,12 +7,11 @@ import {
   Button,
   Dialog,
   ErrorMessage,
-  PageHeader,
   Spinner,
   toast,
 } from 'frappe-ui'
 
-import PageBreadcrumbs from '@/shared/components/PageBreadcrumbs.vue'
+import AppPageHeader from '@/shared/shell/AppPageHeader.vue'
 import { formatRupiah } from '@/shared/format'
 
 import { TIER_LABELS, useTenancyStore } from '@/features/tenancy/store'
@@ -121,15 +120,16 @@ async function confirmSwitch(): Promise<void> {
 </script>
 
 <template>
-  <PageHeader>
-    <PageBreadcrumbs />
-    <Badge
-      v-if="isDev"
-      :label="t('plans.dev')"
-      theme="violet"
-      variant="subtle"
-    />
-  </PageHeader>
+  <AppPageHeader>
+    <template #leading>
+      <Badge
+        v-if="isDev"
+        :label="t('plans.dev')"
+        theme="violet"
+        variant="subtle"
+      />
+    </template>
+  </AppPageHeader>
 
   <div v-if="!gateReady" class="flex justify-center py-10">
     <Spinner />

@@ -100,10 +100,12 @@
   },
   "crumb": {
     "dashboard": "Dasbor",
+    "onboarding": "Onboarding",
     "organizations": "Organisasi",
     "organization": "Detail organisasi",
     "tenancy": "Tenancy",
     "plans": "Paket",
+    "plan": "Paket",
     "infrastructure": "Infrastruktur",
     "billing": "Penagihan",
     "todo": "Tugas",
@@ -280,6 +282,7 @@
       "revenueSeries": "Pendapatan",
       "subscriptionsByStatus": "Langganan per status",
       "invoicesByStatus": "Faktur per status",
+      "noData": "Belum ada data.",
       "loadFailed": "Gagal memuat statistik dasbor"
     }
   },
