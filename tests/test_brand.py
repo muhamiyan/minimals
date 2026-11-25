@@ -54,13 +54,13 @@ def test_admin_meta_trims_and_defaults_blank_name(app, admin):
 
     assert response.status_code == 200
     assert response.get_json() == {
-        "name": "Minimals",
+        "name": "Nusa Large Pelago",
         "tagline": "x",
         "description": "Description",
         "siteUrl": "https://acme.test",
     }
     with app.app_context():
-        assert get_brand()["name"] == "Minimals"
+        assert get_brand()["name"] == "Nusa Large Pelago"
 
 
 @pytest.mark.parametrize(
@@ -73,7 +73,7 @@ def test_admin_meta_rejects_invalid_site_url(app, admin, site_url):
     assert response.status_code == 400
     assert response.get_json() == {"message": "site_url_invalid"}
     with app.app_context():
-        assert get_brand()["name"] == "Minimals"
+        assert get_brand()["name"] == "Nusa Large Pelago"
 
 
 def test_admin_meta_requires_name(admin):

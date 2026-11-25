@@ -23,7 +23,7 @@ META_KEYS = ("name", "tagline", "description", "siteUrl")
 BRAND_KEYS = (*META_KEYS, LOGO_KEY)
 
 DEFAULT_BRAND: dict[str, str] = {
-    "name": "Minimals",
+    "name": "Nusa Large Pelago",
     "tagline": "",
     "description": "",
     "siteUrl": "",

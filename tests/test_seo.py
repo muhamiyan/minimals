@@ -39,7 +39,7 @@ def _write_index(tmp_path):
 def test_get_brand_returns_defaults_when_empty(app):
     with app.app_context():
         assert get_brand() == {
-            "name": "Minimals",
+            "name": "Nusa Large Pelago",
             "tagline": "",
             "description": "",
             "siteUrl": "",
@@ -53,7 +53,7 @@ def test_get_brand_falls_back_when_settings_table_missing(app):
     with app.app_context():
         AppSetting.__table__.drop(db.engine)
 
-        assert get_brand()["name"] == "Minimals"
+        assert get_brand()["name"] == "Nusa Large Pelago"
 
 
 def test_save_brand_upserts_rows(app):

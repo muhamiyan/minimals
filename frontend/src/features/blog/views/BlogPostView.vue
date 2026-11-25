@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ErrorMessage, Spinner } from 'frappe-ui'
+import { ErrorMessage } from 'frappe-ui'
 import { computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
@@ -7,8 +7,8 @@ import { useI18n } from 'vue-i18n'
 import LandingFooter from '@/features/landing/components/LandingFooter.vue'
 import LandingNav from '@/features/landing/components/LandingNav.vue'
 import { brand } from '@/shared/brand'
-import { formatDate } from '@/shared/format'
 
+import PostMeta from '../components/PostMeta.vue'
 import { useBlogStore } from '../store'
 
 const route = useRoute()
@@ -38,10 +38,17 @@ watch(locale, applyTitle)
 </script>
 
 <template>
-  <div id="top" class="min-h-screen bg-surface-base text-ink-gray-8">
+  <div id="top" class="landing-scope flex min-h-screen flex-col bg-surface-base text-ink-gray-8">
     <LandingNav />
-    <Spinner v-if="!gateReady" class="mx-auto flex py-24" />
-    <main v-else class="mx-auto w-full max-w-3xl px-5 py-12">
+    <main v-if="!gateReady" class="mx-auto w-full max-w-3xl flex-1 px-5 py-12">
+      <div class="shimmer h-4 w-24 rounded-4" />
+      <div class="mt-8 space-y-4">
+        <div class="shimmer h-10 w-3/4 rounded-4" />
+        <div class="shimmer h-6 w-1/3 rounded-4" />
+        <div class="shimmer h-72 rounded-6" />
+      </div>
+    </main>
+    <main v-else class="mx-auto w-full max-w-3xl flex-1 px-5 py-12">
       <router-link
         :to="{ name: 'BlogList' }"
         class="mb-8 inline-flex items-center gap-1.5 text-p-sm-medium text-ink-gray-6 transition-colors hover:text-ink-gray-9"
@@ -51,9 +58,9 @@ watch(locale, applyTitle)
       </router-link>
 
       <div v-if="blog.loadingPost" class="space-y-4">
-        <div class="h-10 w-3/4 animate-pulse rounded-4 bg-surface-elevation-2" />
-        <div class="h-6 w-1/3 animate-pulse rounded-4 bg-surface-elevation-2" />
-        <div class="h-72 animate-pulse rounded-6 bg-surface-elevation-2" />
+        <div class="shimmer h-10 w-3/4 rounded-4" />
+        <div class="shimmer h-6 w-1/3 rounded-4" />
+        <div class="shimmer h-72 rounded-6" />
       </div>
 
       <ErrorMessage v-else-if="blog.error" :message="blog.error" />
@@ -61,12 +68,14 @@ watch(locale, applyTitle)
       <article v-else-if="blog.post">
         <header>
           <h1 class="text-4xl-bold text-ink-gray-9">{{ blog.post.title }}</h1>
-          <div class="mt-3 flex flex-wrap items-center gap-2 text-p-sm text-ink-gray-5">
-            <span v-if="blog.post.publishedOn">{{ formatDate(blog.post.publishedOn) }}</span>
-            <span v-if="blog.post.author || blog.post.authorName">· {{ blog.post.author || blog.post.authorName }}</span>
-            <span v-if="blog.post.category">· {{ blog.post.category }}</span>
-            <span v-if="blog.post.readTime">· {{ t('blog.list.readTime', { n: blog.post.readTime }) }}</span>
-          </div>
+          <PostMeta
+            class="mt-3"
+            large
+            :published-on="blog.post.publishedOn"
+            :author="blog.post.author || blog.post.authorName"
+            :category="blog.post.category"
+            :read-time="blog.post.readTime"
+          />
         </header>
 
         <img

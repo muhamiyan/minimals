@@ -110,7 +110,7 @@
     },
     "Landing": {
       "title": "Home",
-      "description": "Minimals — a batteries-included Flask service with a Vue 3 SPA."
+      "description": "Our notes on research, engineering, and the people who use what we make."
     },
     "BlogList": {
       "title": "Blog",
@@ -295,82 +295,139 @@
     }
   },
   "landing": {
-    "getStarted": "Get started",
-    "openDashboard": "Open dashboard",
-    "whatsInside": "What's inside",
+    "getStarted": "Start here",
+    "joinPartner": "Join as a Partner",
+    "whatsInside": "Our programs",
+    "tagline": "Berlomba-lomba dalam kebaikan, Insya' Allah.",
     "nav": {
-      "features": "Features",
       "about": "About",
+      "program": "Programs",
+      "resources": "Resources",
+      "partnership": "Partnership",
+      "contact": "Contact",
       "theme": "Toggle theme"
     },
     "hero": {
-      "badge": "Open alpha",
-      "title": "Production-ready Flask,",
-      "accent": "thoughtfully minimal",
-      "lead": "Minimals is a batteries-included Flask service for cPanel and VPS behind Caddy — layered domain architecture, session & API-key auth, and a Vue 3 SPA served by Flask itself.",
-      "lifecycle": "request lifecycle",
-      "ok": "200 OK"
+      "badge": "Open By Default",
+      "title": "From a classroom,",
+      "accent": "into open work",
+      "lead": "Good research does not stop halfway. The best product is not the most sophisticated one, but the one people actually use and feel the benefit of. The economy may be hard; with a solid ecosystem, we keep growing and making together.",
+    "loop": {
+        "research": "Research",
+        "engineering": "Engineering",
+        "outreach": "Outreach"
+      }
     },
-    "features": {
-      "badge": "Features",
-      "title": "Everything you'd build anyway",
-      "lead": "The production floor every Flask service needs — included, tested, and deliberately unexciting.",
+    "loop": {
+      "badge": "Our Ecosystem",
+      "title": "One cycle, three roles",
+      "lead": "Research comes home with problems and evidence. Engineering turns them into tools people can use. Outreach brings those tools to schools and small businesses. From the hands that use them, new stories are born — and become the next research. Insya' Allah.",
+      "steps": {
+        "research": {
+          "title": "Research",
+          "desc": "We begin with questions from teachers, communities and small businesses. From the field we bring back responsible evidence, and make it the basis for the work."
+        },
+        "engineering": {
+          "title": "Engineering",
+          "desc": "We look after architecture, quality, releases and security. Every artifact comes with a clear license, a record of decisions and a self-host guide anyone can follow."
+        },
+        "outreach": {
+          "title": "Outreach",
+          "desc": "We introduce the tool with a demo, then stay with schools, communities and small businesses until they can stand on their own. We leave user notes behind so the know-how travels too."
+        }
+      },
+      "return": "What we hear and see, we bring back to the R&D desk"
+    },
+    "pillars": {
+      "badge": "Outreach programs",
+      "title": "Three pillars, one ecosystem",
+      "lead": "Children, schools, small businesses. Different rooms, one ecosystem. We research the problem, prepare the tool, then make sure people actually use it. What they tell us becomes our next input.",
       "items": {
-        "layered": {
-          "title": "Layered domains",
-          "desc": "Seven files per domain, dependencies pointing only downward. A bug has exactly one address."
+        "kids": {
+          "title": "Coding for children",
+          "desc": "Computer programming for children. Computational thinking through Tantangan Bebras Sikecil, Siaga, Penggalang & Penegak and teacher training — and, in time, computer programming brought into coding clubs at schools.",
+          "artifact": "Learn to Code · Tantangan Bebras · Guide for Teachers"
         },
-        "auth": {
-          "title": "Session & API-key auth",
-          "desc": "Browser sessions via Flask-Login; services authenticate with bcrypt-hashed API keys behind a 10-char lookup prefix."
+        "education": {
+          "title": "Education technology",
+          "desc": "We accompany schools and educators in adopting learning technology — teacher training, hands-on support, and co-development with students.",
+          "artifact": "Training · Support · LMS"
         },
-        "security": {
-          "title": "Security defaults",
-          "desc": "CSRF on every write, per-IP rate limits, CSP + HSTS, and forwarded headers believed only from private peers."
-        },
-        "roles": {
-          "title": "Roles & RBAC",
-          "desc": "A hard-coded app role for real checks, relational roles for labels, and require_role helpers that return."
-        },
-        "setup": {
-          "title": "First-run setup",
-          "desc": "SQLite, MariaDB or PostgreSQL: test, migrate, create the admin — the engine hot-swaps, loopback-only."
-        },
-        "health": {
-          "title": "Health & audit",
-          "desc": "/health and /ready probes, rotating logs, an audit trail per write, and alerts that never break the business flow."
-        },
-        "spa": {
-          "title": "Vue 3 SPA included",
-          "desc": "frappe-ui on Tailwind tokens, built straight into Flask's static folder. One process, one origin, one deploy."
-        },
-        "migrations": {
-          "title": "Migrations on boot",
-          "desc": "Flip MIGRATE_ON_BOOT and Alembic runs before the server accepts traffic — schema and models stay in step across engines."
+        "economy": {
+          "title": "Economic technology",
+          "desc": "We research the needs of small businesses and economic literacy, then accompany them through UMKM Melek Data — from business planning to installing accounting and inventory tools. We stay until they can stand on their own.",
+          "artifact": "Islamic Economics Literacy · ERP · UMKM Melek Data"
         }
       }
     },
-    "about": {
-      "badge": "About",
-      "title": "Minimal, not trivial.",
-      "body1": "Minimals started from an observation: every production Flask service re-implements the same scaffolding — auth, CSRF, roles, migrations, health checks, a frontend build. Minimals packages that floor, and nothing above it.",
-      "body2": "The architecture is deliberately boring. Services own transactions, repositories own queries, and the wire format is a tested contract. When something breaks, you fix it at the point of failure — there is no history to dig through.",
-      "rules": "House rules",
-      "principles": {
-        "p1": "Dependencies point only downward — api, dto, services, repositories, models, presenters.",
-        "p2": "Services own the transaction; repositories never commit.",
-        "p3": "Bare objects on success, a single snake_case key on failure.",
-        "p4": "Raise exceptions from services — never return responses.",
-        "p5": "Fix at the point of failure. No history to dig through."
+    "resources": {
+      "badge": "Shared resources",
+      "title": "Community resources",
+      "lead": "Open source, built to world-class standards. That means better software — tested, safer, and there for everyone.",
+      "tag": "We use it, we tend it",
+      "cta": "Request a demo",
+      "items": {
+        "erp": {
+          "title": "Enterprise Resource Planning (ERP)",
+          "desc": "Enterprise software for procurement, manufacturing, inventory, marketing, sales and accounting. We help install it, then stay until the people running it can carry on.",
+          "artifact": "Accounting Sharia · Manufacturing · Sales App"
+        },
+        "cms": {
+          "title": "Content & Education Management (CMS)",
+          "desc": "Content and education software for school information systems, student admissions and learning technology. Easy to use, able to wear its host's name, and developed with students and educators.",
+          "artifact": "CMS · LMS · Quizzes"
+        }
+      },
+      "flagship": {
+        "status": "open alpha",
+        "desc": "The first work we let go into the open. A platform for practice and events in computational thinking through Tantangan Bebras questions — also an object of research, still tended today.",
+        "license": "MIT licensed"
       }
     },
+    "partnership": {
+      "badge": "Partnership",
+      "title": "The way in",
+      "lead": "Two doors lead to one table. Universities bring grants and research questions; schools, communities and small businesses bring needs from the field. We listen to both, then build together. What comes out does not stop with the first partner — the work stays open for anyone to use, build on and carry forward.",
+      "grant": {
+        "tag": "Academia & education",
+        "title": "Join Grant Program",
+"desc": "Grants for shared needs. Everything they produce stays open: papers, aggregated data, code and products.",
+    "items": {
+      "grant": "Proposals written together, with the researcher as first author. The results are open to all: papers, code and the final product",
+      "fellow": "Researchers sit as experts. We agree on the path to publication together, and we make sure it is testable from the start",
+      "product": "Researchers get the code and product artifacts, plus the agentic workflow. The source stays open"
+        }
+      },
+      "engineering": {
+        "tag": "Non-formal communities",
+        "title": "Joint Engineering Program",
+        "desc": "We stay with learning groups, boarding schools and small businesses from the problem to the solution — from the first install to independence.",
+        "items": {
+          "beneficiary": "Learning groups, boarding schools and small businesses as the people we accompany in using the tools — and free to join the development",
+          "mentoring": "Our engineering team stays from installation until they are no longer needed",
+          "transfer": "Train the trainer: we hand over the craft, not just the tools"
+        }
+      }
+    },
+    "contact": {
+      "badge": "Contact",
+      "title": "Contact Us",
+      "lead": "A community grown from research, engineering and outreach. Our focus: digital transformation through world-class open-source software. A research question, technology, a partner school, or a community that wants to grow together. Tell us — we want to hear it. Let's begin.",
+      "email": "Email",
+      "emailNote": "Partnership",
+      "whatsapp": "WhatsApp",
+      "whatsappNote": "Ibjan Syarif Hidayatullah",
+      "location": "Based in",
+      "locationValue": "JL. Dahlia Raya D3/22, Perumnas LA Resort Labuapi, West Lombok 83361"
+    },
     "cta": {
-      "title": "Start where the boring parts are already done.",
-      "lead": "Run setup once — point at your database, create the admin — then ship your domain on a floor that's ready."
+      "title": "A strong foundation, already in place.",
+      "lead": "Tools can be used, modified and redistributed — simple yet strong and measurable, so getting started is easy."
     },
     "footer": {
-      "alpha": "open alpha",
-      "copyright": "© 2026 {name}"
+      "copyright": "© 2026 {name}",
+      "license": "Code MIT · Content CC BY-SA 4.0 · Open By Default",
+      "githubTagline": "Build up with open source software."
     }
   },
   "setup": {
@@ -418,6 +475,10 @@
     "api_key_not_found": "Api key not found",
     "bad_request": "Bad request",
     "conflict": "Conflicting data",
+    "content_exists": "Content already exists",
+    "content_item_not_found": "Content item not found",
+    "content_page_not_found": "Content page not found",
+    "locale_invalid": "Invalid locale",
     "cannot_delete_builtin_role": "Cannot delete builtin role",
     "could_not_generate_unique_name": "Could not generate unique name",
     "csrf_token_invalid": "Csrf token invalid",
@@ -444,6 +505,7 @@
     "invalid_db_path": "Invalid db path",
     "invalid_db_port": "Invalid db port",
     "invalid_email": "Invalid email",
+    "invalid_image": "Invalid image",
     "invalid_operation": "Invalid operation",
     "invalid_username": "Invalid username",
     "malformed": "Malformed",

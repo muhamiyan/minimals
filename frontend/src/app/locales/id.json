@@ -110,7 +110,7 @@
     },
     "Landing": {
       "title": "Beranda",
-      "description": "Minimals — layanan Flask siap produksi dengan SPA Vue 3."
+      "description": "Catatan kami tentang riset, rekayasa, dan orang-orang yang memakai hasilnya."
     },
     "BlogList": {
       "title": "Blog",
@@ -295,82 +295,139 @@
     }
   },
   "landing": {
-    "getStarted": "Mulai sekarang",
-    "openDashboard": "Buka dasbor",
-    "whatsInside": "Isinya apa",
+    "getStarted": "Mulai di sini",
+    "joinPartner": "Gabung Sebagai Mitra",
+    "whatsInside": "Program kami",
+    "tagline": "Berlomba-lomba dalam kebaikan, Insya' Allah.",
     "nav": {
-      "features": "Fitur",
       "about": "Tentang",
+      "program": "Program",
+      "resources": "Sumber Daya",
+      "partnership": "Kemitraan",
+      "contact": "Kontak",
       "theme": "Ganti tema"
     },
     "hero": {
-      "badge": "Alpha terbuka",
-      "title": "Flask siap produksi,",
-      "accent": "dengan rasa minimal",
-      "lead": "Minimals adalah layanan Flask yang lengkap untuk cPanel dan VPS di belakang Caddy — arsitektur domain berlapis, autentikasi sesi & API-key, dan SPA Vue 3 yang disajikan oleh Flask sendiri.",
-      "lifecycle": "siklus request",
-      "ok": "200 OK"
+      "badge": "Open By Default",
+      "title": "Dari ruang kelas,",
+      "accent": "menjadi karya terbuka",
+      "lead": "Riset yang baik tidak putus di tengah. Produk terbaik pun bukan yang paling canggih, melainkan yang benar-benar dipakai dan dirasakan manfaatnya. Ekonomi boleh sulit; dengan ekosistem yang solid, kita tetap tumbuh dan berkarya bersama.",
+    "loop": {
+        "research": "Riset",
+        "engineering": "Rekayasa",
+        "outreach": "Pengabdian"
+      }
     },
-    "features": {
-      "badge": "Fitur",
-      "title": "Semua yang tetap akan Anda bangun",
-      "lead": "Panggung produksi yang dibutuhkan setiap layanan Flask — sudah tersedia, sudah diuji, dan sengaja dibuat biasa.",
+    "loop": {
+      "badge": "Ekosistem Kami",
+      "title": "Satu siklus, tiga peran",
+      "lead": "Riset pulang membawa masalah dan bukti. Rekayasa mengubahnya jadi alat yang bisa dipakai. Pengabdian membawa alat itu ke sekolah dan UMKM. Dari tangan orang yang memakainya, cerita baru lahir — lalu menjadi riset berikutnya. Insya' Allah.",
+      "steps": {
+        "research": {
+          "title": "Riset",
+          "desc": "Kami mulai dari pertanyaan guru, komunitas dan UMKM. Dari lapangan, kami membawa pulang bukti yang bertanggung jawab — lalu menjadikannya dasar karya."
+        },
+        "engineering": {
+          "title": "Rekayasa",
+          "desc": "Kami mengurus arsitektur, kualitas, rilis, dan keamanan. Setiap artefak datang dengan lisensi jelas, catatan keputusan, dan cara pasang sendiri yang bisa diikuti siapa saja."
+        },
+        "outreach": {
+          "title": "Pengabdian",
+          "desc": "Kami memperkenalkan alat lewat demo, lalu mendampingi sekolah, komunitas dan UMKM sampai bisa berdiri sendiri. Catatan penggunanya kami tinggalkan, supaya ilmunya ikut berpindah."
+        }
+      },
+      "return": "Apa yang kami dengar dan lihat, kami membawa pulang ke meja R&D"
+    },
+    "pillars": {
+      "badge": "Program Pengabdian",
+      "title": "Tiga pilar, satu ekosistem",
+      "lead": "Anak-anak, sekolah, UMKM. Berbeda ruang, satu ekosistem. Masalah kami teliti, alat kami siapkan, lalu kami pastikan orang benar-benar memakainya. Apa yang mereka ceritakan menjadi masukan kami.",
       "items": {
-        "layered": {
-          "title": "Domain berlapis",
-          "desc": "Tujuh berkas per domain, dependensi hanya menunjuk ke bawah. Sebuah bug punya tepat satu alamat."
+        "kids": {
+          "title": "Coding untuk anak-anak",
+          "desc": "Pemrograman Komputer untuk anak-anak. Berpikir komputasional lewat Tantangan Bebras Sikecil, Siaga, Penggalang & Penegak dan pelatihan untuk guru — ke depannya, pemrograman komputer kami bawa ke klub coding di sekolah.",
+          "artifact": "Belajar Coding · Tantangan Bebras · Panduan untuk Guru"
         },
-        "auth": {
-          "title": "Autentikasi sesi & API-key",
-          "desc": "Sesi peramban lewat Flask-Login; layanan mengautentikasi dengan API key ber-hash bcrypt di belakang prefiks lookup 10 karakter."
+        "education": {
+          "title": "Teknologi pendidikan",
+          "desc": "Kami mendampingi sekolah dan tenaga kependidikan mengadopsi teknologi pembelajaran — pelatihan guru, pendampingan penggunaan, sampai pengembangan bersama siswa.",
+          "artifact": "Pelatihan · Pendampingan · LMS"
         },
-        "security": {
-          "title": "Keamanan bawaan",
-          "desc": "CSRF di setiap operasi tulis, rate limit per IP, CSP + HSTS, dan header forwarded yang hanya dipercaya dari peer privat."
-        },
-        "roles": {
-          "title": "Peran & RBAC",
-          "desc": "App role keras untuk pemeriksaan nyata, peran relasional untuk label, dan helper require_role yang langsung return."
-        },
-        "setup": {
-          "title": "Setup awal",
-          "desc": "SQLite, MariaDB, atau PostgreSQL: uji, migrasi, buat admin — mesinnya bisa ditukar, hanya dari loopback."
-        },
-        "health": {
-          "title": "Kesehatan & audit",
-          "desc": "Probe /health dan /ready, log berputar, jejak audit per operasi tulis, dan alert yang tidak pernah mengganggu alur bisnis."
-        },
-        "spa": {
-          "title": "SPA Vue 3 ikut disertakan",
-          "desc": "frappe-ui di atas token Tailwind, dibangun langsung ke folder static Flask. Satu proses, satu origin, satu deploy."
-        },
-        "migrations": {
-          "title": "Migrasi saat boot",
-          "desc": "Nyalakan MIGRATE_ON_BOOT dan Alembic berjalan sebelum server menerima trafik — skema dan model tetap sinkron di semua mesin."
+        "economy": {
+          "title": "Teknologi ekonomi",
+          "desc": "Kami meneliti kebutuhan UMKM dan literasi ekonomi, lalu mendampingi lewat UMKM Melek Data — dari perencanaan usaha sampai pemasangan alat bantu akuntansi dan inventaris. Kami mendampingi sampai mereka mandiri.",
+          "artifact": "Literasi Ekonomi Islam · ERP · UMKM Melek Data"
         }
       }
     },
-    "about": {
-      "badge": "Tentang",
-      "title": "Minimal, bukan sepele.",
-      "body1": "Minimals lahir dari satu pengamatan: setiap layanan Flask produksi mengulang scaffolding yang sama — autentikasi, CSRF, peran, migrasi, health check, dan build frontend. Minimals membungkus lantai dasar itu, dan tidak lebih.",
-      "body2": "Arsitekturnya sengaja membosankan. Service memiliki transaksi, repository memiliki query, dan format wire adalah kontrak yang diuji. Saat ada yang rusak, Anda memperbaikinya di titik masalah — tidak ada riwayat yang perlu digali.",
-      "rules": "Aturan rumah",
-      "principles": {
-        "p1": "Dependensi hanya menunjuk ke bawah — api, dto, services, repositories, models, presenters.",
-        "p2": "Service memiliki transaksi; repository tidak pernah commit.",
-        "p3": "Objek telanjang saat sukses, satu kunci snake_case saat gagal.",
-        "p4": "Raise exception dari service — jangan pernah return response.",
-        "p5": "Perbaiki di titik masalah. Tidak ada riwayat yang perlu digali."
+    "resources": {
+      "badge": "Sumber Daya Bersama",
+      "title": "Sumber Daya Komunitas",
+      "lead": "Sumber terbuka (Open Source), dibangun dengan standar kelas dunia. Artinya: perangkat lunak yang lebih baik, teruji, dan lebih aman untuk semua orang.",
+      "tag": "Kami pakai, kami rawat",
+      "cta": "Minta demo",
+      "items": {
+        "erp": {
+          "title": "Solusi Manajemen Sumber Daya Perusahaan (ERP)",
+          "desc": "Perangkat lunak manajemen sumber daya perusahaan untuk pengadaan, manufaktur, inventaris, pemasaran, penjualan, dan akuntansi. Kami membantu memasangnya, lalu mendampingi sampai penggunanya bisa melanjutkannya.",
+          "artifact": "Akuntansi Syariah · Manufaktur · Aplikasi Penjualan"
+        },
+        "cms": {
+          "title": "Solusi Manajemen Konten dan Pendidikan (CMS)",
+          "desc": "Perangkat lunak manajemen konten dan pendidikan untuk sistem informasi sekolah, penerimaan siswa baru, dan teknologi pembelajaran. Mudah dipakai, bisa memakai nama institusi sendiri, dan dikembangkan bersama siswa serta tenaga kependidikan.",
+          "artifact": "CMS · LMS · Quiz"
+        }
+      },
+      "flagship": {
+        "status": "alpha terbuka",
+        "desc": "Karya pertama yang kami lepas ke publik. Platform untuk latihan dan acara berpikir komputasional lewat soal Tantangan Bebras; juga sebagai objek riset. Sampai hari ini masih kami rawat.",
+        "license": "Lisensi MIT"
       }
     },
+    "partnership": {
+      "badge": "Kemitraan",
+      "title": "Pintu masuk",
+      "lead": "Dua pintu menuju satu meja. Kampus membawa hibah serta pertanyaan riset; sekolah, komunitas, dan UMKM membawa kebutuhan lapangan. Kami mendengarkan keduanya, lalu membangun bersama. Hasilnya tidak berhenti di mitra pertama — karya itu terbuka, bisa dipakai, dikembangkan siapa saja, dan berkelanjutan.",
+      "grant": {
+        "tag": "Akademik & pendidikan",
+        "title": "Join Grant Program",
+"desc": "Hibah untuk kebutuhan bersama. Semua hasilnya terbuka: paper, data agregat, kode dan produk.",
+    "items": {
+      "grant": "Proposal ditulis bersama, peneliti sebagai penulis pertama. Hasilnya bisa dibaca siapa saja: paper, kode dan produk akhir",
+      "fellow": "Peneliti berperan sebagai ahli. Jalur publikasi kami tetapkan bersama, dan kami pastikan sejak awal dapat diuji coba",
+      "product": "Peneliti mendapat: kode dan artefak produk, alur agentik. Kode sumber tetap terbuka"
+        }
+      },
+      "engineering": {
+        "tag": "Komunitas nonformal",
+        "title": "Joint Engineering Program",
+        "desc": "Kami mendampingi komunitas belajar, pesantren, dan UMKM dari masalah hingga solusi — dari pemasangan pertama sampai mandiri.",
+        "items": {
+          "beneficiary": "Komunitas belajar, pesantren, dan UMKM sebagai pihak yang kami dampingi untuk memakai alat dan dapat ikut serta dalam pengembangan",
+          "mentoring": "Tim rekayasa mendampingi dari pemasangan sampai tidak lagi dibutuhkan",
+          "transfer": "Latih pelatih: kami serahkan keahliannya, bukan hanya alatnya"
+        }
+      }
+    },
+    "contact": {
+      "badge": "Kontak",
+      "title": "Hubungi Kami",
+      "lead": "Komunitas yang tumbuh dari riset, rekayasa teknologi, dan pengabdian. Fokus kami: transformasi digital lewat perangkat lunak sumber terbuka kelas dunia. Pertanyaan riset, teknologi, sekolah mitra, atau komunitas yang ingin tumbuh bersama. Ceritakan kepada kami — kami ingin mendengar. Mari mulai.",
+      "email": "Email",
+      "emailNote": "Kemitraan",
+      "whatsapp": "WhatsApp",
+      "whatsappNote": "Ibjan Syarif Hidayatullah",
+      "location": "Berbasis di",
+      "locationValue": "JL. Dahlia Raya D3/22, Perumnas LA Resort Labuapi, Lombok Barat 83361"
+    },
     "cta": {
-      "title": "Mulai dari bagian membosankan yang sudah selesai.",
-      "lead": "Jalankan setup sekali — tunjuk ke basis data Anda, buat admin — lalu kirim domain Anda di atas lantai yang sudah siap."
+      "title": "Pondasi kuat yang sudah ada.",
+      "lead": "Alat-alat dapat dipakai, dimodifikasi, dan didistribusikan ulang, dibuat sederhana namun kuat dan terukur sehingga memulainya menjadi mudah."
     },
     "footer": {
-      "alpha": "alpha terbuka",
-      "copyright": "© 2026 {name}"
+      "copyright": "© 2026 {name}",
+      "license": "Kode MIT · Konten CC BY-SA 4.0 · Open By Default",
+      "githubTagline": "Build up with open source software."
     }
   },
   "setup": {
@@ -418,6 +475,10 @@
     "api_key_not_found": "API key tidak ditemukan",
     "bad_request": "Permintaan tidak valid",
     "conflict": "Data bentrok",
+    "content_exists": "Konten sudah ada",
+    "content_item_not_found": "Item konten tidak ditemukan",
+    "content_page_not_found": "Halaman konten tidak ditemukan",
+    "locale_invalid": "Locale tidak valid",
     "cannot_delete_builtin_role": "Tidak bisa menghapus peran bawaan",
     "could_not_generate_unique_name": "Gagal membuat nama unik",
     "csrf_token_invalid": "Token CSRF tidak valid",
@@ -444,6 +505,7 @@
     "invalid_db_path": "Lokasi basis data tidak valid",
     "invalid_db_port": "Port basis data tidak valid",
     "invalid_email": "Email tidak valid",
+    "invalid_image": "Gambar tidak valid",
     "invalid_operation": "Operasi tidak valid",
     "invalid_username": "Nama pengguna tidak valid",
     "malformed": "Format salah",

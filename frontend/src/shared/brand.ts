@@ -17,7 +17,7 @@ declare global {
 }
 
 const DEFAULT_BRAND: Brand = {
-  name: 'Minimals',
+  name: 'Nusa Large Pelago',
   tagline: '',
   description: '',
   siteUrl: '',
