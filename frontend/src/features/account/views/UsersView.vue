@@ -96,6 +96,10 @@ onMounted(async () => {
   </div>
 
   <div v-else class="mx-auto w-full max-w-6xl space-y-4 px-5 py-6">
+    <h1 class="text-2xl-semibold text-ink-gray-8">
+      {{ t('route.Users.title') }}
+    </h1>
+
     <ListToolbar
       v-model:search="search"
       v-model:per-page="perPage"
