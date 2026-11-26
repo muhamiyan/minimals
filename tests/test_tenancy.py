@@ -1703,7 +1703,15 @@ class TestPlanCatalog:
         ).get_json()
         response = member.get("/api/v1/plans/catalog")
         assert response.status_code == 200
-        names = [p["name"] for p in response.get_json()["items"]]
+        from app.plans.features import FEATURE_CATEGORIES, FEATURE_KEYS
+
+        body = response.get_json()
+        assert body["features"] == list(FEATURE_KEYS)
+        assert body["categories"] == [
+            {"key": key, "features": list(keys)}
+            for key, keys in FEATURE_CATEGORIES.items()
+        ]
+        names = [p["name"] for p in body["items"]]
         assert "Community" in names
         assert "Professional" in names
         assert "Hidden" in names
