@@ -7,13 +7,12 @@ import {
   Button,
   ErrorMessage,
   FormControl,
-  PageHeader,
   Spinner,
   Switch,
   toast,
 } from 'frappe-ui'
 
-import PageBreadcrumbs from '@/shared/components/PageBreadcrumbs.vue'
+import AppPageHeader from '@/shared/shell/AppPageHeader.vue'
 import { formatRupiah } from '@/shared/format'
 
 import { durationLabel, usePlansStore } from '@/features/plans/store'
@@ -217,9 +216,7 @@ watch(orgId, (next, previous) => {
 </script>
 
 <template>
-  <PageHeader>
-    <PageBreadcrumbs :title="store.current?.name" />
-  </PageHeader>
+  <AppPageHeader :title="store.current?.name" />
 
   <div class="mx-auto w-full max-w-6xl px-5 py-6">
     <div v-if="store.orgLoading && !store.current" class="flex justify-center py-16">

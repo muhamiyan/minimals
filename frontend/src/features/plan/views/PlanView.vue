@@ -7,20 +7,19 @@ import {
   Button,
   Dialog,
   ErrorMessage,
-  PageHeader,
   Spinner,
   toast,
 } from 'frappe-ui'
 
-import PageBreadcrumbs from '@/shared/components/PageBreadcrumbs.vue'
+import AppPageHeader from '@/shared/shell/AppPageHeader.vue'
 import { formatRupiah } from '@/shared/format'
 
 import { TIER_LABELS, useTenancyStore } from '@/features/tenancy/store'
-import { featureLabel } from '@/features/tenancy/validation'
+import { featureLabel, humanize } from '@/features/tenancy/validation'
 import { durationLabel, type Plan } from '@/features/plans/store'
 import { usePlanStore } from '../store'
 
-const { t } = useI18n()
+const { t, te } = useI18n()
 const tenancy = useTenancyStore()
 const store = usePlanStore()
 const router = useRouter()
@@ -36,9 +35,19 @@ const gateReady = computed(() => tenancy.myOrgsLoaded || tenancy.domainMode('pla
 const currentOrg = computed(() => tenancy.currentOrg)
 const currentPlanId = computed(() => currentOrg.value?.subscription?.planId ?? null)
 
-const featureKeys = computed(() => [
-  ...new Set(store.items.flatMap((plan) => Object.keys(plan.features ?? {}))),
-])
+const FEATURE_PREVIEW = 3
+
+function includedKeys(plan: Plan): string[] {
+  return store.featureKeys.filter((key) => plan.features[key])
+}
+
+function previewKeys(plan: Plan): string[] {
+  return includedKeys(plan).slice(0, FEATURE_PREVIEW)
+}
+
+function moreCount(plan: Plan): number {
+  return Math.max(0, includedKeys(plan).length - FEATURE_PREVIEW)
+}
 
 const pendingPlan = computed(() =>
   store.pendingInvoice?.planId
@@ -99,6 +108,28 @@ function planPrice(plan: Plan): string | null {
   return plan.price == null ? null : formatRupiah(plan.price)
 }
 
+const detailTarget = ref<Plan | null>(null)
+const detailOpen = ref(false)
+const featureOpen = ref<Record<string, boolean>>({})
+
+function openDetails(plan: Plan): void {
+  detailTarget.value = plan
+  featureOpen.value = {}
+  detailOpen.value = true
+}
+
+function featureDetail(key: string): string {
+  const detailKey = `plan.featureDetail.${key}`
+  return te(detailKey) ? t(detailKey) : humanize(key)
+}
+
+const detailFeatures = computed(() => {
+  const plan = detailTarget.value
+  return plan ? includedKeys(plan) : []
+})
+
+const includedCount = computed(() => detailFeatures.value.length)
+
 const confirmTarget = ref<Plan | null>(null)
 const confirmOpen = ref(false)
 
@@ -121,15 +152,16 @@ async function confirmSwitch(): Promise<void> {
 </script>
 
 <template>
-  <PageHeader>
-    <PageBreadcrumbs />
-    <Badge
-      v-if="isDev"
-      :label="t('plans.dev')"
-      theme="violet"
-      variant="subtle"
-    />
-  </PageHeader>
+  <AppPageHeader>
+    <template #leading>
+      <Badge
+        v-if="isDev"
+        :label="t('plans.dev')"
+        theme="violet"
+        variant="subtle"
+      />
+    </template>
+  </AppPageHeader>
 
   <div v-if="!gateReady" class="flex justify-center py-10">
     <Spinner />
@@ -233,30 +265,36 @@ async function confirmSwitch(): Promise<void> {
           </div>
         </div>
 
-        <ul v-if="featureKeys.length" class="space-y-1.5 border-t border-outline-gray-1 pt-4">
-          <li
-            v-for="key in featureKeys"
-            :key="key"
-            class="flex items-center gap-2"
-          >
-            <span
-              v-if="plan.features[key]"
-              class="lucide-check size-4 text-ink-gray-8"
-              aria-hidden="true"
-            />
-            <span
-              v-else
-              class="lucide-minus size-4 text-ink-gray-4"
-              aria-hidden="true"
-            />
-            <span
-              class="text-p-sm"
-              :class="plan.features[key] ? 'text-ink-gray-8' : 'text-ink-gray-5'"
+        <div
+          v-if="previewKeys(plan).length"
+          class="space-y-1.5 border-t border-outline-gray-1 pt-4"
+        >
+          <ul class="space-y-1.5">
+            <li
+              v-for="key in previewKeys(plan)"
+              :key="key"
+              class="flex items-center gap-2"
             >
-              {{ featureLabel(key) }}
-            </span>
-          </li>
-        </ul>
+              <span
+                class="lucide-check size-4 text-ink-green-6"
+                aria-hidden="true"
+              />
+              <span class="text-p-sm text-ink-gray-8">{{ featureLabel(key) }}</span>
+            </li>
+          </ul>
+          <Button
+            class="-ml-2"
+            variant="ghost"
+            size="sm"
+            :label="
+              moreCount(plan)
+                ? t('plan.moreDetails', { count: moreCount(plan) })
+                : t('plan.viewDetails')
+            "
+            icon-left="lucide-chevron-down"
+            @click="openDetails(plan)"
+          />
+        </div>
 
         <div class="mt-auto border-t border-outline-gray-1 pt-4">
           <Button
@@ -281,6 +319,50 @@ async function confirmSwitch(): Promise<void> {
       </div>
     </div>
   </div>
+
+  <Dialog
+    v-model:open="detailOpen"
+    :title="detailTarget ? t('plan.detailsTitle', { name: detailTarget.name }) : ''"
+    icon="lucide-list-checks"
+    size="md"
+  >
+    <div class="max-h-[60vh] space-y-4 overflow-y-auto pr-1 text-left">
+      <p class="text-p-sm text-ink-gray-5">
+        {{ t('plan.includedCount', { count: includedCount }) }}
+      </p>
+      <p v-if="!detailFeatures.length" class="text-p-sm text-ink-gray-5">
+        {{ t('plan.noIncludedFeatures') }}
+      </p>
+      <ul v-else class="space-y-1 text-left">
+        <li v-for="key in detailFeatures" :key="key" class="space-y-1">
+          <Button
+            class="w-full !justify-start"
+            variant="ghost"
+            size="sm"
+            :label="featureLabel(key)"
+            icon-left="lucide-check"
+            :icon-right="
+              featureOpen[key] ? 'lucide-chevron-up' : 'lucide-chevron-down'
+            "
+            :aria-expanded="featureOpen[key] === true"
+            @click="featureOpen[key] = !featureOpen[key]"
+          />
+          <p v-if="featureOpen[key]" class="pl-6 text-p-sm text-ink-gray-5">
+            {{ featureDetail(key) }}
+          </p>
+        </li>
+      </ul>
+    </div>
+    <template #actions="{ close }">
+      <div class="flex justify-end">
+        <Button
+          :label="t('tenancy.fields.cancel')"
+          variant="outline"
+          @click="close()"
+        />
+      </div>
+    </template>
+  </Dialog>
 
   <Dialog
     v-model:open="confirmOpen"

@@ -17,6 +17,7 @@ import { dashboardRoutes } from '@/features/dashboard/routes'
 import { goakalRoutes } from '@/features/goakal/routes'
 import { useGoakalStore } from '@/features/goakal/store'
 import { infraRoutes } from '@/features/infra/routes'
+import { planRoutes } from '@/features/plan/routes'
 import { plansRoutes } from '@/features/plans/routes'
 import { usePlansStore } from '@/features/plans/store'
 import { setupRoutes } from '@/features/setup/routes'
@@ -38,6 +39,7 @@ const routes: RouteRecordRaw[] = [
       ...todoRoutes,
       ...tenancyRoutes,
       ...plansRoutes,
+      ...planRoutes,
       ...billingRoutes,
       ...goakalRoutes,
       ...infraRoutes,

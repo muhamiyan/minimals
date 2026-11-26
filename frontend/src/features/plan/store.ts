@@ -3,11 +3,19 @@ import { ref } from 'vue'
 
 import { i18n } from '@/app/i18n'
 import { api, getErrorMessage } from '@/shared/api'
-import type { Plan } from '@/features/plans/store'
+import type { FeatureCategory, Plan } from '@/features/plans/store'
 import type { Invoice } from '@/features/billing/store'
+
+interface Catalog {
+  items: Plan[]
+  features?: string[]
+  categories?: FeatureCategory[]
+}
 
 export const usePlanStore = defineStore('plan', () => {
   const items = ref<Plan[]>([])
+  const featureKeys = ref<string[]>([])
+  const featureCategories = ref<FeatureCategory[]>([])
   const loading = ref(false)
   const loadError = ref('')
   const actionError = ref('')
@@ -19,8 +27,17 @@ export const usePlanStore = defineStore('plan', () => {
     loading.value = true
     loadError.value = ''
     try {
-      const { data } = await api.get<{ items: Plan[] }>('/plans/catalog')
+      const { data } = await api.get<Catalog>('/plans/catalog')
       items.value = data.items ?? []
+      const keys = data.features?.length
+        ? data.features
+        : [...new Set(items.value.flatMap((plan) => Object.keys(plan.features ?? {})))]
+      featureKeys.value = keys
+      featureCategories.value = data.categories?.length
+        ? data.categories
+        : keys.length
+          ? [{ key: 'other', features: keys }]
+          : []
     } catch (e: any) {
       loadError.value = getErrorMessage(e, i18n.global.t('plan.errors.load'))
     } finally {
@@ -63,6 +80,8 @@ export const usePlanStore = defineStore('plan', () => {
 
   function reset(): void {
     items.value = []
+    featureKeys.value = []
+    featureCategories.value = []
     loading.value = false
     loadError.value = ''
     actionError.value = ''
@@ -72,6 +91,8 @@ export const usePlanStore = defineStore('plan', () => {
 
   return {
     items,
+    featureKeys,
+    featureCategories,
     loading,
     loadError,
     actionError,

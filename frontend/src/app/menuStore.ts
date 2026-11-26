@@ -32,24 +32,30 @@ export const useMenuStore = defineStore('menu', () => {
 
   const auth = useAuthStore()
   const tenancy = useTenancyStore()
-  const isAdmin = computed(() => auth.user?.appRole === 'admin')
+  const isSuperadmin = computed(() => auth.user?.appRole === 'superadmin')
+  const isAdmin = computed(
+    () => auth.user?.appRole === 'admin' || isSuperadmin.value,
+  )
+  const isOwner = computed(
+    () => isSuperadmin.value || tenancy.currentOrg?.myRole === 'owner',
+  )
 
   function allowed(item: NavItem): boolean {
     if (item.requireAdmin && !isAdmin.value) return false
+    if (item.requireSuperadmin && !isSuperadmin.value) return false
+    if (item.requireOwner && !isOwner.value) return false
     if (item.feature && !tenancy.hasFeature(item.feature)) return false
-    const isSuperadmin = auth.user?.appRole === 'superadmin'
     if (
       item.domain &&
-      !isSuperadmin &&
+      !isSuperadmin.value &&
       tenancy.domainMode(item.domain) === 'maintenance'
     ) {
       return false
     }
     if (!item.gate) return true
-    const isOwner = tenancy.currentOrg?.myRole === 'owner'
-    if (item.gate === 'owner') return isOwner
-    if (item.gate === 'superadmin') return isSuperadmin
-    return isSuperadmin || isOwner
+    if (item.gate === 'owner') return isOwner.value
+    if (item.gate === 'superadmin') return isSuperadmin.value
+    return isSuperadmin.value || isOwner.value
   }
 
   const allItems = computed(() => orderedNavItems(order.value).filter(allowed))

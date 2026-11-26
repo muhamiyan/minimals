@@ -107,10 +107,12 @@
   },
   "crumb": {
     "dashboard": "Dasbor",
+    "onboarding": "Onboarding",
     "organizations": "Organisasi",
     "organization": "Detail organisasi",
     "tenancy": "Tenancy",
     "plans": "Paket",
+    "plan": "Paket",
     "infrastructure": "Infrastruktur",
     "billing": "Penagihan",
     "todo": "Tugas",
@@ -291,6 +293,7 @@
       "revenueSeries": "Pendapatan",
       "subscriptionsByStatus": "Langganan per status",
       "invoicesByStatus": "Faktur per status",
+      "noData": "Belum ada data.",
       "loadFailed": "Gagal memuat statistik dasbor"
     }
   },
@@ -395,6 +398,17 @@
     "pendingSwitchGeneric": "Pergantian paket menunggu pembayaran faktur {number}.",
     "viewBilling": "Lihat tagihan",
     "empty": "Belum ada paket yang tersedia.",
+    "moreDetails": "Lihat {count} lainnya",
+    "viewDetails": "Lihat detail",
+    "detailsTitle": "Detail {name}",
+    "includedCount": "{count} fitur termasuk",
+    "noIncludedFeatures": "Paket ini tidak menyertakan fitur apa pun.",
+    "featureDetail": {
+      "advanced_reporting": "Jelajahi metrik lintas organisasi dan grafik tren di luar dasbor bawaan.",
+      "priority_support": "Permintaan prioritas ditangani lebih awal dari antrean dukungan standar.",
+      "custom_domain": "Sajikan aplikasi ini pada domain bermerek Anda sendiri.",
+      "todo": "Daftar tugas bersama yang mengikuti organisasi aktif."
+    },
     "errors": {
       "load": "Gagal memuat katalog paket",
       "switch": "Gagal meminta pergantian paket"

@@ -13,6 +13,8 @@ export interface NavItem {
   /** Domain key evaluated in menuStore via tenancy.domainMode(domain). */
   domain?: string
   requireAdmin?: boolean
+  requireSuperadmin?: boolean
+  requireOwner?: boolean
   mobile?: boolean
 }
 
@@ -30,10 +32,11 @@ const NAV_ITEMS: NavItem[] = [
     route: { name: 'Dashboard' },
   },
   {
-    key: 'ToDo',
-    labelKey: 'nav.todo',
-    icon: 'lucide-list-todo',
-    route: { name: 'ToDo' },
+    key: 'Users',
+    labelKey: 'nav.users',
+    icon: 'lucide-users',
+    route: { name: 'Users' },
+    requireAdmin: true,
   },
   {
     key: 'MyOrganizations',
@@ -43,19 +46,17 @@ const NAV_ITEMS: NavItem[] = [
     gate: 'owner',
   },
   {
-    key: 'Tenancy',
-    labelKey: 'nav.tenancy',
-    icon: 'lucide-building-2',
-    route: { name: 'Tenancy' },
-    gate: 'superadmin',
+    key: 'ToDo',
+    labelKey: 'nav.todo',
+    icon: 'lucide-list-todo',
+    route: { name: 'ToDo' },
   },
   {
-    key: 'Plans',
-    labelKey: 'nav.plans',
-    icon: 'lucide-layers',
-    route: { name: 'Plans' },
-    gate: 'superadmin',
-    domain: 'plans',
+    key: 'Plan',
+    labelKey: 'nav.plan',
+    icon: 'lucide-credit-card',
+    route: { name: 'Plan' },
+    requireOwner: true,
   },
   {
     key: 'Billing',
@@ -73,19 +74,27 @@ const NAV_ITEMS: NavItem[] = [
     gate: 'superadmin',
   },
   {
+    key: 'Plans',
+    labelKey: 'nav.plans',
+    icon: 'lucide-layers',
+    route: { name: 'Plans' },
+    gate: 'superadmin',
+    domain: 'plans',
+  },
+  {
+    key: 'Tenancy',
+    labelKey: 'nav.tenancy',
+    icon: 'lucide-building-2',
+    route: { name: 'Tenancy' },
+    gate: 'superadmin',
+  },
+  {
     key: 'Infrastructure',
     labelKey: 'nav.infrastructure',
     icon: 'lucide-database',
     route: { name: 'Infrastructure' },
     gate: 'superadmin',
     domain: 'infra',
-  },
-  {
-    key: 'Users',
-    labelKey: 'nav.users',
-    icon: 'lucide-users',
-    route: { name: 'Users' },
-    requireAdmin: true,
   },
 ]
 

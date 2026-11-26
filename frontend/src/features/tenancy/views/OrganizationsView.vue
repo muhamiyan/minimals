@@ -8,7 +8,6 @@ import {
   Dialog,
   ErrorMessage,
   FormControl,
-  PageHeader,
   Spinner,
   toast,
 } from 'frappe-ui'
@@ -21,7 +20,7 @@ import {
   ListRows,
 } from 'frappe-ui/list'
 
-import PageBreadcrumbs from '@/shared/components/PageBreadcrumbs.vue'
+import AppPageHeader from '@/shared/shell/AppPageHeader.vue'
 import ListHead from '@/shared/components/ListHead.vue'
 import ListFoot from '@/shared/components/ListFoot.vue'
 import ListToolbar from '@/shared/components/ListToolbar.vue'
@@ -144,24 +143,25 @@ async function submitSettings(): Promise<void> {
 </script>
 
 <template>
-  <PageHeader>
-    <PageBreadcrumbs />
-    <div class="flex items-center gap-2">
-      <Button
-        :label="t('tenancy.console.settings')"
-        icon-left="lucide-settings"
-        variant="outline"
-        @click="openSettings"
-      />
-      <Button
-        :label="t('tenancy.console.newOrg')"
-        icon-left="lucide-plus"
-        variant="solid"
-        theme="gray"
-        @click="openCreate"
-      />
-    </div>
-  </PageHeader>
+  <AppPageHeader>
+    <template #actions>
+      <div class="flex items-center gap-2">
+        <Button
+          :label="t('tenancy.console.settings')"
+          icon-left="lucide-settings"
+          variant="outline"
+          @click="openSettings"
+        />
+        <Button
+          :label="t('tenancy.console.newOrg')"
+          icon-left="lucide-plus"
+          variant="solid"
+          theme="gray"
+          @click="openCreate"
+        />
+      </div>
+    </template>
+  </AppPageHeader>
 
   <div class="mx-auto w-full max-w-6xl space-y-3 px-5 py-6">
     <ListToolbar

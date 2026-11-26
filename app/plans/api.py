@@ -43,7 +43,14 @@ def list_features():
 @login_required
 def list_catalog():
     return ok(
-        {"items": [PlanOut.from_plan(p).to_dict() for p in PlanService().catalog()]}
+        {
+            "items": [PlanOut.from_plan(p).to_dict() for p in PlanService().catalog()],
+            "features": list(FEATURE_KEYS),
+            "categories": [
+                {"key": category, "features": list(keys)}
+                for category, keys in FEATURE_CATEGORIES.items()
+            ],
+        }
     )
 
 

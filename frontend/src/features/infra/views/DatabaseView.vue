@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { Badge, Button, ErrorMessage, PageHeader, Spinner, toast } from 'frappe-ui'
+import { Badge, Button, ErrorMessage, Spinner, toast } from 'frappe-ui'
 
-import PageBreadcrumbs from '@/shared/components/PageBreadcrumbs.vue'
+import AppPageHeader from '@/shared/shell/AppPageHeader.vue'
 
 import { ENGINE_LABELS, tursoModeLabel, useInfraStore } from '../store'
 
@@ -64,9 +64,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <PageHeader>
-    <PageBreadcrumbs />
-  </PageHeader>
+  <AppPageHeader />
 
   <div class="mx-auto w-full max-w-6xl space-y-4 px-5 py-6">
     <div v-if="store.loading && !store.status" class="flex justify-center py-16">

@@ -107,10 +107,12 @@
   },
   "crumb": {
     "dashboard": "Dashboard",
+    "onboarding": "Onboarding",
     "organizations": "Organizations",
     "organization": "Organization",
     "tenancy": "Tenancy",
     "plans": "Plans",
+    "plan": "Plan",
     "infrastructure": "Infrastructure",
     "billing": "Billing",
     "todo": "Todo",
@@ -291,6 +293,7 @@
       "revenueSeries": "Revenue",
       "subscriptionsByStatus": "Subscriptions by status",
       "invoicesByStatus": "Invoices by status",
+      "noData": "No data yet.",
       "loadFailed": "Could not load dashboard statistics"
     }
   },
@@ -395,6 +398,17 @@
     "pendingSwitchGeneric": "A plan switch is pending payment of invoice {number}.",
     "viewBilling": "View billing",
     "empty": "No plans are available yet.",
+    "moreDetails": "See {count} more",
+    "viewDetails": "View details",
+    "detailsTitle": "{name} details",
+    "includedCount": "{count} features included",
+    "noIncludedFeatures": "No features included in this plan.",
+    "featureDetail": {
+      "advanced_reporting": "Explore cross-organization metrics and trend charts beyond the default dashboard.",
+      "priority_support": "Priority requests are handled ahead of the standard support queue.",
+      "custom_domain": "Serve this app under your own branded domain.",
+      "todo": "Shared task lists scoped to the active organization."
+    },
     "errors": {
       "load": "Failed to load the plan catalog",
       "switch": "Failed to request the plan switch"
