@@ -50,7 +50,7 @@ function goTop() {
 
 <template>
   <header
-    class="sticky top-0 z-40 border-b border-outline-green-2 bg-surface-base/80 backdrop-blur-md"
+    class="sticky top-0 z-40 border-b border-outline-green-2 bg-surface-green-1/80 backdrop-blur-md dark:bg-surface-green-2/70"
   >
     <div class="mx-auto flex h-14 w-full max-w-6xl items-center justify-between gap-3 px-5">
       <router-link
@@ -94,7 +94,7 @@ function goTop() {
             icon-right="lucide-chevron-down"
           />
           <div
-            class="invisible absolute left-0 top-full z-10 w-48 rounded-6 border border-outline-green-2 bg-surface-base p-1 opacity-0 shadow-lg transition-opacity group-focus-within:visible group-focus-within:opacity-100 group-hover:visible group-hover:opacity-100"
+            class="invisible absolute left-0 top-full z-10 w-48 rounded-6 border border-outline-green-2 bg-surface-elevation-2 p-1 opacity-0 shadow-lg transition-opacity group-focus-within:visible group-focus-within:opacity-100 group-hover:visible group-hover:opacity-100"
           >
             <router-link
               v-for="link in infoLinks"
@@ -145,13 +145,13 @@ function goTop() {
         />
         <details ref="mobileMenu" class="relative lg:hidden">
           <summary
-            class="flex size-8 cursor-pointer list-none items-center justify-center rounded-4 border border-outline-green-2 bg-surface-base text-ink-gray-7 [&::-webkit-details-marker]:hidden"
+            class="flex size-8 cursor-pointer list-none items-center justify-center rounded-4 border border-outline-green-2 bg-surface-elevation-2 text-ink-gray-7 [&::-webkit-details-marker]:hidden"
             :aria-label="t('landing.nav.menu')"
           >
             <span class="lucide-menu size-4" aria-hidden="true" />
           </summary>
           <div
-            class="absolute right-0 top-10 z-20 w-56 rounded-6 border border-outline-green-2 bg-surface-base p-1 shadow-lg"
+            class="absolute right-0 top-10 z-20 w-56 rounded-6 border border-outline-green-2 bg-surface-elevation-2 p-1 shadow-lg"
           >
             <router-link
               v-for="link in homeLinks"

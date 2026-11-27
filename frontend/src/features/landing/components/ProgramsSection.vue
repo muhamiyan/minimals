@@ -12,11 +12,11 @@ const programs = useProgramStore()
   <section
     v-if="programs.programs.length"
     id="programs"
-    class="border-t border-outline-green-2 bg-surface-green-2"
+    class="border-t border-outline-gray-1 bg-surface-base"
   >
     <div class="mx-auto w-full max-w-6xl px-5 py-20">
       <div class="mx-auto max-w-2xl text-center">
-        <Badge theme="green" variant="outline" :label="t('landing.programs.badge')" />
+        <Badge theme="green" variant="subtle" :label="t('landing.programs.badge')" />
         <h2 class="mt-4 text-5xl-bold text-ink-gray-9">{{ t('landing.programs.title') }}</h2>
         <p class="mt-3 text-p-base text-ink-gray-6">{{ t('landing.programs.lead') }}</p>
       </div>
@@ -26,9 +26,9 @@ const programs = useProgramStore()
           v-for="item in programs.programs"
           :key="item.id"
           :to="{ name: 'ProgramPost', params: { slug: item.slug } }"
-          class="rounded-6 border border-outline-green-2 bg-surface-base p-5 transition-colors hover:border-outline-green-3"
+          class="rounded-6 border border-t-2 border-outline-gray-1 border-t-outline-green-4 bg-surface-green-1 p-5 transition-colors hover:border-outline-green-3 hover:bg-surface-green-2"
         >
-          <div class="w-fit rounded-4 bg-surface-green-2 p-2 text-ink-green-7">
+          <div class="w-fit rounded-4 bg-surface-elevation-2 p-2 text-ink-green-7">
             <span class="lucide-graduation-cap size-5" aria-hidden="true" />
           </div>
           <p class="mt-4 text-2xs-medium uppercase tracking-wide text-ink-green-7">

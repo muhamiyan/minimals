@@ -1,4 +1,4 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
 import { Badge } from 'frappe-ui'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -17,10 +17,10 @@ const cards = computed(() =>
 </script>
 
 <template>
-  <section id="features" class="border-t border-outline-green-2 bg-surface-green-1">
+  <section id="features" class="border-t border-outline-gray-1 bg-surface-base">
     <div class="mx-auto w-full max-w-6xl px-5 py-20">
       <div class="mx-auto max-w-2xl text-center">
-        <Badge theme="green" variant="outline" :label="t('landing.highlights.badge')" />
+        <Badge theme="green" variant="subtle" :label="t('landing.highlights.badge')" />
         <h2 class="mt-4 text-5xl-bold text-ink-gray-9">
           {{ t('landing.highlights.title') }}
         </h2>
@@ -33,9 +33,9 @@ const cards = computed(() =>
         <div
           v-for="item in cards"
           :key="item.title"
-          class="rounded-6 border border-outline-green-2 bg-surface-base p-5 transition-colors hover:border-outline-green-3"
+          class="rounded-6 border border-t-2 border-outline-gray-1 border-t-outline-green-4 bg-surface-green-1 p-5 transition-colors hover:border-outline-green-3 hover:bg-surface-green-2"
         >
-          <div class="w-fit rounded-4 bg-surface-green-2 p-2.5 text-ink-green-7">
+          <div class="w-fit rounded-4 bg-surface-elevation-2 p-2.5 text-ink-green-7">
             <span :class="item.icon" class="size-5" aria-hidden="true" />
           </div>
           <h3 class="mt-4 text-base-semibold text-ink-gray-8">{{ item.title }}</h3>

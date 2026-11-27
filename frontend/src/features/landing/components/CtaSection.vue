@@ -1,4 +1,4 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
 import { contentHtml, contentText, contentValue } from '@/shared/siteContent'
 import { Button } from 'frappe-ui'
 import { useI18n } from 'vue-i18n'
@@ -11,10 +11,19 @@ const { t } = useI18n()
 <template>
   <section id="ppdb" class="mx-auto w-full max-w-6xl px-5 py-20">
     <div
-      class="rounded-8 border border-outline-green-3 bg-surface-green-2 px-6 py-16 text-center"
+      class="relative overflow-hidden rounded-8 border border-outline-green-2 px-6 py-16 text-center"
+      style="background: linear-gradient(135deg, var(--surface-green-1), var(--surface-elevation-1))"
     >
-      <div>
-        <div class="mx-auto w-fit rounded-6 bg-surface-base p-3 text-ink-green-7">
+      <div
+        aria-hidden="true"
+        class="pointer-events-none absolute -right-24 -top-24 size-72 rounded-full bg-surface-green-5 opacity-20 blur-3xl"
+      />
+      <div
+        aria-hidden="true"
+        class="pointer-events-none absolute -bottom-28 -left-20 size-64 rounded-full bg-surface-green-4 opacity-20 blur-3xl"
+      />
+      <div class="relative">
+        <div class="mx-auto w-fit rounded-6 bg-surface-elevation-2 p-3 text-ink-green-7">
           <span class="lucide-school size-8" aria-hidden="true" />
         </div>
         <h2 class="mx-auto mt-5 max-w-2xl text-4xl-bold text-ink-gray-9 sm:text-5xl-bold">

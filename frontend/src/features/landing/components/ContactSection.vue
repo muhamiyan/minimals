@@ -44,10 +44,10 @@ const cards = computed(() => {
 </script>
 
 <template>
-  <section id="contact" class="border-t border-outline-green-2 bg-surface-green-1">
+  <section id="contact" class="border-t border-outline-gray-1 bg-surface-base">
     <div class="mx-auto w-full max-w-6xl px-5 py-20">
       <div class="mx-auto max-w-2xl text-center">
-        <Badge theme="green" variant="outline" :label="t('landing.contact.badge')" />
+        <Badge theme="green" variant="subtle" :label="t('landing.contact.badge')" />
         <h2 class="mt-4 text-5xl-bold text-ink-gray-9">{{ t('landing.contact.title') }}</h2>
         <p class="mt-3 text-p-base text-ink-gray-6">{{ t('landing.contact.lead') }}</p>
       </div>
@@ -56,9 +56,9 @@ const cards = computed(() => {
         <div
           v-for="item in cards"
           :key="item.label"
-          class="rounded-6 border border-outline-green-2 bg-surface-base p-5"
+          class="rounded-6 border border-t-2 border-outline-gray-1 border-t-outline-green-4 bg-surface-green-1 p-5"
         >
-          <div class="w-fit rounded-4 bg-surface-green-2 p-2 text-ink-green-7">
+          <div class="w-fit rounded-4 bg-surface-elevation-2 p-2 text-ink-green-7">
             <span :class="item.icon" class="size-5" aria-hidden="true" />
           </div>
           <p class="mt-3 text-2xs-medium uppercase tracking-wide text-ink-gray-5">
@@ -81,7 +81,7 @@ const cards = computed(() => {
         <h3 class="mb-3 text-base-semibold text-ink-gray-8">
           {{ t('landing.contact.mapTitle') }}
         </h3>
-        <div class="overflow-hidden rounded-6 border border-outline-green-2 bg-surface-base">
+        <div class="overflow-hidden rounded-6 border border-outline-gray-1 bg-surface-elevation-2">
           <iframe
             :src="contentValue('contact.mapsUrl', MAPS_EMBED_URL)"
             :title="t('landing.contact.mapTitle')"

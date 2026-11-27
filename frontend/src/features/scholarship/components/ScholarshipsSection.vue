@@ -12,11 +12,11 @@ const scholarships = useScholarshipStore()
   <section
     v-if="scholarships.scholarships.length"
     id="scholarship"
-    class="border-t border-outline-green-2 bg-surface-base"
+    class="border-t border-outline-gray-1 bg-surface-base"
   >
     <div class="mx-auto w-full max-w-6xl px-5 py-20">
       <div class="mx-auto max-w-2xl text-center">
-        <Badge theme="green" variant="outline" :label="t('landing.scholarship.badge')" />
+        <Badge theme="green" variant="subtle" :label="t('landing.scholarship.badge')" />
         <h2 class="mt-4 text-5xl-bold text-ink-gray-9">
           {{ t('landing.scholarship.title') }}
         </h2>
@@ -30,7 +30,7 @@ const scholarships = useScholarshipStore()
           v-for="item in scholarships.scholarships"
           :key="item.id"
           :to="{ name: 'ScholarshipPost', params: { slug: item.slug } }"
-          class="group flex flex-col overflow-hidden rounded-6 border border-outline-green-2 bg-surface-base transition-colors hover:border-outline-green-3"
+          class="group flex flex-col overflow-hidden rounded-6 border border-t-2 border-outline-gray-1 border-t-outline-green-4 bg-surface-green-1 transition-colors hover:border-outline-green-3 hover:bg-surface-green-2"
         >
           <img
             v-if="item.coverImage"
@@ -40,7 +40,7 @@ const scholarships = useScholarshipStore()
           />
           <div
             v-else
-            class="flex aspect-[16/9] w-full items-center justify-center bg-surface-green-1 text-ink-green-7"
+            class="flex aspect-[16/9] w-full items-center justify-center bg-surface-green-2 text-ink-green-7"
           >
             <span class="lucide-award size-8" aria-hidden="true" />
           </div>

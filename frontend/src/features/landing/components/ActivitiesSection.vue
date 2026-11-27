@@ -13,12 +13,12 @@ const activities = useActivityStore()
   <section
     v-if="activities.activities.length"
     id="activities"
-    class="border-t border-outline-green-2 bg-surface-green-1"
+    class="border-t border-outline-gray-1 bg-surface-base"
   >
     <div class="mx-auto w-full max-w-6xl px-5 py-20">
       <div class="flex flex-wrap items-end justify-between gap-4">
         <div class="max-w-2xl">
-          <Badge theme="green" variant="outline" :label="t('activity.badge')" />
+          <Badge theme="green" variant="subtle" :label="t('activity.badge')" />
           <h2 class="mt-4 text-5xl-bold text-ink-gray-9">
             {{ t('activity.title') }}
           </h2>
@@ -38,7 +38,7 @@ const activities = useActivityStore()
           v-for="item in activities.activities.slice(0, 3)"
           :key="item.id"
           :to="{ name: 'ActivityPost', params: { slug: item.slug } }"
-          class="group flex flex-col overflow-hidden rounded-6 border border-outline-green-2 bg-surface-base transition-colors hover:border-outline-green-3"
+          class="group flex flex-col overflow-hidden rounded-6 border border-t-2 border-outline-gray-1 border-t-outline-green-4 bg-surface-green-1 transition-colors hover:border-outline-green-3 hover:bg-surface-green-2"
         >
           <img
             v-if="item.coverImage"

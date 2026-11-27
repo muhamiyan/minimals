@@ -13,12 +13,12 @@ const blog = useBlogStore()
   <section
     v-if="blog.posts.length"
     id="posts"
-    class="border-t border-outline-green-2 bg-surface-green-1"
+    class="border-t border-outline-gray-1 bg-surface-base"
   >
     <div class="mx-auto w-full max-w-6xl px-5 py-20">
       <div class="flex flex-wrap items-end justify-between gap-4">
         <div class="max-w-2xl">
-          <Badge theme="green" variant="outline" :label="t('landing.posts.badge')" />
+          <Badge theme="green" variant="subtle" :label="t('landing.posts.badge')" />
           <h2 class="mt-4 text-5xl-bold text-ink-gray-9">{{ t('landing.posts.title') }}</h2>
           <p class="mt-3 text-p-base text-ink-gray-6">{{ t('landing.posts.lead') }}</p>
         </div>
@@ -36,7 +36,7 @@ const blog = useBlogStore()
           v-for="post in blog.posts.slice(0, 3)"
           :key="post.id"
           :to="{ name: 'BlogPost', params: { slug: post.slug } }"
-          class="group flex flex-col overflow-hidden rounded-6 border border-outline-green-2 bg-surface-base transition-colors hover:border-outline-green-3"
+          class="group flex flex-col overflow-hidden rounded-6 border border-t-2 border-outline-gray-1 border-t-outline-green-4 bg-surface-green-1 transition-colors hover:border-outline-green-3 hover:bg-surface-green-2"
         >
           <img
             v-if="post.coverImage"
