@@ -205,24 +205,24 @@
       "description": "Sunting bagian kontak."
     },
     "ScholarshipList": {
-      "title": "Jenjang Pendidikan",
-      "description": "Tujuh jenjang pendidikan di Yayasan Islam Selaparang."
+      "title": "Beasiswa",
+      "description": "Beasiswa pendidikan di Yayasan Islam Selaparang."
     },
     "ScholarshipPost": {
-      "title": "Jenjang Pendidikan",
-      "description": "Sebuah jenjang pendidikan di Yayasan Islam Selaparang."
+      "title": "Beasiswa",
+      "description": "Sebuah beasiswa pendidikan di Yayasan Islam Selaparang."
     },
     "ScholarshipAdminList": {
-      "title": "Jenjang Pendidikan",
-      "description": "Kelola draf dan jenjang yang diterbitkan."
+      "title": "Kelola Beasiswa",
+      "description": "Kelola draf dan beasiswa yang diterbitkan."
     },
     "ScholarshipAdminCreate": {
-      "title": "Jenjang baru",
-      "description": "Tulis dan terbitkan jenjang baru."
+      "title": "Beasiswa baru",
+      "description": "Tulis dan terbitkan beasiswa baru."
     },
     "ScholarshipAdminEdit": {
-      "title": "Sunting jenjang",
-      "description": "Sunting jenjang yang sudah ada."
+      "title": "Sunting beasiswa",
+      "description": "Sunting beasiswa yang sudah ada."
     }
   },
   "field": {
@@ -965,27 +965,27 @@
     }
   },
   "scholarship": {
-    "title": "Jenjang Pendidikan",
-    "lead": "Tujuh lembaga dalam satu yayasan, dari madrasah dasar hingga kajian Islam tingkat tinggi.",
-    "empty": "Belum ada jenjang.",
+    "title": "Beasiswa",
+    "lead": "Dukungan biaya pendidikan bagi santri, dari madrasah dasar hingga kajian Islam tingkat tinggi.",
+    "empty": "Belum ada beasiswa.",
     "errors": {
-      "loadFailed": "Gagal memuat jenjang",
-      "notFound": "Jenjang tidak ditemukan",
-      "createFailed": "Gagal membuat jenjang",
-      "updateFailed": "Gagal memperbarui jenjang",
-      "deleteFailed": "Gagal menghapus jenjang"
+      "loadFailed": "Gagal memuat beasiswa",
+      "notFound": "Beasiswa tidak ditemukan",
+      "createFailed": "Gagal membuat beasiswa",
+      "updateFailed": "Gagal memperbarui beasiswa",
+      "deleteFailed": "Gagal menghapus beasiswa"
     },
     "list": {
       "readMore": "Selengkapnya"
     },
     "post": {
-      "back": "Semua jenjang"
+      "back": "Semua beasiswa"
     },
     "admin": {
-      "subtitle": "Draf dan jenjang yang diterbitkan.",
-      "newScholarship": "Jenjang baru",
-      "createFirst": "Buat jenjang pertama Anda",
-      "editScholarship": "Sunting jenjang",
+      "subtitle": "Draf dan beasiswa yang diterbitkan.",
+      "newScholarship": "Beasiswa baru",
+      "createFirst": "Buat beasiswa pertama Anda",
+      "editScholarship": "Sunting beasiswa",
       "columns": {
         "title": "Judul",
         "level": "Jenjang",
@@ -995,7 +995,7 @@
       },
       "form": {
         "title": "Judul",
-        "titlePlaceholder": "Nama jenjang",
+        "titlePlaceholder": "Nama beasiswa",
         "slug": "Slug",
         "slugHint": "Kosongkan agar dibuat otomatis dari judul.",
         "level": "Jenjang",
@@ -1008,8 +1008,8 @@
         "uploadCover": "Unggah sampul",
         "uploading": "Mengunggah {n}%",
         "remove": "Hapus",
-        "body": "Isi jenjang",
-        "bodyPlaceholder": "Tulis tentang jenjang ini…"
+        "body": "Isi beasiswa",
+        "bodyPlaceholder": "Tulis tentang beasiswa ini…"
       },
       "actions": {
         "delete": "Hapus",
@@ -1017,16 +1017,16 @@
         "save": "Simpan"
       },
       "toast": {
-        "created": "Jenjang dibuat",
-        "updated": "Jenjang diperbarui",
-        "deleted": "Jenjang dihapus"
+        "created": "Beasiswa dibuat",
+        "updated": "Beasiswa diperbarui",
+        "deleted": "Beasiswa dihapus"
       },
       "confirm": {
-        "title": "Hapus jenjang",
-        "message": "Jenjang akan dihapus permanen dan tidak dapat dibatalkan."
+        "title": "Hapus beasiswa",
+        "message": "Beasiswa akan dihapus permanen dan tidak dapat dibatalkan."
       },
-      "searchScholarships": "Cari jenjang",
-      "noScholarshipsFound": "Tidak ada jenjang yang cocok."
+      "searchScholarships": "Cari beasiswa",
+      "noScholarshipsFound": "Tidak ada beasiswa yang cocok."
     }
   }
 }
