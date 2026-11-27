@@ -5,10 +5,20 @@ import { useI18n } from 'vue-i18n'
 import { facilities } from '../content'
 
 const { t } = useI18n()
+
+const cards = facilities.map((item) => ({
+  icon: item.icon,
+  title: item.title,
+  desc: item.desc,
+}))
 </script>
 
 <template>
-  <section id="facilities" class="border-t border-outline-green-2 bg-surface-green-1">
+  <section
+    v-if="cards.length"
+    id="facilities"
+    class="border-t border-outline-green-2 bg-surface-green-1"
+  >
     <div class="mx-auto w-full max-w-6xl px-5 py-20">
       <div class="mx-auto max-w-2xl text-center">
         <Badge theme="green" variant="outline" :label="t('landing.facilities.badge')" />
@@ -20,7 +30,7 @@ const { t } = useI18n()
 
       <div class="mt-12 grid gap-4 md:grid-cols-3">
         <article
-          v-for="item in facilities"
+          v-for="item in cards"
           :key="item.title"
           class="rounded-6 border border-outline-green-2 bg-surface-base p-5 transition-colors hover:border-outline-green-3"
         >

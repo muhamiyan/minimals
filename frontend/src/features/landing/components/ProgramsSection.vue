@@ -9,7 +9,11 @@ const programs = useProgramStore()
 </script>
 
 <template>
-  <section id="programs" class="border-t border-outline-green-2 bg-surface-green-2">
+  <section
+    v-if="programs.programs.length"
+    id="programs"
+    class="border-t border-outline-green-2 bg-surface-green-2"
+  >
     <div class="mx-auto w-full max-w-6xl px-5 py-20">
       <div class="mx-auto max-w-2xl text-center">
         <Badge theme="green" variant="outline" :label="t('landing.programs.badge')" />
@@ -17,11 +21,7 @@ const programs = useProgramStore()
         <p class="mt-3 text-p-base text-ink-gray-6">{{ t('landing.programs.lead') }}</p>
       </div>
 
-      <div v-if="!programs.programs.length" class="mt-12 rounded-6 border border-outline-green-2 bg-surface-base p-10 text-center">
-        <p class="text-p-sm text-ink-gray-5">{{ programs.error || t('program.empty') }}</p>
-      </div>
-
-      <div v-else class="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div class="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <router-link
           v-for="item in programs.programs"
           :key="item.id"

@@ -16,6 +16,8 @@ class BlogCreateIn(DTOBase):
     body: str = DTOBase.field(..., min_length=1, max_length=1_000_000)
     status: str = DTOBase.field(default="draft", max_length=20)
     cover_image: str | None = DTOBase.field(default=None, alias="coverImage", max_length=500)
+    author: str | None = DTOBase.field(default=None, max_length=200)
+    category: str | None = DTOBase.field(default=None, max_length=100)
 
     @field_validator("body")
     @classmethod
@@ -52,6 +54,14 @@ class BlogCreateIn(DTOBase):
         v = v.strip()
         return v or None
 
+    @field_validator("author", "category")
+    @classmethod
+    def strip_optional(cls, v: str | None) -> str | None:
+        if v is None:
+            return v
+        v = v.strip()
+        return v or None
+
 
 class BlogUpdateIn(DTOBase):
     """Validate a blog post update payload. Slug is immutable after creation."""
@@ -62,6 +72,8 @@ class BlogUpdateIn(DTOBase):
     body: str | None = DTOBase.field(default=None, min_length=1, max_length=1_000_000)
     status: str | None = DTOBase.field(default=None, max_length=20)
     cover_image: str | None = DTOBase.field(default=None, alias="coverImage", max_length=500)
+    author: str | None = DTOBase.field(default=None, max_length=200)
+    category: str | None = DTOBase.field(default=None, max_length=100)
 
     @field_validator("body")
     @classmethod
@@ -88,6 +100,14 @@ class BlogUpdateIn(DTOBase):
         v = v.strip()
         return v or None
 
+    @field_validator("author", "category")
+    @classmethod
+    def strip_optional(cls, v: str | None) -> str | None:
+        if v is None:
+            return v
+        v = v.strip()
+        return v or None
+
     @model_validator(mode="after")
     def check_not_empty(self):
         if not self.model_fields_set:
@@ -95,4 +115,18 @@ class BlogUpdateIn(DTOBase):
         return self
 
 
-__all__ = ["BlogCreateIn", "BlogUpdateIn"]
+class BlogCategoryCreateIn(DTOBase):
+    """Validate a blog category creation payload."""
+
+    name: str = DTOBase.field(..., min_length=1, max_length=100)
+
+    @field_validator("name")
+    @classmethod
+    def strip_name(cls, v: str) -> str:
+        v = v.strip()
+        if not v:
+            raise ValueError("invalid")
+        return v
+
+
+__all__ = ["BlogCategoryCreateIn", "BlogCreateIn", "BlogUpdateIn"]

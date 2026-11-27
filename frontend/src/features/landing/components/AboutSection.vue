@@ -1,10 +1,33 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { Badge } from 'frappe-ui'
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+
+import { useProgramStore } from '@/features/program/store'
+import { useScholarshipStore } from '@/features/scholarship/store'
+import { contentValue } from '@/shared/siteContent'
 
 import { principles, stats } from '../content'
 
 const { t } = useI18n()
+const program = useProgramStore()
+const scholarship = useScholarshipStore()
+
+const principleItems = computed(() => principles.map((rule) => t(rule)))
+
+const statItems = computed(() => {
+  const values = [
+    String(program.total || program.programs.length),
+    contentValue('contact.studentCount', stats[1].value),
+    contentValue('contact.staffCount', stats[2].value),
+    String(scholarship.total || scholarship.scholarships.length),
+  ]
+  return stats.map((item, index) => ({
+    icon: item.icon,
+    value: values[index],
+    label: t(item.label),
+  }))
+})
 </script>
 
 <template>
@@ -23,7 +46,7 @@ const { t } = useI18n()
                 {{ t('landing.about.visionLabel') }}
               </h3>
               <p class="mt-2 text-p-base leading-relaxed text-ink-gray-6">
-                {{ t('landing.about.vision') }}
+                <span v-html="t('landing.about.vision')" />
               </p>
             </div>
             <div>
@@ -31,11 +54,11 @@ const { t } = useI18n()
                 {{ t('landing.about.missionLabel') }}
               </h3>
               <p class="mt-2 text-p-base leading-relaxed text-ink-gray-6">
-                {{ t('landing.about.mission') }}
+                <span v-html="t('landing.about.mission')" />
               </p>
             </div>
             <p class="text-p-sm leading-relaxed text-ink-gray-6">
-              {{ t('landing.about.body') }}
+              <span v-html="t('landing.about.body')" />
             </p>
           </div>
         </div>
@@ -48,7 +71,7 @@ const { t } = useI18n()
             </div>
             <ul class="mt-4 space-y-3">
               <li
-                v-for="rule in principles"
+                v-for="rule in principleItems"
                 :key="rule"
                 class="flex gap-2.5 text-p-sm text-ink-gray-6"
               >
@@ -56,7 +79,7 @@ const { t } = useI18n()
                   class="lucide-check mt-0.5 size-4 shrink-0 text-ink-green-7"
                   aria-hidden="true"
                 />
-                <span>{{ t(rule) }}</span>
+                <span>{{ rule }}</span>
               </li>
             </ul>
           </div>
@@ -65,7 +88,7 @@ const { t } = useI18n()
 
       <div class="mt-12 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <div
-          v-for="stat in stats"
+          v-for="stat in statItems"
           :key="stat.label"
           class="rounded-6 border border-outline-green-2 bg-surface-base p-5 text-center"
         >
@@ -73,7 +96,7 @@ const { t } = useI18n()
             <span :class="stat.icon" class="size-5" aria-hidden="true" />
           </div>
           <p class="mt-3 text-4xl-bold text-ink-green-7">{{ stat.value }}</p>
-          <p class="mt-1 text-p-sm text-ink-gray-6">{{ t(stat.label) }}</p>
+          <p class="mt-1 text-p-sm text-ink-gray-6">{{ stat.label }}</p>
         </div>
       </div>
     </div>

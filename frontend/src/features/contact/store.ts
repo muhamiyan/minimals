@@ -21,6 +21,12 @@ interface ContactListResponse {
   perPage: number
 }
 
+interface ContactQuery {
+  search?: string
+  page?: number
+  perPage?: number
+}
+
 export const useContactAdminStore = defineStore('contactAdmin', () => {
   const messages = ref<ContactMessage[]>([])
   const total = ref(0)
@@ -30,16 +36,22 @@ export const useContactAdminStore = defineStore('contactAdmin', () => {
   const error = ref('')
   const checked = ref(false)
 
-  async function fetchList(nextPage = 1): Promise<boolean> {
+  async function fetchList(query: ContactQuery = {}): Promise<boolean> {
     loading.value = true
     error.value = ''
     try {
+      const params: Record<string, string | number> = {
+        page: query.page ?? page.value,
+        per_page: query.perPage ?? perPage.value,
+      }
+      if (query.search) params.search = query.search
       const { data } = await api.get<ContactListResponse>('/contact/admin/messages', {
-        params: { page: nextPage, per_page: perPage.value },
+        params,
       })
-      messages.value = data.items
-      total.value = data.total
-      page.value = data.page
+      messages.value = data.items ?? []
+      total.value = data.total ?? 0
+      page.value = data.page ?? 1
+      perPage.value = data.perPage ?? perPage.value
       return true
     } catch (e: unknown) {
       error.value = getErrorMessage(

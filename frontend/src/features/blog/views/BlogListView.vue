@@ -1,6 +1,4 @@
-<script setup lang="ts">
-import Shimmer from '@/shared/components/Shimmer.vue'
-import ShimmerPage from '@/shared/components/ShimmerPage.vue'
+﻿<script setup lang="ts">
 import { Button, ErrorMessage } from 'frappe-ui'
 import { computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -8,8 +6,9 @@ import { useI18n } from 'vue-i18n'
 import LandingFooter from '@/features/landing/components/LandingFooter.vue'
 import LandingNav from '@/features/landing/components/LandingNav.vue'
 import { brand } from '@/shared/brand'
-import { formatDate } from '@/shared/format'
 
+import BlogListSkeleton from '../components/BlogListSkeleton.vue'
+import PostMeta from '../components/PostMeta.vue'
 import { useBlogStore } from '../store'
 
 const { t } = useI18n()
@@ -32,9 +31,9 @@ async function goTo(nextPage: number) {
 </script>
 
 <template>
-  <div id="top" class="min-h-screen bg-surface-base text-ink-gray-8">
+  <div id="top" class="flex min-h-screen flex-col bg-surface-base text-ink-gray-8">
     <LandingNav />
-    <ShimmerPage v-if="!gateReady" />
+    <BlogListSkeleton v-if="!gateReady" />
     <main v-else class="mx-auto w-full max-w-6xl px-5 py-12">
       <header class="mb-10 max-w-2xl rounded-6 border border-outline-green-2 bg-surface-green-1 px-6 py-6">
         <h1 class="text-4xl-bold text-ink-gray-9">{{ t('blog.title') }}</h1>
@@ -44,10 +43,6 @@ async function goTo(nextPage: number) {
       </header>
 
       <ErrorMessage v-if="blog.error" :message="blog.error" />
-
-      <div v-else-if="blog.loading && !blog.posts.length" class="space-y-4">
-        <Shimmer v-for="i in 3" :key="i" class="h-40  rounded-6 bg-surface-green-2" />
-      </div>
 
       <div v-else-if="!blog.posts.length" class="rounded-6 border border-outline-green-2 bg-surface-base p-10 text-center">
         <p class="text-p-sm text-ink-gray-5">{{ t('blog.empty') }}</p>
@@ -66,10 +61,13 @@ async function goTo(nextPage: number) {
             alt=""
             class="mb-4 aspect-[21/9] w-full rounded-4 object-cover"
           />
-          <div class="flex flex-wrap items-center gap-2 text-2xs-medium text-ink-gray-4">
-            <span v-if="post.publishedOn">{{ formatDate(post.publishedOn) }}</span>
-            <span v-if="post.authorName">· {{ post.authorName }}</span>
-          </div>
+          <PostMeta
+            :published-on="post.publishedOn"
+            :author="post.author"
+            :author-name="post.authorName"
+            :category="post.category"
+            :read-time="post.readTime"
+          />
           <h2 class="mt-2 text-xl-semibold text-ink-gray-8 transition-colors group-hover:text-ink-gray-9">
             {{ post.title }}
           </h2>
@@ -103,6 +101,6 @@ async function goTo(nextPage: number) {
         </div>
       </div>
     </main>
-    <LandingFooter />
+    <LandingFooter class="mt-auto" />
   </div>
 </template>

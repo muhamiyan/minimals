@@ -4,9 +4,9 @@ from __future__ import annotations
 from flask import request
 from flask_login import current_user, login_required
 
-from app.blog.dto import BlogCreateIn, BlogUpdateIn
-from app.blog.presenters import BlogPostOut, BlogPostSummaryOut
-from app.blog.services import BlogService
+from app.blog.dto import BlogCategoryCreateIn, BlogCreateIn, BlogUpdateIn
+from app.blog.presenters import BlogCategoryOut, BlogPostOut, BlogPostSummaryOut
+from app.blog.services import BlogCategoryService, BlogService
 from framework.api import (
     BlueprintFactory,
     PageIn,
@@ -26,6 +26,32 @@ def _viewer_is_admin() -> bool:
         current_user.is_authenticated
         and getattr(current_user, "app_role", None) == "admin"
     )
+
+
+def _actor_name() -> str:
+    return current_user.full_name or current_user.username
+
+
+@bp.get("/categories")
+@login_required
+def list_categories():
+    if denied := require_role("admin"):
+        return denied
+
+    categories = BlogCategoryService().list_categories()
+    return ok({"items": [BlogCategoryOut.from_model(c).to_dict() for c in categories]})
+
+
+@bp.post("/categories")
+@login_required
+def create_category():
+    if denied := require_role("admin"):
+        return denied
+
+    dto = BlogCategoryCreateIn.validate(request.get_json(silent=True) or {})
+    category, was_created = BlogCategoryService().create(dto, actor_id=current_user.id)
+    body = BlogCategoryOut.from_model(category).to_dict()
+    return created(body) if was_created else ok(body)
 
 
 @bp.get("/posts")
@@ -79,7 +105,9 @@ def create_post():
         return denied
 
     dto = BlogCreateIn.validate(request.get_json(silent=True) or {})
-    post = BlogService().create(dto, actor_id=current_user.id)
+    post = BlogService().create(
+        dto, actor_id=current_user.id, actor_name=_actor_name()
+    )
     return created(BlogPostOut.from_post(post).to_dict())
 
 
@@ -90,7 +118,9 @@ def update_post(slug: str):
         return denied
 
     dto = BlogUpdateIn.validate(request.get_json(silent=True) or {})
-    post = BlogService().update(slug, dto, actor_id=current_user.id)
+    post = BlogService().update(
+        slug, dto, actor_id=current_user.id, actor_name=_actor_name()
+    )
     return ok(BlogPostOut.from_post(post).to_dict())
 
 

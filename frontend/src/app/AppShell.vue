@@ -7,20 +7,31 @@ import {
   DesktopShell,
   MobileNavItem,
   MobileShell,
+  Sidebar,
+  SidebarCollapseToggle,
   SidebarHeader,
+  SidebarItem,
+  SidebarSection,
 } from 'frappe-ui'
 
 import { useAuthStore } from '@/features/auth/store'
 import ForbiddenDialog from '@/shared/components/ForbiddenDialog.vue'
 import BrandLogo from '@/shared/components/BrandLogo.vue'
+import SidebarNavGroup from '@/shared/components/SidebarNavGroup.vue'
 import MobileBottomNav from '@/shared/shell/MobileBottomNav.vue'
 import MobileMenuSheet from '@/shared/shell/MobileMenuSheet.vue'
-import ShellSidebar from '@/shared/shell/ShellSidebar.vue'
 import type { ShellNavItem } from '@/shared/shell/types'
 import { useMediaQuery } from '@/shared/composables/useMediaQuery'
 import { brand } from '@/shared/brand'
 import { useMenuStore } from './menuStore'
-import { mobileNavItems } from './navigation'
+import {
+  findActiveGroupKey,
+  flattenLeaves,
+  isNavGroup,
+  matchesPath,
+  type NavGroup,
+  type NavLeaf,
+} from './navigation'
 import ThemeSwitcher from './ThemeSwitcher.vue'
 import UserSettingsDialog from './UserSettingsDialog.vue'
 
@@ -74,39 +85,62 @@ const headerMenu = computed(() => [
   { label: t('menu.logout'), icon: 'lucide-log-out', onClick: onLogout },
 ])
 
-// The shell components take resolved rows: labels are translated here and the
-// active state follows the route name (nav keys mirror route names).
+const isAdmin = computed(() => auth.user?.appRole === 'admin')
+
+function inScope(node: { requireAdmin?: boolean }): boolean {
+  return !node.requireAdmin || isAdmin.value
+}
+
+const scopedRoots = computed(() => menu.roots.filter(inScope))
+const rootLeaves = computed(() =>
+  scopedRoots.value.filter((root): root is NavLeaf => !isNavGroup(root)),
+)
+const navGroups = computed(() => scopedRoots.value.filter(isNavGroup))
+const mobileItems = computed(() =>
+  flattenLeaves(scopedRoots.value, menu.hidden, inScope),
+)
+
+const path = computed(() => route.path)
+const leafActive = (leaf: NavLeaf) => matchesPath(leaf, path.value)
+
 const menuItems = computed<ShellNavItem[]>(() =>
-  menu.items.map((item) => ({
+  mobileItems.value.map((item) => ({
     key: item.key,
     label: t(item.labelKey),
     icon: item.icon,
     route: item.route,
-    active: String(route.name) === item.key,
+    active: leafActive(item),
   })),
 )
+
 const tabItems = computed<ShellNavItem[]>(() =>
-  mobileNavItems(menu.items).map((item) => ({
-    key: item.key,
-    label: t(item.mobileLabelKey ?? item.labelKey),
-    icon: item.icon,
-    route: item.route,
-    active: String(route.name) === item.key,
+  menuItems.value.slice(0, 3).map((item, index) => ({
+    ...item,
+    label: t(
+      mobileItems.value[index].mobileLabelKey ?? mobileItems.value[index].labelKey,
+    ),
   })),
 )
-const sidebarItems = computed<ShellNavItem[]>(() => {
-  if (auth.user?.appRole !== 'admin') return menuItems.value
-  return [
-    ...menuItems.value,
-    {
-      key: 'BlogAdminList',
-      label: t('nav.blog'),
-      icon: 'lucide-newspaper',
-      route: { name: 'BlogAdminList' },
-      active:
-        typeof route.name === 'string' && route.name.startsWith('BlogAdmin'),
-    },
-  ]
+
+function groupChildren(group: NavGroup): NavLeaf[] {
+  return group.children.filter(
+    (child) => inScope(child) && !menu.hidden.includes(child.key),
+  )
+}
+
+const activeGroupKey = computed(() =>
+  findActiveGroupKey(navGroups.value, path.value),
+)
+
+type SidebarGroupInstance = InstanceType<typeof SidebarNavGroup>
+const groupRefs = ref<Record<string, SidebarGroupInstance | null>>({})
+
+function setGroupRef(key: string, el: unknown) {
+  groupRefs.value[key] = (el as SidebarGroupInstance | null) ?? null
+}
+
+watch(activeGroupKey, (key) => {
+  if (key) groupRefs.value[key]?.expand()
 })
 
 async function onLogout() {
@@ -120,29 +154,57 @@ async function onLogout() {
 
   <DesktopShell v-else-if="isDesktop" :scroll="route.meta.scroll !== false">
     <template #sidebar>
-      <ShellSidebar
-        v-model:collapsed="sidebarCollapsed"
-        :items="sidebarItems"
-        :section-label="t('menu.section')"
-      >
-        <template #header>
-          <SidebarHeader
-            :title="brand.name"
-            :subtitle="displayName"
-            :menu-items="headerMenu"
+      <Sidebar v-model:collapsed="sidebarCollapsed" class="border-r">
+        <SidebarHeader
+          :title="brand.name"
+          :subtitle="displayName"
+          :menu-items="headerMenu"
+        >
+          <template #prefix>
+            <BrandLogo size="fill" :alt="brand.name">
+              <div
+                class="flex h-full w-full items-center justify-center bg-surface-gray-4 text-ink-gray-7"
+              >
+                {{ brand.name.charAt(0).toUpperCase() }}
+              </div>
+            </BrandLogo>
+          </template>
+        </SidebarHeader>
+
+        <div class="flex-1 overflow-y-auto space-y-0.5 px-2 pb-2">
+          <SidebarSection v-if="rootLeaves.length" :label="t('menu.section')">
+            <SidebarItem
+              v-for="item in rootLeaves"
+              :key="item.key"
+              :label="t(item.labelKey)"
+              :icon="item.icon"
+              :route="item.route"
+              :active="leafActive(item)"
+            />
+          </SidebarSection>
+
+          <SidebarNavGroup
+            v-for="group in navGroups"
+            :key="group.key"
+            :ref="(el) => setGroupRef(group.key, el)"
+            :label="t(group.labelKey)"
+            :icon="group.icon"
+            :active="group.key === activeGroupKey"
           >
-            <template #prefix>
-              <BrandLogo size="fill" :alt="brand.name">
-                <div
-                  class="flex h-full w-full items-center justify-center bg-surface-gray-4 text-ink-gray-7"
-                >
-                  {{ brand.name.charAt(0).toUpperCase() }}
-                </div>
-              </BrandLogo>
-            </template>
-          </SidebarHeader>
-        </template>
-      </ShellSidebar>
+            <SidebarItem
+              v-for="child in groupChildren(group)"
+              :key="child.key"
+              :label="t(child.labelKey)"
+              :route="child.route"
+              :active="leafActive(child)"
+            />
+          </SidebarNavGroup>
+        </div>
+
+        <div class="px-2 pb-2">
+          <SidebarCollapseToggle />
+        </div>
+      </Sidebar>
     </template>
 
     <router-view />
@@ -153,12 +215,6 @@ async function onLogout() {
 
     <template #nav>
       <MobileBottomNav :items="tabItems">
-        <MobileNavItem
-          v-if="auth.user?.appRole === 'admin'"
-          :label="t('nav.blog')"
-          icon="lucide-newspaper"
-          :route="{ name: 'BlogAdminList' }"
-        />
         <MobileNavItem
           :label="t('settings.profile.title')"
           :active="settingsOpen"

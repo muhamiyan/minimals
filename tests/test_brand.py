@@ -7,10 +7,80 @@ import pytest
 from app.infra.seo import get_brand
 
 BRAND_URL = "/api/v1/brand/logo"
+META_URL = "/api/v1/brand"
+META = {
+    "name": "Acme",
+    "tagline": "Tagline",
+    "description": "Description",
+    "siteUrl": "https://acme.test",
+}
 
 
 def _url(name: str | None = None) -> str:
     return f"/uploads/{name or f'{uuid4()}.png'}"
+
+
+def test_brand_meta_requires_authentication(client):
+    response = client.put(META_URL, json=META)
+
+    assert response.status_code == 401
+
+
+def test_member_cannot_update_meta(member):
+    response = member.put(META_URL, json=META)
+
+    assert response.status_code == 403
+    assert response.get_json() == {"message": "forbidden"}
+
+
+def test_admin_updates_meta(app, admin):
+    response = admin.put(META_URL, json=META)
+
+    assert response.status_code == 200
+    assert response.get_json() == META
+    with app.app_context():
+        brand = get_brand()
+        assert brand["name"] == "Acme"
+        assert brand["tagline"] == "Tagline"
+        assert brand["description"] == "Description"
+        assert brand["siteUrl"] == "https://acme.test"
+
+
+def test_admin_meta_trims_and_defaults_blank_name(app, admin):
+    response = admin.put(
+        META_URL,
+        json={**META, "name": "   ", "tagline": "  x  ", "siteUrl": "  https://acme.test  "},
+    )
+
+    assert response.status_code == 200
+    assert response.get_json() == {
+        "name": "Yayasan Islam Selaparang",
+        "tagline": "x",
+        "description": "Description",
+        "siteUrl": "https://acme.test",
+    }
+    with app.app_context():
+        assert get_brand()["name"] == "Yayasan Islam Selaparang"
+
+
+@pytest.mark.parametrize(
+    "site_url",
+    ["not-a-url", "ftp://acme.test", "https://bad host", "https://"],
+)
+def test_admin_meta_rejects_invalid_site_url(app, admin, site_url):
+    response = admin.put(META_URL, json={**META, "siteUrl": site_url})
+
+    assert response.status_code == 400
+    assert response.get_json() == {"message": "site_url_invalid"}
+    with app.app_context():
+        assert get_brand()["name"] == "Yayasan Islam Selaparang"
+
+
+def test_admin_meta_requires_name(admin):
+    response = admin.put(META_URL, json={"tagline": "Tagline"})
+
+    assert response.status_code == 400
+    assert response.get_json() == {"message": "name_required"}
 
 
 def test_brand_logo_requires_authentication(client):

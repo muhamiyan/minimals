@@ -182,11 +182,23 @@ Tidak ada CLI generator di project ini (berbeda dengan root `cells`).
 | POST | /api/v1/program/programs | Create program (admin) |
 | PATCH | /api/v1/program/programs/:slug | Update program (admin) |
 | DELETE | /api/v1/program/programs/:slug | Delete program (admin) |
+| GET | /api/v1/scholarship/scholarships | List published scholarships (public, paginated) |
+| GET | /api/v1/scholarship/scholarships/:slug | Fetch one scholarship (public; drafts admin-only) |
+| GET | /api/v1/scholarship/admin/scholarships | List all scholarships incl. drafts (admin, paginated) |
+| POST | /api/v1/scholarship/scholarships | Create scholarship (admin) |
+| PATCH | /api/v1/scholarship/scholarships/:slug | Update scholarship (admin) |
+| DELETE | /api/v1/scholarship/scholarships/:slug | Delete scholarship (admin) |
 | POST | /api/v1/contact/messages | Send a contact message (public, rate-limited) |
 | GET | /api/v1/contact/admin/messages | List contact messages (admin, paginated) |
 | PATCH | /api/v1/contact/admin/messages/:id | Mark a contact message read/unread (admin) |
 | DELETE | /api/v1/contact/admin/messages/:id | Delete a contact message (admin) |
+| GET | /api/v1/blog/categories | List categories (admin) |
+| POST | /api/v1/blog/categories | Create category (admin) |
+| PUT | /api/v1/brand | Update brand meta (admin) |
 | PUT | /api/v1/brand/logo | Set or clear the brand logo (admin, stored upload only) |
+| GET | /api/v1/site/content | Get editable landing-page content (admin) |
+| PUT | /api/v1/site/content | Update editable landing-page content (admin) |
+| PATCH | /api/v1/site/content | Merge one section of landing-page content (admin) |
 | GET | /robots.txt | Crawler instructions, brand-driven (public) |
 | GET | /sitemap.xml | Canonical site URL for crawlers (public) |
 | GET | /health | Health check (public) |

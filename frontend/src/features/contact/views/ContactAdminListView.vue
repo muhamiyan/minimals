@@ -1,10 +1,15 @@
 <script setup lang="ts">
-import ShimmerPage from '@/shared/components/ShimmerPage.vue'
-import { Badge, Button, ErrorMessage, dialog, toast } from 'frappe-ui'
-import { List, ListCell, ListHeader, ListHeaderCell, ListRow, ListRows } from 'frappe-ui/list'
 import { computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { Badge, Button, Spinner, dialog, toast } from 'frappe-ui'
+import { List, ListCell, ListHeaderCell, ListRow, ListRows } from 'frappe-ui/list'
 
+import AppPageHeader from '@/shared/shell/AppPageHeader.vue'
+import ListFoot from '@/shared/components/ListFoot.vue'
+import ListHead from '@/shared/components/ListHead.vue'
+import ListState from '@/shared/components/ListState.vue'
+import ListToolbar from '@/shared/components/ListToolbar.vue'
+import { useListControls } from '@/shared/composables/useListControls'
 import { formatDate } from '@/shared/format'
 
 import { useContactAdminStore } from '../store'
@@ -13,25 +18,30 @@ const { t } = useI18n()
 const store = useContactAdminStore()
 
 const gateReady = computed(() => store.checked)
-const pageCount = computed(() => Math.max(1, Math.ceil(store.total / store.perPage)))
-const hasPrev = computed(() => store.page > 1)
-const hasNext = computed(() => store.page < pageCount.value)
+const empty = computed(() => !store.loading && store.messages.length === 0)
 
-onMounted(async () => {
-  if (!store.checked) await store.fetchList()
-})
-
-async function goTo(nextPage: number) {
-  await store.fetchList(nextPage)
+const columns = {
+  base: ['minmax(0,1.2fr)', 'minmax(0,1fr)', '6rem'],
+  md: ['minmax(0,2fr)', 'minmax(0,2fr)', '6.5rem', '6rem'],
 }
+
+const { search, perPage, reload: refresh, goToPage } = useListControls({
+  initialPerPage: store.perPage,
+  setPage: (page) => {
+    store.page = page
+  },
+  fetch: (query) =>
+    store.fetchList({
+      search: query.search,
+      page: store.page,
+      perPage: query.perPage,
+    }),
+})
 
 async function onToggle(item: { id: string; isRead: boolean }) {
   const ok = await store.markRead(item.id, !item.isRead)
-  if (ok) {
-    item.isRead = !item.isRead
-  } else {
-    toast.error(store.error)
-  }
+  if (ok) item.isRead = !item.isRead
+  else toast.error(store.error)
 }
 
 function onDelete(id: string) {
@@ -42,101 +52,109 @@ function onDelete(id: string) {
       const ok = await store.remove(id)
       if (ok) {
         toast.success(t('contactPage.admin.toast.deleted'))
-        await store.fetchList(store.page)
+        await refresh()
       } else {
         toast.error(store.error)
       }
     },
   })
 }
+
+onMounted(async () => {
+  await refresh()
+})
 </script>
 
 <template>
-  <ShimmerPage v-if="!gateReady" />
-  <div v-else class="mx-auto w-full max-w-5xl p-6">
-    <header class="mb-6">
-      <h1 class="text-2xl-semibold text-ink-gray-9">{{ t('contactPage.admin.title') }}</h1>
-      <p class="mt-1 text-p-sm text-ink-gray-5">{{ t('contactPage.admin.subtitle') }}</p>
-    </header>
+  <AppPageHeader />
 
-    <ErrorMessage v-if="store.error" :message="store.error" />
+  <div v-if="!gateReady" class="flex justify-center py-10">
+    <Spinner />
+  </div>
 
-    <div
-      v-else-if="!store.messages.length"
-      class="rounded-6 border border-outline-gray-1 bg-surface-elevation-2 p-10 text-center"
-    >
-      <p class="text-p-sm text-ink-gray-5">{{ t('contactPage.admin.empty') }}</p>
-    </div>
+  <div v-else class="mx-auto w-full max-w-6xl space-y-4 px-5 py-6">
+    <ListToolbar
+      v-model:search="search"
+      v-model:per-page="perPage"
+      :show-per-page="!empty"
+      :placeholder="t('contactPage.admin.searchMessages')"
+    />
 
-    <List v-else :columns="['minmax(0,1.4fr)', 'minmax(0,1fr)', '7rem', '6rem']">
-      <ListHeader>
-        <ListHeaderCell>{{ t('contactPage.admin.columns.sender') }}</ListHeaderCell>
-        <ListHeaderCell>{{ t('contactPage.admin.columns.message') }}</ListHeaderCell>
-        <ListHeaderCell>{{ t('contactPage.admin.columns.received') }}</ListHeaderCell>
-        <ListHeaderCell>{{ t('contactPage.admin.columns.actions') }}</ListHeaderCell>
-      </ListHeader>
-      <ListRows :items="store.messages" v-slot="{ item }">
-        <ListRow>
-          <ListCell>
-            <span class="text-base-medium text-ink-gray-9">{{ item.name }}</span>
-            <p class="truncate text-p-sm text-ink-gray-5">{{ item.phone }}</p>
-          </ListCell>
-          <ListCell>
-            <p class="line-clamp-2 text-p-sm text-ink-gray-7">{{ item.message }}</p>
-            <Badge
-              v-if="item.isRead"
-              class="mt-1"
-              :label="t('contactPage.admin.read')"
-              variant="subtle"
-              theme="gray"
-            />
-          </ListCell>
-          <ListCell>
-            <span class="text-p-sm text-ink-gray-5">{{ formatDate(item.createdOn) }}</span>
-          </ListCell>
-          <ListCell>
-            <div class="flex items-center gap-1">
-              <Button
-                variant="ghost"
-                size="sm"
-                theme="gray"
-                :label="t(item.isRead ? 'contactPage.admin.actions.unread' : 'contactPage.admin.actions.read')"
-                :icon="item.isRead ? 'lucide-mail' : 'lucide-mail-open'"
-                @click="onToggle(item)"
-              />
-              <Button
-                variant="ghost"
-                size="sm"
-                theme="red"
-                :label="t('contactPage.admin.actions.delete')"
-                icon="lucide-trash-2"
-                @click="onDelete(item.id)"
-              />
-            </div>
-          </ListCell>
-        </ListRow>
-      </ListRows>
-    </List>
+    <div>
+      <ListState
+        :loading="store.loading"
+        :error="store.error"
+        :empty="empty"
+        icon="lucide-mail"
+        :empty-message="search ? t('contactPage.admin.noMessagesFound') : t('contactPage.admin.empty')"
+      >
+        <List :row-height="32" :columns="columns" class="list-row-px-3">
+          <ListHead>
+            <ListHeaderCell>{{ t('contactPage.admin.columns.sender') }}</ListHeaderCell>
+            <ListHeaderCell>{{ t('contactPage.admin.columns.message') }}</ListHeaderCell>
+            <ListHeaderCell class="max-md:hidden">
+              {{ t('contactPage.admin.columns.received') }}
+            </ListHeaderCell>
+            <ListHeaderCell class="sr-only">
+              {{ t('contactPage.admin.columns.actions') }}
+            </ListHeaderCell>
+          </ListHead>
 
-    <div v-if="pageCount > 1" class="mt-4 flex items-center justify-between">
-      <Button
-        :label="t('shared.prevPage')"
-        size="sm"
-        variant="subtle"
-        icon-left="lucide-arrow-left"
-        :disabled="!hasPrev || store.loading"
-        @click="goTo(store.page - 1)"
-      />
-      <span class="text-p-sm text-ink-gray-4">
-        {{ t('shared.pageOf', { page: store.page, total: pageCount }) }}
-      </span>
-      <Button
-        :label="t('shared.nextPage')"
-        size="sm"
-        variant="subtle"
-        icon-right="lucide-arrow-right"
-        :disabled="!hasNext || store.loading"
-        @click="goTo(store.page + 1)"
+          <ListRows :items="store.messages" v-slot="{ item }">
+            <ListRow :value="item.id">
+              <ListCell>
+                <div class="flex min-w-0 items-center gap-2">
+                  <span class="truncate text-base-medium text-ink-gray-8">
+                    {{ item.name }}
+                  </span>
+                  <span class="truncate text-p-sm text-ink-gray-5">{{ item.phone }}</span>
+                </div>
+              </ListCell>
+              <ListCell>
+                <div class="flex min-w-0 items-center gap-2">
+                  <span class="truncate text-p-sm text-ink-gray-7">{{ item.message }}</span>
+                  <Badge
+                    v-if="item.isRead"
+                    :label="t('contactPage.admin.read')"
+                    variant="subtle"
+                    theme="gray"
+                  />
+                </div>
+              </ListCell>
+              <ListCell class="max-md:hidden">
+                <span class="truncate text-p-sm text-ink-gray-5">
+                  {{ formatDate(item.createdOn) }}
+                </span>
+              </ListCell>
+              <ListCell>
+                <div class="flex items-center gap-1">
+                  <Button
+                    variant="ghost"
+                    theme="gray"
+                    icon="lucide-mail-open"
+                    :label="t(item.isRead ? 'contactPage.admin.actions.unread' : 'contactPage.admin.actions.read')"
+                    @click="onToggle(item)"
+                  />
+                  <Button
+                    variant="ghost"
+                    theme="red"
+                    icon="lucide-trash-2"
+                    :label="t('contactPage.admin.actions.delete')"
+                    @click="onDelete(item.id)"
+                  />
+                </div>
+              </ListCell>
+            </ListRow>
+          </ListRows>
+        </List>
+      </ListState>
+
+      <ListFoot
+        v-if="!store.loading && !store.error && !empty"
+        :total="store.total"
+        :page="store.page"
+        :per-page="store.perPage"
+        @update:page="goToPage"
       />
     </div>
   </div>

@@ -3,7 +3,8 @@
     "home": "Beranda",
     "dashboard": "Dasbor",
     "users": "Pengguna",
-    "blog": "Artikel"
+    "blog": "Artikel",
+    "managementContent": "Kelola Konten"
   },
   "menu": {
     "theme": "Tema",
@@ -44,7 +45,7 @@
       "saveFailed": "Preferensi menu gagal disimpan."
     },
     "brand": {
-      "title": "Brand",
+      "title": "Merek",
       "description": "Logo untuk seluruh aplikasi, tampil di sidebar, halaman masuk, dan favicon browser.",
       "logo": "Logo",
       "logoDescription": "PNG, JPG, WebP, atau GIF maksimal 5 MB. Anda akan memotongnya menjadi persegi sebelum disimpan.",
@@ -65,12 +66,22 @@
         "cancel": "Batal",
         "loadFailed": "Gambar tidak bisa dimuat. Coba file lain.",
         "stage": "Pratinjau potongan logo"
+      },
+      "details": {
+        "help": "Nama, tagline, deskripsi, dan URL situs yang dipakai di seluruh aplikasi serta hasil pencarian.",
+        "name": "Nama aplikasi",
+        "namePlaceholder": "Acme Inc.",
+        "tagline": "Tagline",
+        "taglinePlaceholder": "Kerja lebih sedikit, capai lebih banyak",
+        "description": "Deskripsi",
+        "descriptionPlaceholder": "Tampil di mesin pencari",
+        "siteUrl": "URL situs",
+        "siteUrlPlaceholder": "https://acme.com",
+        "save": "Simpan detail",
+        "saved": "Detail disimpan.",
+        "failed": "Detail gagal disimpan."
       }
     }
-  },
-  "crumb": {
-    "dashboard": "Dasbor",
-    "users": "Pengguna"
   },
   "route": {
     "Login": {
@@ -82,7 +93,7 @@
       "description": "Buat akun untuk memulai."
     },
     "Setup": {
-      "title": "Setup",
+      "title": "Pengaturan Awal",
       "description": "Setup awal: hubungkan basis data, atur brand, dan buat administrator."
     },
     "Dashboard": {
@@ -106,7 +117,7 @@
       "description": "Sebuah artikel dari Yayasan Islam Selaparang."
     },
     "BlogAdminList": {
-      "title": "Blog",
+      "title": "Artikel",
       "description": "Kelola draf dan tulisan terbit."
     },
     "BlogAdminCreate": {
@@ -146,7 +157,7 @@
       "description": "Masa pendaftaran, tautan formulir, dan lembaga di Yayasan Islam Selaparang."
     },
     "Contact": {
-      "title": "Contact",
+      "title": "Kontak",
       "description": "Kirim pesan ke sekretariat Yayasan Islam Selaparang."
     },
     "ContactAdminList": {
@@ -184,6 +195,34 @@
     "ActivityAdminEdit": {
       "title": "Sunting kegiatan",
       "description": "Sunting kegiatan yang sudah ada."
+    },
+    "SiteSectionPpdb": {
+      "title": "PPDB",
+      "description": "Sunting bagian ppdb."
+    },
+    "SiteSectionContact": {
+      "title": "Kontak",
+      "description": "Sunting bagian kontak."
+    },
+    "ScholarshipList": {
+      "title": "Jenjang Pendidikan",
+      "description": "Tujuh jenjang pendidikan di Yayasan Islam Selaparang."
+    },
+    "ScholarshipPost": {
+      "title": "Jenjang Pendidikan",
+      "description": "Sebuah jenjang pendidikan di Yayasan Islam Selaparang."
+    },
+    "ScholarshipAdminList": {
+      "title": "Jenjang Pendidikan",
+      "description": "Kelola draf dan jenjang yang diterbitkan."
+    },
+    "ScholarshipAdminCreate": {
+      "title": "Jenjang baru",
+      "description": "Tulis dan terbitkan jenjang baru."
+    },
+    "ScholarshipAdminEdit": {
+      "title": "Sunting jenjang",
+      "description": "Sunting jenjang yang sudah ada."
     }
   },
   "field": {
@@ -216,6 +255,9 @@
       "digit": "Satu angka",
       "special": "Satu karakter khusus",
       "length": "Minimal 8 karakter"
+    },
+    "usernameRules": {
+      "noSpaces": "Nama pengguna tidak boleh mengandung spasi"
     }
   },
   "account": {
@@ -256,13 +298,26 @@
     "pagination": "Paginasi",
     "prevPage": "Halaman sebelumnya",
     "nextPage": "Halaman berikutnya",
-    "pageOf": "Halaman {page} dari {total}",
     "ok": "OK",
     "close": "Tutup",
     "forbiddenTitle": "Akses Ditolak",
     "forbiddenMessage": "Halaman ini memerlukan hak akses administrator. Akun Anda terdaftar sebagai pengguna biasa. Hubungi administrator untuk mendapatkan akses.",
     "noResults": "Tidak ada hasil ditemukan",
-    "cancel": "Batal"
+    "cancel": "Batal",
+    "pageOf": "Halaman {page} dari {total}",
+    "crop": {
+      "title": "Potong gambar",
+      "stage": "Area pemotongan gambar",
+      "hint": "Geser untuk memposisikan dan gunakan slider untuk memperbesar.",
+      "zoom": "Perbesar",
+      "apply": "Terapkan",
+      "cancel": "Batal",
+      "loadFailed": "Gagal memuat gambar",
+      "uploadFailed": "Gagal mengunggah gambar hasil potongan",
+      "preview": "Gambar utuh",
+      "edit": "Ubah",
+      "undo": "Batalkan potongan"
+    }
   },
   "dash": {
     "welcomeBack": "Selamat datang kembali",
@@ -275,11 +330,128 @@
     "adminConsole": "Administrasi",
     "adminConsoleHint": "Kelola pengguna, artikel, kegiatan, jenjang, dan pesan.",
     "manageUsers": "Kelola pengguna",
+    "loadStatsFailed": "Gagal memuat statistik akun",
     "manageBlog": "Artikel",
     "manageActivities": "Kegiatan",
     "managePrograms": "Jenjang",
     "manageMessages": "Pesan",
-    "loadStatsFailed": "Gagal memuat statistik akun"
+    "manageScholarships": "Beasiswa"
+  },
+  "setup": {
+    "title": "Pengaturan Awal",
+    "completeTitle": "Setup selesai",
+    "signInAs": "Masuk sebagai {email} untuk melanjutkan.",
+    "stepOf": "Langkah {step} dari 3",
+    "steps": {
+      "database": "Basis Data",
+      "brand": "Merek",
+      "administrator": "Administrator"
+    },
+    "activeAlert": "Aktif: {engine}",
+    "reasonNoUsers": "Belum ada administrator.",
+    "reasonNoSchema": "Skema basis data tidak ditemukan.",
+    "dbEngine": "Mesin basis data",
+    "dbPath": "Lokasi berkas basis data",
+    "dbPathPlaceholder": "data/app.db (opsional)",
+    "host": "Host",
+    "port": "Port",
+    "database": "Basis Data",
+    "connected": "Terhubung: {url}",
+    "testConnection": "Uji koneksi",
+    "testSuccess": "Koneksi berhasil",
+    "continue": "Lanjutkan",
+    "back": "Kembali",
+    "brandName": "Nama brand",
+    "tagline": "Tagline",
+    "taglinePlaceholder": "Kerja lebih sedikit, capai lebih banyak (opsional)",
+    "descPlaceholder": "Tampil di hasil mesin pencari (opsional)",
+    "siteUrl": "URL Situs",
+    "siteUrlPlaceholder": "https://acme.com (opsional)",
+    "language": "Bahasa",
+    "usernamePlaceholder": "abdulah (opsional)",
+    "complete": "Selesaikan setup",
+    "connectionFailed": "Uji koneksi gagal",
+    "setupFailed": "Setup gagal"
+  },
+  "error": {
+    "generic": "Terjadi kesalahan",
+    "invalid_credentials": "Kredensial tidak valid",
+    "registration_disabled": "Pendaftaran dinonaktifkan",
+    "email_already_registered": "Email sudah terdaftar",
+    "username_taken": "Nama pengguna sudah dipakai",
+    "api_key_not_found": "API key tidak ditemukan",
+    "bad_request": "Permintaan tidak valid",
+    "conflict": "Data bentrok",
+    "cannot_delete_builtin_role": "Tidak bisa menghapus peran bawaan",
+    "could_not_generate_unique_name": "Gagal membuat nama unik",
+    "csrf_token_invalid": "Token CSRF tidak valid",
+    "database_required": "Basis data wajib diisi",
+    "db_connection_failed": "Koneksi basis data gagal",
+    "db_not_found": "Basis data tidak ditemukan",
+    "db_timeout": "Timeout basis data",
+    "db_unreachable": "Basis data tidak terjangkau",
+    "domain_error": "Kesalahan domain",
+    "file_invalid_name": "Nama berkas tidak valid",
+    "file_required": "Berkas wajib diunggah",
+    "file_too_large": "Ukuran berkas terlalu besar",
+    "file_type_not_allowed": "Jenis berkas tidak diizinkan",
+    "forbidden": "Akses ditolak",
+    "idx_invalid": "Indeks tidak valid",
+    "integrity_error": "Pelanggaran integritas data",
+    "internal_server_error": "Terjadi kesalahan server",
+    "invalid_api_key": "API key tidak valid",
+    "invalid_app_role": "Peran aplikasi tidak valid",
+    "invalid_date": "Tanggal tidak valid",
+    "invalid_db_credentials": "Kredensial basis data tidak valid",
+    "invalid_db_host": "Host basis data tidak valid",
+    "invalid_db_name": "Nama basis data tidak valid",
+    "invalid_db_path": "Lokasi basis data tidak valid",
+    "invalid_db_port": "Port basis data tidak valid",
+    "invalid_email": "Email tidak valid",
+    "invalid_operation": "Operasi tidak valid",
+    "invalid_username": "Nama pengguna tidak valid",
+    "malformed": "Format salah",
+    "method_not_allowed": "Metode tidak diizinkan",
+    "name_required": "Nama wajib diisi",
+    "no_fields_to_update": "Tidak ada kolom untuk diperbarui",
+    "not_found": "Tidak ditemukan",
+    "password_must_contain_digit": "Kata sandi harus mengandung angka",
+    "password_must_contain_lowercase": "Kata sandi harus mengandung huruf kecil",
+    "password_must_contain_special_character": "Kata sandi harus mengandung karakter khusus",
+    "password_must_contain_uppercase": "Kata sandi harus mengandung huruf besar",
+    "payload_too_large": "Ukuran payload terlalu besar",
+    "rate_limit_exceeded": "Batas rate limit tercapai",
+    "required": "Wajib diisi",
+    "role_already_exists": "Peran sudah ada",
+    "role_not_found": "Peran tidak ditemukan",
+    "setup_admin_failed": "Pembuatan admin gagal",
+    "setup_already_complete": "Setup sudah selesai",
+    "setup_env_write_failed": "Penulisan env saat setup gagal",
+    "setup_migration_failed": "Migrasi setup gagal",
+    "setup_repoint_failed": "Ganti pointer basis data saat setup gagal",
+    "site_url_invalid": "URL situs tidak valid",
+    "spa_not_built": "Frontend belum di-build",
+    "unauthorized": "Tidak terautentikasi",
+    "unprocessable_entity": "Entitas tidak dapat diproses",
+    "unknown_db_host": "Host basis data tidak dikenal",
+    "unsupported_engine": "Mesin basis data tidak didukung",
+    "unsupported_host": "Host tidak didukung",
+    "unsupported_lang": "Bahasa tidak didukung",
+    "user_not_found": "Pengguna tidak ditemukan",
+    "username_already_registered": "Nama pengguna sudah terdaftar",
+    "username_required": "Nama pengguna wajib diisi",
+    "validation_error": "Validasi gagal",
+    "activity_not_found": "Kegiatan tidak ditemukan",
+    "contact_message_not_found": "Pesan kontak tidak ditemukan",
+    "invalid_phone": "Nomor telepon tidak valid",
+    "phone_invalid_phone": "Nomor telepon tidak valid",
+    "email_invalid_email": "Email tidak valid",
+    "message_required": "Pesan wajib diisi",
+    "name_must_be_at_least_1_characters": "Nama wajib diisi",
+    "post_not_found": "Tulisan tidak ditemukan",
+    "program_not_found": "Program tidak ditemukan",
+    "slug_required": "Slug wajib diisi",
+    "slug_taken": "Slug sudah dipakai"
   },
   "blog": {
     "title": "Artikel",
@@ -293,7 +465,8 @@
     },
     "list": {
       "subtitle": "Artikel, kabar, dan cerita dari {name}.",
-      "readMore": "Baca selengkapnya"
+      "readMore": "Baca selengkapnya",
+      "readTime": "{n} menit baca"
     },
     "post": {
       "back": "Semua tulisan"
@@ -306,7 +479,8 @@
       "columns": {
         "title": "Judul",
         "status": "Status",
-        "created": "Dibuat"
+        "created": "Dibuat",
+        "actions": "Aksi"
       },
       "form": {
         "title": "Judul",
@@ -321,7 +495,13 @@
         "uploading": "Mengunggah {n}%",
         "remove": "Hapus",
         "body": "Isi tulisan",
-        "bodyPlaceholder": "Tulis isi tulisan Anda…"
+        "bodyPlaceholder": "Tulis isi tulisan Anda…",
+        "author": "Penulis",
+        "authorPlaceholder": "Nama penulis",
+        "category": "Kategori",
+        "categoryPlaceholder": "mis. Berita",
+        "createCategory": "Buat kategori baru",
+        "noCategories": "Belum ada kategori"
       },
       "actions": {
         "delete": "Hapus",
@@ -331,16 +511,20 @@
       "toast": {
         "created": "Tulisan dibuat",
         "updated": "Tulisan diperbarui",
-        "deleted": "Tulisan dihapus"
+        "deleted": "Tulisan dihapus",
+        "categoryCreated": "Kategori dibuat"
       },
       "confirm": {
         "title": "Hapus tulisan",
         "message": "Tulisan akan dihapus permanen dan tidak dapat dibatalkan."
-      }
-    }
+      },
+      "searchPosts": "Cari tulisan…",
+      "noPostsFound": "Tidak ada tulisan yang cocok."
+    },
+    "loading": "Memuat tulisan…"
   },
   "contactPage": {
-    "title": "Contact",
+    "title": "Kontak",
     "lead": "Ada pertanyaan? Kirim pesan ke sekretariat atau hubungi kami melalui WhatsApp dan email.",
     "success": "Pesan Anda sudah terkirim. Kami akan segera merespons.",
     "errors": {
@@ -371,7 +555,9 @@
       "confirm": {
         "title": "Hapus pesan",
         "message": "Pesan akan dihapus permanen dan tidak dapat dibatalkan."
-      }
+      },
+      "searchMessages": "Cari pesan",
+      "noMessagesFound": "Tidak ada pesan yang cocok."
     },
     "form": {
       "name": "Nama",
@@ -383,7 +569,9 @@
       "message": "Deskripsi",
       "messagePlaceholder": "Tulis pertanyaan Anda…",
       "submit": "Kirim pesan"
-    }
+    },
+    "mapTitle": "Lokasi kami",
+    "openMap": "Buka di Google Maps"
   },
   "ppdbPage": {
     "title": "PPDB Online",
@@ -432,7 +620,8 @@
         "title": "Judul",
         "level": "Jenjang",
         "status": "Status",
-        "order": "Urutan"
+        "order": "Urutan",
+        "actions": "Aksi"
       },
       "form": {
         "title": "Judul",
@@ -465,7 +654,9 @@
       "confirm": {
         "title": "Hapus jenjang",
         "message": "Jenjang akan dihapus permanen dan tidak dapat dibatalkan."
-      }
+      },
+      "searchPrograms": "Cari jenjang",
+      "noProgramsFound": "Tidak ada jenjang yang cocok."
     }
   },
   "activity": {
@@ -496,7 +687,8 @@
       "columns": {
         "title": "Judul",
         "status": "Status",
-        "created": "Dibuat"
+        "created": "Dibuat",
+        "actions": "Aksi"
       },
       "form": {
         "title": "Judul",
@@ -511,7 +703,8 @@
         "uploading": "Mengunggah {n}%",
         "remove": "Hapus",
         "body": "Isi kegiatan",
-        "bodyPlaceholder": "Tulis tentang kegiatan ini…"
+        "bodyPlaceholder": "Tulis tentang kegiatan ini…",
+        "slugPlaceholder": "dibuat-dari-judul"
       },
       "actions": {
         "delete": "Hapus",
@@ -526,7 +719,9 @@
       "confirm": {
         "title": "Hapus kegiatan",
         "message": "Kegiatan akan dihapus permanen dan tidak dapat dibatalkan."
-      }
+      },
+      "searchPosts": "Cari kegiatan",
+      "noActivitiesFound": "Tidak ada kegiatan yang cocok."
     }
   },
   "gallery": {
@@ -546,9 +741,12 @@
       "programs": "Jenjang Pendidikan",
       "activities": "Kegiatan",
       "gallery": "Galeri",
-      "contact": "Contact",
+      "contact": "Kontak",
       "theme": "Ganti tema",
-      "menu": "Buka menu"
+      "menu": "Buka menu",
+      "features": "Fitur",
+      "about": "Tentang",
+      "scholarships": "Beasiswa"
     },
     "hero": {
       "title": "Pondok pesantren tradisional,",
@@ -562,7 +760,10 @@
       "location": "Ponpes Selaparang, Kediri, Lombok Barat",
       "ctaPpdb": "Daftar sekarang",
       "ctaProfile": "Tentang yayasan",
-      "slide": "Slide {n}"
+      "slide": "Slide {n}",
+      "badge": "Alpha terbuka",
+      "lifecycle": "siklus request",
+      "ok": "200 OK"
     },
     "highlights": {
       "badge": "Sekilas",
@@ -618,7 +819,9 @@
         "p3": "Pendidikan membentuk akhlak sekaligus kecerdasan.",
         "p4": "Guru memberi teladan, dalam perkataan dan perilaku sehari-hari.",
         "p5": "Pengabdian kepada masyarakat menjadi bagian dari belajar setiap santri."
-      }
+      },
+      "body1": "Minimals lahir dari satu pengamatan: setiap layanan Flask produksi mengulang scaffolding yang sama — autentikasi, CSRF, peran, migrasi, health check, dan build frontend. Minimals membungkus lantai dasar itu, dan tidak lebih.",
+      "body2": "Arsitekturnya sengaja membosankan. Service memiliki transaksi, repository memiliki query, dan format wire adalah kontrak yang diuji. Saat ada yang rusak, Anda memperbaikinya di titik masalah — tidak ada riwayat yang perlu digali."
     },
     "facilities": {
       "badge": "Fasilitas",
@@ -662,144 +865,168 @@
       "period": "1 April – 10 Juli 2026 · 08.00–18.00 WITA",
       "register": "Daftar online"
     },
-    "support": {
-      "badge": "Beasiswa",
-      "title": "Dukungan agar belajar tetap terjangkau",
-      "lead": "Program beasiswa membantu biaya pembelajaran bagi siswa di seluruh lembaga yayasan.",
-      "body": "Ponpes Selaparang terus mengembangkan pendidikan terpadu — pembelajaran formal berdampingan dengan pembentukan akhlak — agar setiap siswa memiliki kesempatan yang adil untuk tumbuh.",
-      "note": "Untuk informasi beasiswa, hubungi sekretariat atau gunakan kontak di bawah ini.",
-      "contact": "Hubungi kami"
-    },
     "contact": {
-      "badge": "Contact",
+      "badge": "Kontak",
       "title": "Ada pertanyaan?",
       "lead": "Hubungi sekretariat melalui WhatsApp atau email — kami siap membantu soal pendaftaran dan pertanyaan umum.",
       "addressLabel": "Alamat",
       "emailLabel": "Email",
       "whatsappLabel": "WhatsApp",
       "facebookLabel": "Facebook",
-      "formNote": "Lebih suka formulir? Gunakan halaman contact untuk mengirim pesan ke sekretariat."
+      "mapTitle": "Lokasi kami",
+      "openMap": "Buka di Google Maps"
     },
     "footer": {
       "tagline": "Pendidikan Islam yang berakar pada akhlak dan ilmu.",
       "links": "Tautan cepat",
-      "copyright": "© 2026 {name}. Seluruh hak dilindungi."
+      "copyright": "© 2026 {name}. Seluruh hak dilindungi.",
+      "alpha": "alpha terbuka"
+    },
+    "getStarted": "Mulai sekarang",
+    "openDashboard": "Buka dasbor",
+    "whatsInside": "Isinya apa",
+    "features": {
+      "badge": "Fitur",
+      "title": "Semua yang tetap akan Anda bangun",
+      "lead": "Panggung produksi yang dibutuhkan setiap layanan Flask — sudah tersedia, sudah diuji, dan sengaja dibuat biasa.",
+      "items": {
+        "layered": {
+          "title": "Domain berlapis",
+          "desc": "Tujuh berkas per domain, dependensi hanya menunjuk ke bawah. Sebuah bug punya tepat satu alamat."
+        },
+        "auth": {
+          "title": "Autentikasi sesi & API-key",
+          "desc": "Sesi peramban lewat Flask-Login; layanan mengautentikasi dengan API key ber-hash bcrypt di belakang prefiks lookup 10 karakter."
+        },
+        "security": {
+          "title": "Keamanan bawaan",
+          "desc": "CSRF di setiap operasi tulis, rate limit per IP, CSP + HSTS, dan header forwarded yang hanya dipercaya dari peer privat."
+        },
+        "roles": {
+          "title": "Peran & RBAC",
+          "desc": "App role keras untuk pemeriksaan nyata, peran relasional untuk label, dan helper require_role yang langsung return."
+        },
+        "setup": {
+          "title": "Setup awal",
+          "desc": "SQLite, MariaDB, atau PostgreSQL: uji, migrasi, buat admin — mesinnya bisa ditukar, hanya dari loopback."
+        },
+        "health": {
+          "title": "Kesehatan & audit",
+          "desc": "Probe /health dan /ready, log berputar, jejak audit per operasi tulis, dan alert yang tidak pernah mengganggu alur bisnis."
+        },
+        "spa": {
+          "title": "SPA Vue 3 ikut disertakan",
+          "desc": "frappe-ui di atas token Tailwind, dibangun langsung ke folder static Flask. Satu proses, satu origin, satu deploy."
+        },
+        "migrations": {
+          "title": "Migrasi saat boot",
+          "desc": "Nyalakan MIGRATE_ON_BOOT dan Alembic berjalan sebelum server menerima trafik — skema dan model tetap sinkron di semua mesin."
+        }
+      }
+    },
+    "cta": {
+      "title": "Mulai dari bagian membosankan yang sudah selesai.",
+      "lead": "Jalankan setup sekali — tunjuk ke basis data Anda, buat admin — lalu kirim domain Anda di atas lantai yang sudah siap."
+    },
+    "scholarship": {
+      "title": "Beasiswa",
+      "lead": "Kesempatan beasiswa yang membuat pendidikan tetap terjangkau.",
+      "badge": "Kesempatan"
     }
   },
-  "setup": {
-    "title": "Setup",
-    "completeTitle": "Setup selesai",
-    "signInAs": "Masuk sebagai {email} untuk melanjutkan.",
-    "stepOf": "Langkah {step} dari 3",
-    "steps": {
-      "database": "Basis Data",
-      "brand": "Brand",
-      "administrator": "Administrator"
+  "siteContent": {
+    "admin": {
+      "lead": "Sunting konten halaman publik. Kolom kosong tetap kosong setelah disimpan.",
+      "loadFailed": "Konten situs gagal dimuat",
+      "saveFailed": "Konten situs gagal disimpan",
+      "saved": "Konten situs disimpan",
+      "fields": {
+        "title": "Judul",
+        "lead": "Paragraf pembuka",
+        "period": "Periode",
+        "address": "Alamat",
+        "email": "Email",
+        "whatsappUrl": "URL WhatsApp",
+        "whatsappDisplay": "Nomor WhatsApp",
+        "facebookUrl": "URL Facebook",
+        "facebookDisplay": "Nama Facebook",
+        "url": "URL",
+        "studentCount": "Total siswa saat ini",
+        "staffCount": "Total pengajar & staf saat ini",
+        "mapsUrl": "URL embed Google Maps",
+        "hours": "Jam operasional",
+        "location": "Sekretariat / lokasi"
+      },
+      "save": "Simpan"
     },
-    "activeAlert": "Aktif: {engine}",
-    "reasonNoUsers": "Belum ada administrator.",
-    "reasonNoSchema": "Skema basis data tidak ditemukan.",
-    "dbEngine": "Mesin basis data",
-    "dbPath": "Lokasi berkas basis data",
-    "dbPathPlaceholder": "data/app.db (opsional)",
-    "host": "Host",
-    "port": "Port",
-    "database": "Basis Data",
-    "connected": "Terhubung: {url}",
-    "testConnection": "Uji koneksi",
-    "testSuccess": "Koneksi berhasil",
-    "continue": "Lanjutkan",
-    "back": "Kembali",
-    "brandName": "Nama brand",
-    "tagline": "Tagline",
-    "taglinePlaceholder": "Kerja lebih sedikit, capai lebih banyak (opsional)",
-    "descPlaceholder": "Tampil di hasil mesin pencari (opsional)",
-    "siteUrl": "URL Situs",
-    "siteUrlPlaceholder": "https://acme.com (opsional)",
-    "language": "Bahasa",
-    "usernamePlaceholder": "abdulah (opsional)",
-    "complete": "Selesaikan setup",
-    "connectionFailed": "Uji koneksi gagal",
-    "setupFailed": "Setup gagal"
+    "sections": {
+      "ppdb": "PPDB",
+      "contact": "Kontak"
+    }
   },
-  "error": {
-    "generic": "Terjadi kesalahan",
-    "invalid_credentials": "Kredensial tidak valid",
-    "registration_disabled": "Pendaftaran dinonaktifkan",
-    "email_already_registered": "Email sudah terdaftar",
-    "username_taken": "Nama pengguna sudah dipakai",
-    "activity_not_found": "Kegiatan tidak ditemukan",
-    "api_key_not_found": "API key tidak ditemukan",
-    "bad_request": "Permintaan tidak valid",
-    "conflict": "Data bentrok",
-    "contact_message_not_found": "Pesan kontak tidak ditemukan",
-    "invalid_phone": "Nomor telepon tidak valid",
-    "phone_invalid_phone": "Nomor telepon tidak valid",
-    "email_invalid_email": "Email tidak valid",
-    "message_required": "Pesan wajib diisi",
-    "cannot_delete_builtin_role": "Tidak bisa menghapus peran bawaan",
-    "could_not_generate_unique_name": "Gagal membuat nama unik",
-    "csrf_token_invalid": "Token CSRF tidak valid",
-    "database_required": "Basis data wajib diisi",
-    "db_connection_failed": "Koneksi basis data gagal",
-    "db_not_found": "Basis data tidak ditemukan",
-    "db_timeout": "Timeout basis data",
-    "db_unreachable": "Basis data tidak terjangkau",
-    "domain_error": "Kesalahan domain",
-    "file_invalid_name": "Nama berkas tidak valid",
-    "file_required": "Berkas wajib diunggah",
-    "file_too_large": "Ukuran berkas terlalu besar",
-    "file_type_not_allowed": "Jenis berkas tidak diizinkan",
-    "forbidden": "Akses ditolak",
-    "idx_invalid": "Indeks tidak valid",
-    "integrity_error": "Pelanggaran integritas data",
-    "internal_server_error": "Terjadi kesalahan server",
-    "invalid_api_key": "API key tidak valid",
-    "invalid_app_role": "Peran aplikasi tidak valid",
-    "invalid_date": "Tanggal tidak valid",
-    "invalid_db_credentials": "Kredensial basis data tidak valid",
-    "invalid_db_host": "Host basis data tidak valid",
-    "invalid_db_name": "Nama basis data tidak valid",
-    "invalid_db_path": "Lokasi basis data tidak valid",
-    "invalid_db_port": "Port basis data tidak valid",
-    "invalid_email": "Email tidak valid",
-    "invalid_operation": "Operasi tidak valid",
-    "invalid_username": "Nama pengguna tidak valid",
-    "malformed": "Format salah",
-    "method_not_allowed": "Metode tidak diizinkan",
-    "name_required": "Nama wajib diisi",
-    "name_must_be_at_least_1_characters": "Nama wajib diisi",
-    "no_fields_to_update": "Tidak ada kolom untuk diperbarui",
-    "not_found": "Tidak ditemukan",
-    "password_must_contain_digit": "Kata sandi harus mengandung angka",
-    "password_must_contain_lowercase": "Kata sandi harus mengandung huruf kecil",
-    "password_must_contain_special_character": "Kata sandi harus mengandung karakter khusus",
-    "password_must_contain_uppercase": "Kata sandi harus mengandung huruf besar",
-    "payload_too_large": "Ukuran payload terlalu besar",
-    "post_not_found": "Tulisan tidak ditemukan",
-    "program_not_found": "Program tidak ditemukan",
-    "rate_limit_exceeded": "Batas rate limit tercapai",
-    "required": "Wajib diisi",
-    "role_already_exists": "Peran sudah ada",
-    "role_not_found": "Peran tidak ditemukan",
-    "setup_admin_failed": "Pembuatan admin gagal",
-    "setup_already_complete": "Setup sudah selesai",
-    "setup_env_write_failed": "Penulisan env saat setup gagal",
-    "setup_migration_failed": "Migrasi setup gagal",
-    "setup_repoint_failed": "Ganti pointer basis data saat setup gagal",
-    "site_url_invalid": "URL situs tidak valid",
-    "slug_required": "Slug wajib diisi",
-    "slug_taken": "Slug sudah dipakai",
-    "spa_not_built": "Frontend belum di-build",
-    "unauthorized": "Tidak terautentikasi",
-    "unprocessable_entity": "Entitas tidak dapat diproses",
-    "unknown_db_host": "Host basis data tidak dikenal",
-    "unsupported_engine": "Mesin basis data tidak didukung",
-    "unsupported_host": "Host tidak didukung",
-    "unsupported_lang": "Bahasa tidak didukung",
-    "user_not_found": "Pengguna tidak ditemukan",
-    "username_already_registered": "Nama pengguna sudah terdaftar",
-    "username_required": "Nama pengguna wajib diisi",
-    "validation_error": "Validasi gagal"
+  "scholarship": {
+    "title": "Jenjang Pendidikan",
+    "lead": "Tujuh lembaga dalam satu yayasan, dari madrasah dasar hingga kajian Islam tingkat tinggi.",
+    "empty": "Belum ada jenjang.",
+    "errors": {
+      "loadFailed": "Gagal memuat jenjang",
+      "notFound": "Jenjang tidak ditemukan",
+      "createFailed": "Gagal membuat jenjang",
+      "updateFailed": "Gagal memperbarui jenjang",
+      "deleteFailed": "Gagal menghapus jenjang"
+    },
+    "list": {
+      "readMore": "Selengkapnya"
+    },
+    "post": {
+      "back": "Semua jenjang"
+    },
+    "admin": {
+      "subtitle": "Draf dan jenjang yang diterbitkan.",
+      "newScholarship": "Jenjang baru",
+      "createFirst": "Buat jenjang pertama Anda",
+      "editScholarship": "Sunting jenjang",
+      "columns": {
+        "title": "Judul",
+        "level": "Jenjang",
+        "status": "Status",
+        "order": "Urutan",
+        "actions": "Aksi"
+      },
+      "form": {
+        "title": "Judul",
+        "titlePlaceholder": "Nama jenjang",
+        "slug": "Slug",
+        "slugHint": "Kosongkan agar dibuat otomatis dari judul.",
+        "level": "Jenjang",
+        "levelPlaceholder": "mis. MTs",
+        "order": "Urutan",
+        "status": "Status",
+        "draft": "Draf",
+        "published": "Terbit",
+        "cover": "Gambar sampul",
+        "uploadCover": "Unggah sampul",
+        "uploading": "Mengunggah {n}%",
+        "remove": "Hapus",
+        "body": "Isi jenjang",
+        "bodyPlaceholder": "Tulis tentang jenjang ini…"
+      },
+      "actions": {
+        "delete": "Hapus",
+        "cancel": "Batal",
+        "save": "Simpan"
+      },
+      "toast": {
+        "created": "Jenjang dibuat",
+        "updated": "Jenjang diperbarui",
+        "deleted": "Jenjang dihapus"
+      },
+      "confirm": {
+        "title": "Hapus jenjang",
+        "message": "Jenjang akan dihapus permanen dan tidak dapat dibatalkan."
+      },
+      "searchScholarships": "Cari jenjang",
+      "noScholarshipsFound": "Tidak ada jenjang yang cocok."
+    }
   }
 }

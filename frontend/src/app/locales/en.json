@@ -3,7 +3,8 @@
     "home": "Home",
     "dashboard": "Dashboard",
     "users": "Users",
-    "blog": "Articles"
+    "blog": "Articles",
+    "managementContent": "Management Content"
   },
   "menu": {
     "theme": "Theme",
@@ -65,12 +66,22 @@
         "cancel": "Cancel",
         "loadFailed": "Couldn't load this image. Try another file.",
         "stage": "Logo crop preview"
+      },
+      "details": {
+        "help": "Name, tagline, description, and site URL used across the app and in search results.",
+        "name": "App name",
+        "namePlaceholder": "Acme Inc.",
+        "tagline": "Tagline",
+        "taglinePlaceholder": "Work less, achieve more",
+        "description": "Description",
+        "descriptionPlaceholder": "Shown to search engines",
+        "siteUrl": "Site URL",
+        "siteUrlPlaceholder": "https://acme.com",
+        "save": "Save details",
+        "saved": "Details saved.",
+        "failed": "Couldn't save the details."
       }
     }
-  },
-  "crumb": {
-    "dashboard": "Dashboard",
-    "users": "Users"
   },
   "route": {
     "Login": {
@@ -106,7 +117,7 @@
       "description": "An article from Yayasan Islam Selaparang."
     },
     "BlogAdminList": {
-      "title": "Blog",
+      "title": "Articles",
       "description": "Manage drafts and published posts."
     },
     "BlogAdminCreate": {
@@ -184,6 +195,34 @@
     "ActivityAdminEdit": {
       "title": "Edit activity",
       "description": "Edit an existing activity."
+    },
+    "SiteSectionPpdb": {
+      "title": "Admission",
+      "description": "Edit admission section."
+    },
+    "SiteSectionContact": {
+      "title": "Contact",
+      "description": "Edit contact section."
+    },
+    "ScholarshipList": {
+      "title": "Education scholarships",
+      "description": "Seven education scholarships under Yayasan Islam Selaparang."
+    },
+    "ScholarshipPost": {
+      "title": "Scholarship",
+      "description": "An education scholarship at Yayasan Islam Selaparang."
+    },
+    "ScholarshipAdminList": {
+      "title": "Education scholarships",
+      "description": "Manage drafts and published scholarships."
+    },
+    "ScholarshipAdminCreate": {
+      "title": "New scholarship",
+      "description": "Write and publish a new scholarship."
+    },
+    "ScholarshipAdminEdit": {
+      "title": "Edit scholarship",
+      "description": "Edit an existing scholarship."
     }
   },
   "field": {
@@ -216,6 +255,9 @@
       "digit": "One number",
       "special": "One special character",
       "length": "At least 8 characters"
+    },
+    "usernameRules": {
+      "noSpaces": "Username cannot contain spaces"
     }
   },
   "account": {
@@ -256,13 +298,26 @@
     "pagination": "Pagination",
     "prevPage": "Previous page",
     "nextPage": "Next page",
-    "pageOf": "Page {page} of {total}",
     "ok": "OK",
     "close": "Close",
     "forbiddenTitle": "Access denied",
     "forbiddenMessage": "This page requires administrator privileges. Your account is registered as a regular user. Contact an administrator to get access.",
     "noResults": "No results found",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "pageOf": "Page {page} of {total}",
+    "crop": {
+      "title": "Crop image",
+      "stage": "Image crop area",
+      "hint": "Drag to reposition and use the slider to zoom.",
+      "zoom": "Zoom",
+      "apply": "Apply crop",
+      "cancel": "Cancel",
+      "loadFailed": "Image failed to load",
+      "uploadFailed": "Could not upload cropped image",
+      "preview": "Full image",
+      "edit": "Edit",
+      "undo": "Undo crop"
+    }
   },
   "dash": {
     "welcomeBack": "Welcome back",
@@ -275,11 +330,128 @@
     "adminConsole": "Administration",
     "adminConsoleHint": "Manage users, articles, activities, programs, and messages.",
     "manageUsers": "Manage users",
+    "loadStatsFailed": "Could not load account stats",
     "manageBlog": "Articles",
     "manageActivities": "Activities",
     "managePrograms": "Programs",
     "manageMessages": "Messages",
-    "loadStatsFailed": "Could not load account stats"
+    "manageScholarships": "Scholarships"
+  },
+  "setup": {
+    "title": "Setup",
+    "completeTitle": "Setup complete",
+    "signInAs": "Sign in as {email} to continue.",
+    "stepOf": "Step {step} of 3",
+    "steps": {
+      "database": "Database",
+      "brand": "Brand",
+      "administrator": "Administrator"
+    },
+    "activeAlert": "Active: {engine}",
+    "reasonNoUsers": "No administrator exists yet.",
+    "reasonNoSchema": "No database schema found.",
+    "dbEngine": "Database engine",
+    "dbPath": "Database file path",
+    "dbPathPlaceholder": "data/app.db (optional)",
+    "host": "Host",
+    "port": "Port",
+    "database": "Database",
+    "connected": "Connected: {url}",
+    "testConnection": "Test connection",
+    "testSuccess": "Connection successful",
+    "continue": "Continue",
+    "back": "Back",
+    "brandName": "Brand name",
+    "tagline": "Tagline",
+    "taglinePlaceholder": "Work less, achieve more (optional)",
+    "descPlaceholder": "Shown to search engines (optional)",
+    "siteUrl": "Site URL",
+    "siteUrlPlaceholder": "https://acme.com (optional)",
+    "language": "Language",
+    "usernamePlaceholder": "abdulah (optional)",
+    "complete": "Complete setup",
+    "connectionFailed": "Connection test failed",
+    "setupFailed": "Setup failed"
+  },
+  "error": {
+    "generic": "An error occurred",
+    "invalid_credentials": "Invalid credentials",
+    "registration_disabled": "Registration is disabled",
+    "email_already_registered": "Email already registered",
+    "username_taken": "Username already taken",
+    "api_key_not_found": "Api key not found",
+    "bad_request": "Bad request",
+    "conflict": "Conflicting data",
+    "cannot_delete_builtin_role": "Cannot delete builtin role",
+    "could_not_generate_unique_name": "Could not generate unique name",
+    "csrf_token_invalid": "Csrf token invalid",
+    "database_required": "Database required",
+    "db_connection_failed": "Db connection failed",
+    "db_not_found": "Db not found",
+    "db_timeout": "Db timeout",
+    "db_unreachable": "Db unreachable",
+    "domain_error": "Domain error",
+    "file_invalid_name": "File invalid name",
+    "file_required": "File required",
+    "file_too_large": "File too large",
+    "file_type_not_allowed": "File type not allowed",
+    "forbidden": "Forbidden",
+    "idx_invalid": "Idx invalid",
+    "integrity_error": "Integrity error",
+    "internal_server_error": "Internal server error",
+    "invalid_api_key": "Invalid API key",
+    "invalid_app_role": "Invalid app role",
+    "invalid_date": "Invalid date",
+    "invalid_db_credentials": "Invalid db credentials",
+    "invalid_db_host": "Invalid db host",
+    "invalid_db_name": "Invalid db name",
+    "invalid_db_path": "Invalid db path",
+    "invalid_db_port": "Invalid db port",
+    "invalid_email": "Invalid email",
+    "invalid_operation": "Invalid operation",
+    "invalid_username": "Invalid username",
+    "malformed": "Malformed",
+    "method_not_allowed": "Method not allowed",
+    "name_required": "Name required",
+    "no_fields_to_update": "No fields to update",
+    "not_found": "Not found",
+    "password_must_contain_digit": "Password must contain digit",
+    "password_must_contain_lowercase": "Password must contain lowercase",
+    "password_must_contain_special_character": "Password must contain special character",
+    "password_must_contain_uppercase": "Password must contain uppercase",
+    "payload_too_large": "Payload too large",
+    "rate_limit_exceeded": "Rate limit exceeded",
+    "required": "Required",
+    "role_already_exists": "Role already exists",
+    "role_not_found": "Role not found",
+    "setup_admin_failed": "Setup admin failed",
+    "setup_already_complete": "Setup already complete",
+    "setup_env_write_failed": "Setup env write failed",
+    "setup_migration_failed": "Setup migration failed",
+    "setup_repoint_failed": "Setup engine repoint failed",
+    "site_url_invalid": "Site url invalid",
+    "spa_not_built": "Spa not built",
+    "unauthorized": "Unauthorized",
+    "unprocessable_entity": "Unprocessable entity",
+    "unknown_db_host": "Unknown database host",
+    "unsupported_engine": "Unsupported engine",
+    "unsupported_host": "Unsupported host",
+    "unsupported_lang": "Unsupported language",
+    "user_not_found": "User not found",
+    "username_already_registered": "Username already registered",
+    "username_required": "Username required",
+    "validation_error": "Validation error",
+    "activity_not_found": "Activity not found",
+    "contact_message_not_found": "Contact message not found",
+    "invalid_phone": "Invalid phone number",
+    "phone_invalid_phone": "Invalid phone number",
+    "email_invalid_email": "Invalid email",
+    "message_required": "Message is required",
+    "name_must_be_at_least_1_characters": "Name is required",
+    "post_not_found": "Post not found",
+    "program_not_found": "Program not found",
+    "slug_required": "Slug required",
+    "slug_taken": "Slug already exists"
   },
   "blog": {
     "title": "Articles",
@@ -293,7 +465,8 @@
     },
     "list": {
       "subtitle": "Articles, news, and stories from {name}.",
-      "readMore": "Read more"
+      "readMore": "Read more",
+      "readTime": "{n} min read"
     },
     "post": {
       "back": "All posts"
@@ -306,7 +479,8 @@
       "columns": {
         "title": "Title",
         "status": "Status",
-        "created": "Created"
+        "created": "Created",
+        "actions": "Actions"
       },
       "form": {
         "title": "Title",
@@ -321,7 +495,13 @@
         "uploading": "Uploading {n}%",
         "remove": "Remove",
         "body": "Body",
-        "bodyPlaceholder": "Write your post…"
+        "bodyPlaceholder": "Write your post…",
+        "author": "Author",
+        "authorPlaceholder": "Author name",
+        "category": "Category",
+        "categoryPlaceholder": "e.g. News",
+        "createCategory": "Create new category",
+        "noCategories": "No categories"
       },
       "actions": {
         "delete": "Delete",
@@ -331,13 +511,17 @@
       "toast": {
         "created": "Post created",
         "updated": "Post updated",
-        "deleted": "Post deleted"
+        "deleted": "Post deleted",
+        "categoryCreated": "Category created"
       },
       "confirm": {
         "title": "Delete post",
         "message": "This permanently removes the post and cannot be undone."
-      }
-    }
+      },
+      "searchPosts": "Search posts…",
+      "noPostsFound": "No posts match your search."
+    },
+    "loading": "Loading posts…"
   },
   "contactPage": {
     "title": "Contact",
@@ -371,7 +555,9 @@
       "confirm": {
         "title": "Delete message",
         "message": "This permanently removes the message and cannot be undone."
-      }
+      },
+      "searchMessages": "Search messages",
+      "noMessagesFound": "No messages match your search."
     },
     "form": {
       "name": "Name",
@@ -383,7 +569,9 @@
       "message": "Message",
       "messagePlaceholder": "Write your question…",
       "submit": "Send message"
-    }
+    },
+    "mapTitle": "Our location",
+    "openMap": "Open in Google Maps"
   },
   "ppdbPage": {
     "title": "Online admission",
@@ -432,7 +620,8 @@
         "title": "Title",
         "level": "Level",
         "status": "Status",
-        "order": "Order"
+        "order": "Order",
+        "actions": "Actions"
       },
       "form": {
         "title": "Title",
@@ -465,7 +654,9 @@
       "confirm": {
         "title": "Delete program",
         "message": "This permanently removes the program and cannot be undone."
-      }
+      },
+      "searchPrograms": "Search programs",
+      "noProgramsFound": "No programs match your search."
     }
   },
   "activity": {
@@ -496,7 +687,8 @@
       "columns": {
         "title": "Title",
         "status": "Status",
-        "created": "Created"
+        "created": "Created",
+        "actions": "Actions"
       },
       "form": {
         "title": "Title",
@@ -511,7 +703,8 @@
         "uploading": "Uploading {n}%",
         "remove": "Remove",
         "body": "Body",
-        "bodyPlaceholder": "Write about the activity…"
+        "bodyPlaceholder": "Write about the activity…",
+        "slugPlaceholder": "generated-from-title"
       },
       "actions": {
         "delete": "Delete",
@@ -526,7 +719,9 @@
       "confirm": {
         "title": "Delete activity",
         "message": "This permanently removes the activity and cannot be undone."
-      }
+      },
+      "searchPosts": "Search activities",
+      "noActivitiesFound": "No activities match your search."
     }
   },
   "gallery": {
@@ -548,7 +743,10 @@
       "gallery": "Gallery",
       "contact": "Contact",
       "theme": "Toggle theme",
-      "menu": "Open menu"
+      "menu": "Open menu",
+      "features": "Features",
+      "about": "About",
+      "scholarships": "Scholarships"
     },
     "hero": {
       "title": "A traditional pesantren,",
@@ -562,7 +760,10 @@
       "location": "Ponpes Selaparang, Kediri, West Lombok",
       "ctaPpdb": "Register now",
       "ctaProfile": "About the foundation",
-      "slide": "Slide {n}"
+      "slide": "Slide {n}",
+      "badge": "Open alpha",
+      "lifecycle": "request lifecycle",
+      "ok": "200 OK"
     },
     "highlights": {
       "badge": "At a glance",
@@ -618,7 +819,9 @@
         "p3": "Education forms character as well as intellect.",
         "p4": "Teachers lead by example, in words and in daily practice.",
         "p5": "Service to the community is part of every student's learning."
-      }
+      },
+      "body1": "Minimals started from an observation: every production Flask service re-implements the same scaffolding — auth, CSRF, roles, migrations, health checks, a frontend build. Minimals packages that floor, and nothing above it.",
+      "body2": "The architecture is deliberately boring. Services own transactions, repositories own queries, and the wire format is a tested contract. When something breaks, you fix it at the point of failure — there is no history to dig through."
     },
     "facilities": {
       "badge": "Facilities",
@@ -662,14 +865,6 @@
       "period": "1 April – 10 July 2026 · 08.00–18.00 WITA",
       "register": "Register online"
     },
-    "support": {
-      "badge": "Scholarship",
-      "title": "Support that keeps learning within reach",
-      "lead": "Scholarships help cover the cost of study for students across the foundation.",
-      "body": "Ponpes Selaparang continues to develop integrated education — formal learning alongside character building — so that every student has a fair chance to grow.",
-      "note": "For scholarship information, contact the secretariat or reach out through the contact details below.",
-      "contact": "Get in touch"
-    },
     "contact": {
       "badge": "Contact",
       "title": "Have a question?",
@@ -678,128 +873,160 @@
       "emailLabel": "Email",
       "whatsappLabel": "WhatsApp",
       "facebookLabel": "Facebook",
-      "formNote": "Prefer a form? Use the contact page to send the secretariat a message."
+      "mapTitle": "Our location",
+      "openMap": "Open in Google Maps"
     },
     "footer": {
       "tagline": "Islamic education rooted in character and knowledge.",
       "links": "Quick links",
-      "copyright": "© 2026 {name}. All rights reserved."
+      "copyright": "© 2026 {name}. All rights reserved.",
+      "alpha": "open alpha"
+    },
+    "getStarted": "Get started",
+    "openDashboard": "Open dashboard",
+    "whatsInside": "What's inside",
+    "features": {
+      "badge": "Features",
+      "title": "Everything you'd build anyway",
+      "lead": "The production floor every Flask service needs — included, tested, and deliberately unexciting.",
+      "items": {
+        "layered": {
+          "title": "Layered domains",
+          "desc": "Seven files per domain, dependencies pointing only downward. A bug has exactly one address."
+        },
+        "auth": {
+          "title": "Session & API-key auth",
+          "desc": "Browser sessions via Flask-Login; services authenticate with bcrypt-hashed API keys behind a 10-char lookup prefix."
+        },
+        "security": {
+          "title": "Security defaults",
+          "desc": "CSRF on every write, per-IP rate limits, CSP + HSTS, and forwarded headers believed only from private peers."
+        },
+        "roles": {
+          "title": "Roles & RBAC",
+          "desc": "A hard-coded app role for real checks, relational roles for labels, and require_role helpers that return."
+        },
+        "setup": {
+          "title": "First-run setup",
+          "desc": "SQLite, MariaDB or PostgreSQL: test, migrate, create the admin — the engine hot-swaps, loopback-only."
+        },
+        "health": {
+          "title": "Health & audit",
+          "desc": "/health and /ready probes, rotating logs, an audit trail per write, and alerts that never break the business flow."
+        },
+        "spa": {
+          "title": "Vue 3 SPA included",
+          "desc": "frappe-ui on Tailwind tokens, built straight into Flask's static folder. One process, one origin, one deploy."
+        },
+        "migrations": {
+          "title": "Migrations on boot",
+          "desc": "Flip MIGRATE_ON_BOOT and Alembic runs before the server accepts traffic — schema and models stay in step across engines."
+        }
+      }
+    },
+    "cta": {
+      "title": "Start where the boring parts are already done.",
+      "lead": "Run setup once — point at your database, create the admin — then ship your domain on a floor that's ready."
+    },
+    "scholarship": {
+      "title": "Scholarships",
+      "lead": "Scholarship opportunities that keep education within reach.",
+      "badge": "Opportunities"
     }
   },
-  "setup": {
-    "title": "Setup",
-    "completeTitle": "Setup complete",
-    "signInAs": "Sign in as {email} to continue.",
-    "stepOf": "Step {step} of 3",
-    "steps": {
-      "database": "Database",
-      "brand": "Brand",
-      "administrator": "Administrator"
+  "siteContent": {
+    "admin": {
+      "lead": "Edit public page content. Blank fields stay blank after saving.",
+      "loadFailed": "Could not load site content",
+      "saveFailed": "Could not save site content",
+      "saved": "Site content saved",
+      "fields": {
+        "title": "Title",
+        "lead": "Lead paragraph",
+        "period": "Period",
+        "address": "Address",
+        "email": "Email",
+        "whatsappUrl": "WhatsApp URL",
+        "whatsappDisplay": "WhatsApp Number",
+        "facebookUrl": "Facebook URL",
+        "facebookDisplay": "Facebook Name",
+        "url": "URL",
+        "studentCount": "Total students",
+        "staffCount": "Total teachers & staff",
+        "mapsUrl": "Google Maps embed URL",
+        "hours": "Operating hours",
+        "location": "Secretariat / location"
+      },
+      "save": "Save"
     },
-    "activeAlert": "Active: {engine}",
-    "reasonNoUsers": "No administrator exists yet.",
-    "reasonNoSchema": "No database schema found.",
-    "dbEngine": "Database engine",
-    "dbPath": "Database file path",
-    "dbPathPlaceholder": "data/app.db (optional)",
-    "host": "Host",
-    "port": "Port",
-    "database": "Database",
-    "connected": "Connected: {url}",
-    "testConnection": "Test connection",
-    "testSuccess": "Connection successful",
-    "continue": "Continue",
-    "back": "Back",
-    "brandName": "Brand name",
-    "tagline": "Tagline",
-    "taglinePlaceholder": "Work less, achieve more (optional)",
-    "descPlaceholder": "Shown to search engines (optional)",
-    "siteUrl": "Site URL",
-    "siteUrlPlaceholder": "https://acme.com (optional)",
-    "language": "Language",
-    "usernamePlaceholder": "abdulah (optional)",
-    "complete": "Complete setup",
-    "connectionFailed": "Connection test failed",
-    "setupFailed": "Setup failed"
+    "sections": {
+      "ppdb": "PPDB",
+      "contact": "Contact"
+    }
   },
-  "error": {
-    "generic": "An error occurred",
-    "invalid_credentials": "Invalid credentials",
-    "registration_disabled": "Registration is disabled",
-    "email_already_registered": "Email already registered",
-    "username_taken": "Username already taken",
-    "activity_not_found": "Activity not found",
-    "api_key_not_found": "Api key not found",
-    "bad_request": "Bad request",
-    "conflict": "Conflicting data",
-    "contact_message_not_found": "Contact message not found",
-    "invalid_phone": "Invalid phone number",
-    "phone_invalid_phone": "Invalid phone number",
-    "email_invalid_email": "Invalid email",
-    "message_required": "Message is required",
-    "cannot_delete_builtin_role": "Cannot delete builtin role",
-    "could_not_generate_unique_name": "Could not generate unique name",
-    "csrf_token_invalid": "Csrf token invalid",
-    "database_required": "Database required",
-    "db_connection_failed": "Db connection failed",
-    "db_not_found": "Db not found",
-    "db_timeout": "Db timeout",
-    "db_unreachable": "Db unreachable",
-    "domain_error": "Domain error",
-    "file_invalid_name": "File invalid name",
-    "file_required": "File required",
-    "file_too_large": "File too large",
-    "file_type_not_allowed": "File type not allowed",
-    "forbidden": "Forbidden",
-    "idx_invalid": "Idx invalid",
-    "integrity_error": "Integrity error",
-    "internal_server_error": "Internal server error",
-    "invalid_api_key": "Invalid API key",
-    "invalid_app_role": "Invalid app role",
-    "invalid_date": "Invalid date",
-    "invalid_db_credentials": "Invalid db credentials",
-    "invalid_db_host": "Invalid db host",
-    "invalid_db_name": "Invalid db name",
-    "invalid_db_path": "Invalid db path",
-    "invalid_db_port": "Invalid db port",
-    "invalid_email": "Invalid email",
-    "invalid_operation": "Invalid operation",
-    "invalid_username": "Invalid username",
-    "malformed": "Malformed",
-    "method_not_allowed": "Method not allowed",
-    "name_required": "Name required",
-    "name_must_be_at_least_1_characters": "Name is required",
-    "no_fields_to_update": "No fields to update",
-    "not_found": "Not found",
-    "password_must_contain_digit": "Password must contain digit",
-    "password_must_contain_lowercase": "Password must contain lowercase",
-    "password_must_contain_special_character": "Password must contain special character",
-    "password_must_contain_uppercase": "Password must contain uppercase",
-    "payload_too_large": "Payload too large",
-    "post_not_found": "Post not found",
-    "program_not_found": "Program not found",
-    "rate_limit_exceeded": "Rate limit exceeded",
-    "required": "Required",
-    "role_already_exists": "Role already exists",
-    "role_not_found": "Role not found",
-    "setup_admin_failed": "Setup admin failed",
-    "setup_already_complete": "Setup already complete",
-    "setup_env_write_failed": "Setup env write failed",
-    "setup_migration_failed": "Setup migration failed",
-    "setup_repoint_failed": "Setup engine repoint failed",
-    "site_url_invalid": "Site url invalid",
-    "slug_required": "Slug required",
-    "slug_taken": "Slug already exists",
-    "spa_not_built": "Spa not built",
-    "unauthorized": "Unauthorized",
-    "unprocessable_entity": "Unprocessable entity",
-    "unknown_db_host": "Unknown database host",
-    "unsupported_engine": "Unsupported engine",
-    "unsupported_host": "Unsupported host",
-    "unsupported_lang": "Unsupported language",
-    "user_not_found": "User not found",
-    "username_already_registered": "Username already registered",
-    "username_required": "Username required",
-    "validation_error": "Validation error"
+  "scholarship": {
+    "title": "Education scholarships",
+    "lead": "Seven institutions under one foundation, from elementary madrasah to higher Islamic studies.",
+    "empty": "No scholarships yet.",
+    "errors": {
+      "loadFailed": "Could not load scholarships",
+      "notFound": "Scholarship not found",
+      "createFailed": "Could not create scholarship",
+      "updateFailed": "Could not update scholarship",
+      "deleteFailed": "Could not delete scholarship"
+    },
+    "list": {
+      "readMore": "Read more"
+    },
+    "post": {
+      "back": "All scholarships"
+    },
+    "admin": {
+      "subtitle": "Drafts and published scholarships.",
+      "newScholarship": "New scholarship",
+      "createFirst": "Create your first scholarship",
+      "editScholarship": "Edit scholarship",
+      "columns": {
+        "title": "Title",
+        "level": "Level",
+        "status": "Status",
+        "order": "Order",
+        "actions": "Actions"
+      },
+      "form": {
+        "title": "Title",
+        "titlePlaceholder": "Scholarship title",
+        "slug": "Slug",
+        "slugHint": "Leave empty to generate it from the title.",
+        "level": "Level",
+        "levelPlaceholder": "e.g. MTs",
+        "order": "Order",
+        "status": "Status",
+        "draft": "Draft",
+        "published": "Published",
+        "cover": "Cover image",
+        "uploadCover": "Upload cover",
+        "uploading": "Uploading {n}%",
+        "remove": "Remove",
+        "body": "Body",
+        "bodyPlaceholder": "Write about the scholarship…"
+      },
+      "actions": {
+        "delete": "Delete",
+        "cancel": "Cancel",
+        "save": "Save"
+      },
+      "toast": {
+        "created": "Scholarship created",
+        "updated": "Scholarship updated",
+        "deleted": "Scholarship deleted"
+      },
+      "confirm": {
+        "title": "Delete scholarship",
+        "message": "This permanently removes the scholarship and cannot be undone."
+      },
+      "searchScholarships": "Search scholarships",
+      "noScholarshipsFound": "No scholarships match your search."
+    }
   }
 }

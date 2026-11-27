@@ -1,10 +1,12 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
+import { contentValue } from '@/shared/siteContent'
 import { useI18n } from 'vue-i18n'
 
-import { brand } from '@/shared/brand'
+import { brand, logoBackdropClass, useBrandLogo } from '@/shared/brand'
 import { contact } from '../content'
 
 const { t } = useI18n()
+const { logoSrc, logoTone, onLogoError } = useBrandLogo()
 
 const links = [{ key: 'landing.nav.home', href: '/#top' }]
 
@@ -14,6 +16,7 @@ const routeLinks = [
   { key: 'landing.nav.structure', name: 'Structure' },
   { key: 'landing.nav.facilities', name: 'Facilities' },
   { key: 'landing.nav.programs', name: 'ProgramList' },
+  { key: 'landing.nav.scholarships', name: 'ScholarshipList' },
   { key: 'landing.nav.activities', name: 'ActivityList' },
   { key: 'landing.nav.gallery', name: 'Gallery' },
   { key: 'landing.nav.contact', name: 'Contact' },
@@ -26,16 +29,33 @@ const routeLinks = [
     <div class="mx-auto w-full max-w-6xl px-5 py-12">
       <div class="grid gap-10 md:grid-cols-3">
         <div>
-          <div class="flex items-center gap-2">
-            <span class="rounded-4 bg-surface-green-2 p-1.5 text-ink-green-7">
-              <span class="lucide-school size-3.5" aria-hidden="true" />
+          <router-link
+            :to="{ name: 'Landing' }"
+            class="flex items-center gap-2"
+          >
+            <span
+              class="flex size-7 items-center justify-center rounded-4"
+              :class="logoBackdropClass(logoTone)"
+            >
+              <img
+                v-if="logoSrc"
+                :src="logoSrc"
+                alt=""
+                class="size-full rounded-4 object-contain"
+                @error="onLogoError"
+              />
+              <span v-else class="text-ink-green-7">
+                <span class="lucide-school size-3.5" aria-hidden="true" />
+              </span>
             </span>
             <span class="text-base-semibold text-ink-gray-8">{{ brand.name }}</span>
-          </div>
+          </router-link>
           <p class="mt-3 max-w-xs text-p-sm text-ink-gray-5">
             {{ brand.tagline || t('landing.footer.tagline') }}
           </p>
-          <p class="mt-3 text-p-sm text-ink-gray-5">{{ contact.address }}</p>
+          <p class="mt-3 text-p-sm text-ink-gray-5">
+            {{ contentValue('contact.address', contact.address) }}
+          </p>
         </div>
 
         <div>
@@ -63,33 +83,28 @@ const routeLinks = [
         <div>
           <h2 class="text-p-sm-medium text-ink-gray-8">{{ t('landing.contact.badge') }}</h2>
           <div class="mt-3 space-y-2 text-p-sm text-ink-gray-5">
-            <a :href="`mailto:${contact.email}`" class="block hover:text-ink-gray-8">
-              {{ contact.email }}
+            <a
+              :href="`mailto:${contentValue('contact.email', contact.email)}`"
+              class="block hover:text-ink-gray-8"
+            >
+              {{ contentValue('contact.email', contact.email) }}
             </a>
             <a
-              :href="contact.whatsapp"
+              :href="contentValue('contact.whatsappUrl', contact.whatsapp)"
               target="_blank"
               rel="noopener noreferrer"
               class="block hover:text-ink-gray-8"
             >
-              WhatsApp · 0878 6470 6565
+              WhatsApp · {{ contentValue('contact.whatsappDisplay', '0878 6470 6565') }}
             </a>
             <a
-              :href="contact.facebook"
+              :href="contentValue('contact.facebookUrl', contact.facebook)"
               target="_blank"
               rel="noopener noreferrer"
               class="block hover:text-ink-gray-8"
             >
-              Facebook · manw.selaparangkediri
+              Facebook · {{ contentValue('contact.facebookDisplay', 'manw.selaparangkediri') }}
             </a>
-          </div>
-          <div class="mt-6 flex items-center gap-2">
-            <router-link
-              :to="{ name: 'Login' }"
-              class="text-p-sm text-ink-gray-5 transition-colors hover:text-ink-gray-8"
-            >
-              {{ t('auth.signIn') }}
-            </router-link>
           </div>
         </div>
       </div>

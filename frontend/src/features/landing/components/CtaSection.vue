@@ -1,4 +1,5 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
+import { contentHtml, contentText, contentValue } from '@/shared/siteContent'
 import { Button } from 'frappe-ui'
 import { useI18n } from 'vue-i18n'
 
@@ -17,19 +18,19 @@ const { t } = useI18n()
           <span class="lucide-school size-8" aria-hidden="true" />
         </div>
         <h2 class="mx-auto mt-5 max-w-2xl text-4xl-bold text-ink-gray-9 sm:text-5xl-bold">
-          {{ t('landing.ppdb.title') }}
+          {{ contentText('ppdb.title', t('landing.ppdb.title')) }}
         </h2>
         <p class="mx-auto mt-3 max-w-2xl text-p-base text-ink-gray-6">
-          {{ t('landing.ppdb.lead') }}
+          <span v-html="contentHtml('ppdb.lead', t('landing.ppdb.lead'))" />
         </p>
         <p class="mx-auto mt-2 max-w-2xl text-p-sm-medium text-ink-green-7">
-          {{ t('landing.ppdb.period') }}
+          {{ contentText('ppdb.period', t('landing.ppdb.period')) }}
         </p>
 
         <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
           <Button
             :label="t('landing.ppdb.register')"
-            :href="PPDB_URL"
+            :href="contentValue('ppdb.url', PPDB_URL)"
             size="lg"
             variant="solid"
             theme="green"

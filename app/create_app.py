@@ -98,12 +98,13 @@ def create_app() -> Flask:
         from app.account.models import ApiKey, UserPreference  # noqa: F401
         from app.activity.models import Activity  # noqa: F401
         from app.auth.models import Role, User, user_roles  # noqa: F401
-        from app.blog.models import BlogPost  # noqa: F401
+        from app.blog.models import BlogCategory, BlogPost  # noqa: F401
         from app.contact.models import ContactMessage  # noqa: F401
         from app.infra.audit import AuditLog  # noqa: F401
         from app.infra.models import AppSetting  # noqa: F401
         from app.infra.roles import ensure_member_role
         from app.program.models import Program  # noqa: F401
+        from app.scholarship.models import Scholarship  # noqa: F401
 
         ensure_member_role()
 
@@ -121,8 +122,10 @@ def create_app() -> Flask:
         from app.infra.seo import bp as seo_bp
         from app.infra.seo import index_context
         from app.infra.setup import bp as setup_bp
+        from app.infra.site_content_api import bp as site_content_bp
         from app.infra.uploads import bp as uploads_bp
         from app.program import bp as program_bp
+        from app.scholarship import bp as scholarship_bp
 
         app.register_blueprint(health_bp)
         app.register_blueprint(activity_bp)
@@ -134,11 +137,13 @@ def create_app() -> Flask:
         app.register_blueprint(account_api_key_bp)
         app.register_blueprint(blog_bp)
         app.register_blueprint(program_bp)
+        app.register_blueprint(scholarship_bp)
         app.register_blueprint(contact_bp)
         app.register_blueprint(account_preference_bp)
         app.register_blueprint(app_api_bp)
         app.register_blueprint(uploads_bp)
         app.register_blueprint(brand_bp)
+        app.register_blueprint(site_content_bp)
 
         register_spa(
             app,

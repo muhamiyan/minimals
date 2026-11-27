@@ -5,10 +5,10 @@ import { i18n } from '@/app/i18n'
 import { api, getErrorMessage } from '@/shared/api'
 import { useAuthStore } from '@/features/auth/store'
 import {
-  orderedNavItems,
-  visibleNavItems,
+  orderedRoots,
+  visibleRoots,
   type MenuPreference,
-  type NavItem,
+  type NavRoot,
 } from './navigation'
 
 const ENDPOINT = '/account/menu-preferences'
@@ -31,12 +31,12 @@ export const useMenuStore = defineStore('menu', () => {
 
   const auth = useAuthStore()
   const isAdmin = computed(() => auth.user?.appRole === 'admin')
-  const visibleForRole = (items: NavItem[]) =>
-    items.filter((item) => !item.requireAdmin || isAdmin.value)
+  const visibleForRole = (roots: NavRoot[]): NavRoot[] =>
+    roots.filter((root) => !root.requireAdmin || isAdmin.value)
 
-  const allItems = computed(() => visibleForRole(orderedNavItems(order.value)))
-  const items = computed(() =>
-    visibleForRole(visibleNavItems(order.value, hidden.value)),
+  const allRoots = computed(() => visibleForRole(orderedRoots(order.value)))
+  const roots = computed(() =>
+    visibleForRole(visibleRoots(order.value, hidden.value)),
   )
 
   function apply(preference: MenuPreference) {
@@ -80,10 +80,7 @@ export const useMenuStore = defineStore('menu', () => {
       if (current === generation) {
         order.value = [...confirmed.order]
         hidden.value = [...confirmed.hidden]
-        error.value = getErrorMessage(
-          e,
-          i18n.global.t('settings.menu.saveFailed'),
-        )
+        error.value = getErrorMessage(e, i18n.global.t('settings.menu.saveFailed'))
       }
       return false
     } finally {
@@ -91,13 +88,30 @@ export const useMenuStore = defineStore('menu', () => {
     }
   }
 
-  async function move(from: number, to: number): Promise<boolean> {
-    const keys = allItems.value.map((item) => item.key)
+  async function moveVisible(
+    from: number,
+    to: number,
+    visibleKeys: string[],
+  ): Promise<boolean> {
     if (from === to) return true
-    if (from < 0 || to < 0 || from >= keys.length || to >= keys.length) return false
+    if (from < 0 || to < 0 || from >= visibleKeys.length || to >= visibleKeys.length)
+      return false
 
-    const [moved] = keys.splice(from, 1)
-    keys.splice(to, 0, moved)
+    const seq = [...visibleKeys]
+    const [moved] = seq.splice(from, 1)
+    seq.splice(to, 0, moved)
+
+    const visible = new Set(visibleKeys)
+    const slots: number[] = []
+    allRoots.value.forEach((root, index) => {
+      if (visible.has(root.key)) slots.push(index)
+    })
+
+    const keys = allRoots.value.map((root) => root.key)
+    slots.forEach((slot, index) => {
+      keys[slot] = seq[index]
+    })
+
     return persist({ order: keys, hidden: hidden.value })
   }
 
@@ -125,10 +139,10 @@ export const useMenuStore = defineStore('menu', () => {
     loaded,
     saving,
     error,
-    allItems,
-    items,
+    allRoots,
+    roots,
     fetchPreference,
-    move,
+    moveVisible,
     setVisible,
     reset,
   }

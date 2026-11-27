@@ -32,9 +32,9 @@ class ContactService(ServiceBase[ContactRepository]):
         return message
 
     def list_all(
-        self, *, page: int = 1, per_page: int = 20
+        self, *, search: str | None = None, page: int = 1, per_page: int = 20
     ) -> tuple[list[ContactMessage], int]:
-        return self._repo.list_all(page=page, per_page=per_page)
+        return self._repo.list_all(search=search, page=page, per_page=per_page)
 
     def update(self, message_id: str, dto: ContactUpdateIn, *, actor_id: str) -> ContactMessage:
         message = self._repo.get(message_id)

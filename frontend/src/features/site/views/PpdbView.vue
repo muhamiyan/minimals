@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { contentHtml, contentText, contentValue } from '@/shared/siteContent'
 import ShimmerPage from '@/shared/components/ShimmerPage.vue'
 import { Button } from 'frappe-ui'
 import { computed, onMounted } from 'vue'
@@ -20,13 +21,13 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div id="top" class="min-h-screen bg-surface-base text-ink-gray-8">
+  <div id="top" class="flex min-h-screen flex-col bg-surface-base text-ink-gray-8">
     <LandingNav />
     <ShimmerPage v-if="!gateReady" />
     <main v-else class="mx-auto w-full max-w-4xl px-5 py-12">
       <header class="mb-10 max-w-2xl rounded-6 border border-outline-green-2 bg-surface-green-1 px-6 py-6">
-        <h1 class="text-4xl-bold text-ink-gray-9">{{ t('ppdbPage.title') }}</h1>
-        <p class="mt-3 text-p-base text-ink-gray-6">{{ t('ppdbPage.lead') }}</p>
+        <h1 class="text-4xl-bold text-ink-gray-9">{{ contentText('ppdb.title', t('ppdbPage.title')) }}</h1>
+        <p class="mt-3 text-p-base text-ink-gray-6"><span v-html="contentHtml('ppdb.lead', t('ppdbPage.lead'))" /></p>
       </header>
 
       <div class="grid gap-4 sm:grid-cols-3">
@@ -36,7 +37,7 @@ onMounted(async () => {
             {{ t('landing.hero.periodLabel') }}
           </p>
           <p class="mt-1 text-base-semibold text-ink-gray-8">
-            {{ t('landing.hero.period') }}
+            {{ contentValue('ppdb.period', t('landing.ppdb.period')) }}
           </p>
         </div>
         <div class="rounded-6 border border-outline-green-2 bg-surface-base p-5">
@@ -45,7 +46,7 @@ onMounted(async () => {
             {{ t('landing.hero.hoursLabel') }}
           </p>
           <p class="mt-1 text-base-semibold text-ink-gray-8">
-            {{ t('landing.hero.hours') }}
+            {{ contentValue('ppdb.hours', t('landing.hero.hours')) }}
           </p>
         </div>
         <div class="rounded-6 border border-outline-green-2 bg-surface-base p-5">
@@ -54,7 +55,7 @@ onMounted(async () => {
             {{ t('landing.hero.locationLabel') }}
           </p>
           <p class="mt-1 text-base-semibold text-ink-gray-8">
-            {{ t('landing.hero.location') }}
+            {{ contentValue('ppdb.location', t('landing.hero.location')) }}
           </p>
         </div>
       </div>
@@ -68,7 +69,7 @@ onMounted(async () => {
         <Button
           class="mt-6"
           :label="t('landing.ppdb.register')"
-          :href="PPDB_URL"
+          :href="contentValue('ppdb.url', PPDB_URL)"
           variant="solid"
           theme="green"
           size="lg"
@@ -90,6 +91,6 @@ onMounted(async () => {
         </ul>
       </section>
     </main>
-    <LandingFooter />
+    <LandingFooter class="mt-auto" />
   </div>
 </template>

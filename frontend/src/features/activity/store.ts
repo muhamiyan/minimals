@@ -27,6 +27,12 @@ interface ActivityListResponse {
   perPage: number
 }
 
+interface ActivityQuery {
+  search?: string
+  page?: number
+  perPage?: number
+}
+
 export interface ActivityInput {
   title: string
   slug?: string
@@ -87,16 +93,22 @@ export const useActivityStore = defineStore('activity', () => {
     }
   }
 
-  async function fetchAdminList(nextPage = 1): Promise<boolean> {
+  async function fetchAdminList(query: ActivityQuery = {}): Promise<boolean> {
     loading.value = true
     error.value = ''
     try {
+      const params: Record<string, string | number> = {
+        page: query.page ?? page.value,
+        per_page: query.perPage ?? perPage.value,
+      }
+      if (query.search) params.search = query.search
       const { data } = await api.get<ActivityListResponse>('/activity/admin/activities', {
-        params: { page: nextPage, per_page: perPage.value },
+        params,
       })
-      activities.value = data.items
-      total.value = data.total
-      page.value = data.page
+      activities.value = data.items ?? []
+      total.value = data.total ?? 0
+      page.value = data.page ?? 1
+      perPage.value = data.perPage ?? perPage.value
       return true
     } catch (e: unknown) {
       error.value = getErrorMessage(e, i18n.global.t('activity.errors.loadFailed'))

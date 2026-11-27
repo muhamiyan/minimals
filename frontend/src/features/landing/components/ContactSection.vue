@@ -1,41 +1,46 @@
 <script setup lang="ts">
+import { contentValue } from '@/shared/siteContent'
 import { Badge } from 'frappe-ui'
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { contact } from '../content'
+import { contact, MAPS_EMBED_URL, MAPS_LINK_URL } from '../content'
 
 const { t } = useI18n()
 
-const cards = [
-  {
-    icon: 'lucide-map-pin',
-    label: 'landing.contact.addressLabel',
-    value: contact.address,
-    href: '',
-    external: false,
-  },
-  {
-    icon: 'lucide-mail',
-    label: 'landing.contact.emailLabel',
-    value: contact.email,
-    href: `mailto:${contact.email}`,
-    external: false,
-  },
-  {
-    icon: 'lucide-message-circle',
-    label: 'landing.contact.whatsappLabel',
-    value: '0878 6470 6565',
-    href: contact.whatsapp,
-    external: true,
-  },
-  {
-    icon: 'lucide-facebook',
-    label: 'landing.contact.facebookLabel',
-    value: 'manw.selaparangkediri',
-    href: contact.facebook,
-    external: true,
-  },
-]
+const cards = computed(() => {
+  const email = contentValue('contact.email', contact.email)
+  return [
+    {
+      icon: 'lucide-map-pin',
+      label: 'landing.contact.addressLabel',
+      value: contentValue('contact.address', contact.address),
+      href: '',
+      external: false,
+    },
+    {
+      icon: 'lucide-mail',
+      label: 'landing.contact.emailLabel',
+      value: email,
+      href: `mailto:${email}`,
+      external: false,
+    },
+    {
+      icon: 'lucide-message-circle',
+      label: 'landing.contact.whatsappLabel',
+      value: contentValue('contact.whatsappDisplay', '0878 6470 6565'),
+      href: contentValue('contact.whatsappUrl', contact.whatsapp),
+      external: true,
+    },
+    {
+      icon: 'lucide-facebook',
+      label: 'landing.contact.facebookLabel',
+      value: contentValue('contact.facebookDisplay', 'manw.selaparangkediri'),
+      href: contentValue('contact.facebookUrl', contact.facebook),
+      external: true,
+    },
+  ]
+})
 </script>
 
 <template>
@@ -72,14 +77,28 @@ const cards = [
         </div>
       </div>
 
-      <div class="mt-8 text-center">
-        <router-link
-          :to="{ name: 'Contact' }"
-          class="inline-flex items-center gap-1 text-p-sm-medium text-ink-green-7"
+      <div class="mx-auto mt-10 max-w-3xl">
+        <h3 class="mb-3 text-base-semibold text-ink-gray-8">
+          {{ t('landing.contact.mapTitle') }}
+        </h3>
+        <div class="overflow-hidden rounded-6 border border-outline-green-2 bg-surface-base">
+          <iframe
+            :src="contentValue('contact.mapsUrl', MAPS_EMBED_URL)"
+            :title="t('landing.contact.mapTitle')"
+            class="h-52 w-full border-0 sm:h-64"
+            referrerpolicy="strict-origin-when-cross-origin"
+            allowfullscreen
+          />
+        </div>
+        <a
+          :href="MAPS_LINK_URL"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="mt-3 inline-flex items-center gap-1 text-p-sm-medium text-ink-green-7 hover:underline"
         >
-          {{ t('landing.contact.formNote') }}
-          <span class="lucide-arrow-right size-3.5" aria-hidden="true" />
-        </router-link>
+          {{ t('landing.contact.openMap') }}
+          <span class="lucide-arrow-up-right size-3.5" aria-hidden="true" />
+        </a>
       </div>
     </div>
   </section>

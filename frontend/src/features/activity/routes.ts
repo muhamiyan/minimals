@@ -23,7 +23,7 @@ export const activityRoutes: RouteRecordRaw[] = [
 
 export const activityAdminRoutes: RouteRecordRaw[] = [
   {
-    path: '',
+    path: 'manage',
     name: 'ActivityAdminList',
     component: () => import('./views/ActivityAdminListView.vue'),
     meta: { requiresAuth: true, requiresAdmin: true, title: 'Activities' },

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import ShimmerPage from '@/shared/components/ShimmerPage.vue'
+import { Spinner } from 'frappe-ui'
 import { computed } from 'vue'
 
 
@@ -17,7 +17,9 @@ const isAdmin = computed(() => auth.user?.appRole === 'admin')
 <template>
   <AppPageHeader />
 
-  <ShimmerPage v-if="!gateReady" />
+  <div v-if="!gateReady" class="flex justify-center py-10">
+    <Spinner />
+  </div>
 
   <AdminDashboardView v-else-if="isAdmin" />
   <UserDashboardView v-else />

@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { Badge, Button, ErrorMessage } from 'frappe-ui'
+import { Badge, Button, ErrorMessage, Spinner } from 'frappe-ui'
 
 import { useAccountStore } from '@/features/account/store'
 import PanelCard from '@/shared/components/PanelCard.vue'
-import ShimmerPage from '@/shared/components/ShimmerPage.vue'
 import StatTile from '@/shared/components/StatTile.vue'
 import { useAuthStore } from '@/features/auth/store'
 import { getErrorMessage } from '@/shared/api'
@@ -52,7 +51,9 @@ onMounted(async () => {
       <p class="text-p-sm text-ink-gray-5">{{ user?.email }}</p>
     </PanelCard>
 
-    <ShimmerPage v-if="!statsReady" />
+    <div v-if="!statsReady" class="flex justify-center py-10">
+      <Spinner />
+    </div>
 
     <template v-else>
       <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">

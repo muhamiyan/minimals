@@ -3,14 +3,17 @@ import { defineStore } from 'pinia'
 
 import { api, getErrorMessage } from '@/shared/api'
 import { i18n } from '@/app/i18n'
-import { setBrandLogo } from '@/shared/brand'
+import { setBrandLogo, setBrandMeta, type BrandMeta } from '@/shared/brand'
 
 export const useBrandStore = defineStore('brand', () => {
   const uploading = ref(false)
   const removing = ref(false)
+  const savingMeta = ref(false)
   const error = ref('')
 
-  const busy = computed(() => uploading.value || removing.value)
+  const busy = computed(
+    () => uploading.value || removing.value || savingMeta.value,
+  )
 
   async function uploadLogo(file: File): Promise<boolean> {
     error.value = ''
@@ -40,6 +43,24 @@ export const useBrandStore = defineStore('brand', () => {
     }
   }
 
+  async function saveMeta(meta: BrandMeta): Promise<boolean> {
+    error.value = ''
+    savingMeta.value = true
+    try {
+      const { data } = await api.put<BrandMeta>('/brand', meta)
+      setBrandMeta(data)
+      return true
+    } catch (e: any) {
+      error.value = getErrorMessage(
+        e,
+        i18n.global.t('settings.brand.details.failed'),
+      )
+      return false
+    } finally {
+      savingMeta.value = false
+    }
+  }
+
   async function removeLogo(): Promise<boolean> {
     error.value = ''
     removing.value = true
@@ -58,5 +79,14 @@ export const useBrandStore = defineStore('brand', () => {
     }
   }
 
-  return { uploading, removing, busy, error, uploadLogo, removeLogo }
+  return {
+    uploading,
+    removing,
+    savingMeta,
+    busy,
+    error,
+    uploadLogo,
+    removeLogo,
+    saveMeta,
+  }
 })

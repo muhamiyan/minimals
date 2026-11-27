@@ -10,7 +10,11 @@ const activities = useActivityStore()
 </script>
 
 <template>
-  <section id="activities" class="border-t border-outline-green-2 bg-surface-green-1">
+  <section
+    v-if="activities.activities.length"
+    id="activities"
+    class="border-t border-outline-green-2 bg-surface-green-1"
+  >
     <div class="mx-auto w-full max-w-6xl px-5 py-20">
       <div class="flex flex-wrap items-end justify-between gap-4">
         <div class="max-w-2xl">
@@ -29,14 +33,7 @@ const activities = useActivityStore()
         </router-link>
       </div>
 
-      <div
-        v-if="!activities.activities.length"
-        class="mt-12 rounded-6 border border-outline-green-2 bg-surface-base p-10 text-center"
-      >
-        <p class="text-p-sm text-ink-gray-5">{{ activities.error || t('activity.empty') }}</p>
-      </div>
-
-      <div v-else class="mt-12 grid gap-4 md:grid-cols-3">
+      <div class="mt-12 grid gap-4 md:grid-cols-3">
         <router-link
           v-for="item in activities.activities.slice(0, 3)"
           :key="item.id"

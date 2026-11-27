@@ -108,6 +108,13 @@ def test_register_trims_username_before_length_check(client):
     assert response.get_json()["username"] == "bob"
 
 
+def test_register_rejects_username_with_internal_spaces(client):
+    response = register(client, username="john doe")
+
+    assert response.status_code == 400
+    assert response.get_json() == {"message": "username_invalid_username"}
+
+
 def test_register_rejects_email_without_local_part(client):
     response = register(client, email="@example.com")
 

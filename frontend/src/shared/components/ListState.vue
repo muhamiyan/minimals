@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import ShimmerPage from '@/shared/components/ShimmerPage.vue'
 import { useI18n } from 'vue-i18n'
-import { ErrorMessage } from 'frappe-ui'
+import { ErrorMessage, Spinner } from 'frappe-ui'
 
 const { t } = useI18n()
 
@@ -24,7 +23,7 @@ withDefaults(
 
 <template>
   <div v-if="loading" class="flex justify-center py-10">
-    <ShimmerPage />
+    <Spinner />
   </div>
 
   <ErrorMessage v-else-if="error" :message="error" />

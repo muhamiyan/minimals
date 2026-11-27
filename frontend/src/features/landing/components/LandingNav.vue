@@ -1,14 +1,14 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Button, useColorScheme } from 'frappe-ui'
 
 import { useAuthStore } from '@/features/auth/store'
-import { brand, useBrandLogo } from '@/shared/brand'
+import { brand, logoBackdropClass, useBrandLogo } from '@/shared/brand'
 
 const { t } = useI18n()
 const auth = useAuthStore()
-const { logoSrc, onLogoError } = useBrandLogo()
+const { logoSrc, logoTone, onLogoError } = useBrandLogo()
 
 const { resolvedColorScheme, toggleColorScheme } = useColorScheme()
 
@@ -22,21 +22,22 @@ const themeIcon = computed(() =>
   resolvedColorScheme.value === 'dark' ? 'lucide-sun' : 'lucide-moon',
 )
 
-const anchorLinks = [{ key: 'landing.nav.home', href: '/#top' }]
+const homeLinks = [{ key: 'landing.nav.home', name: 'Landing' }]
 
 const infoLinks = [
-  { key: 'landing.nav.ppdb', name: 'Ppdb' },
   { key: 'landing.nav.profile', name: 'Profile' },
+  { key: 'landing.nav.ppdb', name: 'Ppdb' },
   { key: 'landing.nav.structure', name: 'Structure' },
   { key: 'landing.nav.facilities', name: 'Facilities' },
+  { key: 'landing.nav.programs', name: 'ProgramList' },
 ]
 
 const routeLinks = [
-  { key: 'landing.nav.programs', name: 'ProgramList' },
-  { key: 'landing.nav.contact', name: 'Contact' },
+  { key: 'landing.nav.scholarships', name: 'ScholarshipList' },
   { key: 'landing.nav.activities', name: 'ActivityList' },
   { key: 'landing.nav.gallery', name: 'Gallery' },
   { key: 'nav.blog', name: 'BlogList' },
+  { key: 'landing.nav.contact', name: 'Contact' },
 ]
 
 function goTop() {
@@ -52,29 +53,38 @@ function goTop() {
     class="sticky top-0 z-40 border-b border-outline-green-2 bg-surface-base/80 backdrop-blur-md"
   >
     <div class="mx-auto flex h-14 w-full max-w-6xl items-center justify-between gap-3 px-5">
-      <a href="#top" class="flex min-w-0 items-center gap-2 rounded-4" @click.prevent="goTop">
-        <img
-          v-if="logoSrc"
-          :src="logoSrc"
-          alt=""
-          class="size-7 rounded-4 object-contain"
-          @error="onLogoError"
-        />
-        <span v-else class="rounded-4 bg-surface-green-2 p-1.5 text-ink-green-7">
-          <span class="lucide-school size-4" aria-hidden="true" />
+      <router-link
+        :to="{ name: 'Landing' }"
+        class="flex min-w-0 items-center gap-2 rounded-4"
+        @click="goTop"
+      >
+        <span
+          class="flex size-7 items-center justify-center rounded-4"
+          :class="logoBackdropClass(logoTone)"
+        >
+          <img
+            v-if="logoSrc"
+            :src="logoSrc"
+            alt=""
+            class="size-full rounded-4 object-contain"
+            @error="onLogoError"
+          />
+          <span v-else class="text-ink-green-7">
+            <span class="lucide-school size-4" aria-hidden="true" />
+          </span>
         </span>
         <span class="truncate text-base-semibold text-ink-gray-9">{{ brand.name }}</span>
-      </a>
+      </router-link>
 
       <nav class="hidden items-center gap-0.5 lg:flex">
-        <a
-          v-for="link in anchorLinks"
+        <router-link
+          v-for="link in homeLinks"
           :key="link.key"
-          :href="link.href"
+          :to="{ name: link.name }"
           class="rounded-4 px-2 py-1.5 text-sm-medium text-ink-gray-6 transition-colors hover:text-ink-gray-9"
         >
           {{ t(link.key) }}
-        </a>
+        </router-link>
 
         <div class="group relative">
           <Button
@@ -143,15 +153,15 @@ function goTop() {
           <div
             class="absolute right-0 top-10 z-20 w-56 rounded-6 border border-outline-green-2 bg-surface-base p-1 shadow-lg"
           >
-            <a
-              v-for="link in anchorLinks"
+            <router-link
+              v-for="link in homeLinks"
               :key="link.key"
-              :href="link.href"
+              :to="{ name: link.name }"
               class="block rounded-4 px-3 py-2 text-p-sm text-ink-gray-7"
               @click="closeMobileMenu"
             >
               {{ t(link.key) }}
-            </a>
+            </router-link>
             <router-link
               v-for="link in infoLinks"
               :key="link.key"

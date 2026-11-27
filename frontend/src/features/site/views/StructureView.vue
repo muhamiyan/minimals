@@ -19,7 +19,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div id="top" class="min-h-screen bg-surface-base text-ink-gray-8">
+  <div id="top" class="flex min-h-screen flex-col bg-surface-base text-ink-gray-8">
     <LandingNav />
     <ShimmerPage v-if="!gateReady" />
     <main v-else class="mx-auto w-full max-w-4xl px-5 py-12">
@@ -63,6 +63,6 @@ onMounted(async () => {
         </router-link>
       </div>
     </main>
-    <LandingFooter />
+    <LandingFooter class="mt-auto" />
   </div>
 </template>

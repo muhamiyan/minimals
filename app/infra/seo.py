@@ -20,8 +20,11 @@ limiter.exempt(bp)
 
 LOGO_KEY = "logoUrl"
 
+META_KEYS = ("name", "tagline", "description", "siteUrl")
+BRAND_KEYS = (*META_KEYS, LOGO_KEY)
+
 DEFAULT_BRAND: dict[str, str] = {
-    "name": "Minimals",
+    "name": "Yayasan Islam Selaparang",
     "tagline": "",
     "description": "",
     "siteUrl": "",
@@ -48,6 +51,7 @@ STATIC_PUBLIC_PAGES = {
 }
 
 
+
 def get_brand() -> dict[str, str]:
     """Current brand settings; never raises.
 
@@ -68,12 +72,17 @@ def get_brand() -> dict[str, str]:
     return brand
 
 
+def normalize_brand(brand: dict[str, str]) -> dict[str, str]:
+    """Trim brand values and restore the default name when blank."""
+    values = {key: (brand.get(key) or "").strip() for key in BRAND_KEYS}
+    if not values["name"]:
+        values["name"] = DEFAULT_BRAND["name"]
+    return values
+
+
 def save_brand(session: Session, brand: dict[str, str]) -> None:
     """Upsert brand rows into the given (setup) session."""
-    for key in BRAND_KEYS:
-        value = (brand.get(key) or "").strip()
-        if key == "name" and not value:
-            value = DEFAULT_BRAND["name"]
+    for key, value in normalize_brand(brand).items():
         row = session.execute(
             select(AppSetting).where(AppSetting.key == key)
         ).scalar_one_or_none()
@@ -353,13 +362,21 @@ def index_context() -> dict:
     ``_apply_seo`` — it never becomes a window global; everything else lands
     on ``window.brand`` and ``window.appLang``.
     """
+    from app.infra.site_content_service import get_site_content
+
     brand = get_brand()
+    content = get_site_content()
     seo = _seo_for_path(brand, _current_path())
     if seo.get("icon") is None and (logo := brand.get(LOGO_KEY) or ""):
         canonical = _canonical(brand)
         seo["icon"] = logo
         seo["image"] = _absolute_upload(logo, canonical)
-    return {"brand": brand, "seo": seo, "appLang": get_app_lang()}
+    return {
+        "brand": brand,
+        "seo": seo,
+        "appLang": get_app_lang(),
+        "siteContent": content,
+    }
 
 
 @bp.get("/robots.txt")
@@ -455,11 +472,13 @@ __all__ = [
     "BRAND_KEYS",
     "DEFAULT_BRAND",
     "LOGO_KEY",
+    "META_KEYS",
     "SUPPORTED_LANGS",
     "bp",
     "get_app_lang",
     "get_brand",
     "index_context",
+    "normalize_brand",
     "save_app_lang",
     "save_brand",
     "validate_site_url",

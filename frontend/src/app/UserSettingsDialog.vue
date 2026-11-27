@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n'
 import {
   Avatar,
   Button,
+  FormControl,
   SettingsBody,
   SettingsContent,
   SettingsDialog,
@@ -23,10 +24,15 @@ import type { DropInfo, MoveContext, TreeNode } from 'frappe-ui'
 import { useAuthStore } from '@/features/auth/store'
 import BrandLogo from '@/shared/components/BrandLogo.vue'
 import { languageOptions } from '@/app/i18n'
-import { brand } from '@/shared/brand'
-import LogoCropper from './LogoCropper.vue'
+import { brand, type BrandMeta } from '@/shared/brand'
+import ImageCropper from '@/shared/components/ImageCropper.vue'
 import { useBrandStore } from './brandStore'
 import { useMenuStore } from './menuStore'
+import {
+  NAV_ROOTS,
+  isNavGroup,
+  type NavLeaf,
+} from './navigation'
 import ThemeSwitcher from './ThemeSwitcher.vue'
 
 const open = defineModel<boolean>('open', { default: false })
@@ -65,25 +71,50 @@ const memberSince = computed(() => {
 
 const menuBusy = computed(() => menu.saving || !menu.loaded)
 
+function inScope(node: { requireAdmin?: boolean }): boolean {
+  return !node.requireAdmin || isAdmin.value
+}
+
+function toTreeNode(item: NavLeaf): TreeNode {
+  return { key: item.key, label: t(item.labelKey), icon: item.icon }
+}
+
 const menuNodes = computed<TreeNode[]>(() =>
-  menu.allItems.map((item) => ({
-    key: item.key,
-    label: t(item.labelKey),
-    icon: item.icon,
-  })),
+  menu.allRoots.filter(inScope).map((root) =>
+    isNavGroup(root)
+      ? {
+          key: root.key,
+          label: t(root.labelKey),
+          icon: root.icon,
+          children: root.children.filter(inScope).map(toTreeNode),
+        }
+      : toTreeNode(root),
+  ),
 )
+
+const visibleRootKeys = computed(() =>
+  menu.allRoots.filter(inScope).map((root) => root.key),
+)
+
+const expandedKeys = ref<string[]>(NAV_ROOTS.filter(isNavGroup).map((group) => group.key))
 
 function isHidden(key: unknown): boolean {
   return typeof key === 'string' && menu.hidden.includes(key)
 }
 
-function canMove({ position }: MoveContext): boolean {
-  return position !== 'inside'
+function canMove({ node, target, position }: MoveContext): boolean {
+  if (position === 'inside') return false
+  const roots = new Set(visibleRootKeys.value)
+  return roots.has(String(node.key)) && roots.has(String(target.key))
 }
 
 async function onDragEnd(info: DropInfo | null) {
   if (!info || info.position === 'inside') return
-  const saved = await menu.move(info.oldIndex, info.newIndex)
+  const saved = await menu.moveVisible(
+    info.oldIndex,
+    info.newIndex,
+    visibleRootKeys.value,
+  )
   if (!saved && menu.error) toast.error(menu.error)
 }
 
@@ -102,6 +133,28 @@ const pendingLogoFile = shallowRef<File | null>(null)
 const uploadingLogo = computed(() => brandStore.uploading)
 const removingLogo = computed(() => brandStore.removing)
 const logoBusy = computed(() => brandStore.busy)
+const savingMeta = computed(() => brandStore.savingMeta)
+
+function brandMetaFromBrand(): BrandMeta {
+  return {
+    name: brand.name,
+    tagline: brand.tagline,
+    description: brand.description,
+    siteUrl: brand.siteUrl,
+  }
+}
+
+const brandForm = ref<BrandMeta>(brandMetaFromBrand())
+
+async function saveBrandMeta() {
+  const saved = await brandStore.saveMeta({ ...brandForm.value })
+  if (saved) {
+    brandForm.value = brandMetaFromBrand()
+    toast.success(t('settings.brand.details.saved'))
+  } else {
+    toast.error(brandStore.error)
+  }
+}
 
 function pickLogo() {
   if (logoBusy.value || pendingLogoFile.value) return
@@ -172,7 +225,11 @@ async function removeLogo() {
 }
 
 watch([open, activeTab], ([isOpen, tab]) => {
-  if (!isOpen || tab !== 'brand') pendingLogoFile.value = null
+  if (!isOpen || tab !== 'brand') {
+    pendingLogoFile.value = null
+    return
+  }
+  brandForm.value = brandMetaFromBrand()
 })
 </script>
 
@@ -341,6 +398,7 @@ watch([open, activeTab], ([isOpen, tab]) => {
             <Tree
               :nodes="menuNodes"
               node-key="key"
+              :expanded-keys="expandedKeys"
               draggable
               guides="none"
               :disabled="menuBusy"
@@ -379,7 +437,7 @@ watch([open, activeTab], ([isOpen, tab]) => {
         </SettingsBody>
       </SettingsPanel>
 
-      <SettingsPanel value="brand">
+      <SettingsPanel v-if="isAdmin" value="brand">
         <SettingsHeader class="settings-header" :title="t('settings.brand.title')">
           <template #actions>
             <Button
@@ -392,69 +450,112 @@ watch([open, activeTab], ([isOpen, tab]) => {
           </template>
         </SettingsHeader>
         <SettingsBody class="settings-body">
-          <p class="mt-6 text-p-sm leading-5 text-ink-gray-5">
-            {{ t('settings.brand.description') }}
-          </p>
+          <form class="mt-6 space-y-4" @submit.prevent="saveBrandMeta">
+            <p class="text-p-sm leading-5 text-ink-gray-5">
+              {{ t('settings.brand.details.help') }}
+            </p>
+            <FormControl
+              v-model="brandForm.name"
+              :label="t('settings.brand.details.name')"
+              :placeholder="t('settings.brand.details.namePlaceholder')"
+              maxlength="64"
+              required
+            />
+            <FormControl
+              v-model="brandForm.tagline"
+              :label="t('settings.brand.details.tagline')"
+              :placeholder="t('settings.brand.details.taglinePlaceholder')"
+              maxlength="120"
+            />
+            <FormControl
+              v-model="brandForm.description"
+              type="textarea"
+              :label="t('settings.brand.details.description')"
+              :placeholder="t('settings.brand.details.descriptionPlaceholder')"
+              maxlength="300"
+            />
+            <FormControl
+              v-model="brandForm.siteUrl"
+              type="url"
+              :label="t('settings.brand.details.siteUrl')"
+              :placeholder="t('settings.brand.details.siteUrlPlaceholder')"
+              maxlength="512"
+            />
+            <Button
+              type="submit"
+              variant="solid"
+              theme="gray"
+              :label="t('settings.brand.details.save')"
+              :loading="savingMeta"
+              :disabled="logoBusy"
+            />
+          </form>
 
-          <template v-if="!pendingLogoFile">
-            <div class="mt-6 flex items-center gap-4">
-              <BrandLogo size="lg" class="shrink-0 border border-outline-gray-1">
-                <div class="flex h-full w-full items-center justify-center text-ink-gray-5">
-                  <span class="lucide-image size-5" aria-hidden="true" />
+          <div class="mt-8 border-t border-outline-gray-1 pt-6">
+            <p class="text-p-sm leading-5 text-ink-gray-5">
+              {{ t('settings.brand.description') }}
+            </p>
+
+            <template v-if="!pendingLogoFile">
+              <div class="mt-6 flex items-center gap-4">
+                <BrandLogo size="lg" class="shrink-0 border border-outline-gray-1">
+                  <div class="flex h-full w-full items-center justify-center text-ink-gray-5">
+                    <span class="lucide-image size-5" aria-hidden="true" />
+                  </div>
+                </BrandLogo>
+                <div class="min-w-0 flex-1">
+                  <div class="text-base-medium leading-tighter text-ink-gray-8">
+                    {{ t('settings.brand.logo') }}
+                  </div>
+                  <p class="mt-1 text-p-sm leading-5 text-ink-gray-5">
+                    {{ t('settings.brand.logoDescription') }}
+                  </p>
                 </div>
-              </BrandLogo>
-              <div class="min-w-0 flex-1">
-                <div class="text-base-medium leading-tighter text-ink-gray-8">
-                  {{ t('settings.brand.logo') }}
-                </div>
-                <p class="mt-1 text-p-sm leading-5 text-ink-gray-5">
-                  {{ t('settings.brand.logoDescription') }}
-                </p>
               </div>
-            </div>
 
-            <div class="mt-4 flex flex-wrap gap-2">
-              <Button
-                variant="solid"
-                theme="gray"
-                icon-left="lucide-upload"
-                :label="
-                  brand.logoUrl
-                    ? t('settings.brand.replace')
-                    : t('settings.brand.upload')
-                "
-                :loading="uploadingLogo"
-                :disabled="removingLogo"
-                @click="pickLogo"
-              />
-              <Button
-                v-if="brand.logoUrl"
-                variant="subtle"
-                theme="red"
-                icon-left="lucide-trash-2"
-                :label="t('settings.brand.remove')"
-                :loading="removingLogo"
-                :disabled="uploadingLogo"
-                @click="removeLogo"
-              />
-            </div>
-          </template>
-          <LogoCropper
-            v-else
-            :file="pendingLogoFile"
-            :busy="uploadingLogo"
-            @cancel="onCropCancel"
-            @apply="onCropApply"
-            @error="onCropError"
-          />
+              <div class="mt-4 flex flex-wrap gap-2">
+                <Button
+                  variant="solid"
+                  theme="gray"
+                  icon-left="lucide-upload"
+                  :label="
+                    brand.logoUrl
+                      ? t('settings.brand.replace')
+                      : t('settings.brand.upload')
+                  "
+                  :loading="uploadingLogo"
+                  :disabled="removingLogo"
+                  @click="pickLogo"
+                />
+                <Button
+                  v-if="brand.logoUrl"
+                  variant="subtle"
+                  theme="red"
+                  icon-left="lucide-trash-2"
+                  :label="t('settings.brand.remove')"
+                  :loading="removingLogo"
+                  :disabled="uploadingLogo"
+                  @click="removeLogo"
+                />
+              </div>
+            </template>
+            <ImageCropper
+              v-else
+              :file="pendingLogoFile"
+              :busy="uploadingLogo"
+              @cancel="onCropCancel"
+              @apply="onCropApply"
+              @error="onCropError"
+            />
 
-          <input
-            ref="logoInput"
-            type="file"
-            accept="image/png,image/jpeg,image/webp,image/gif,.png,.jpg,.jpeg,.webp,.gif"
-            class="hidden"
-            @change="onLogoSelected"
-          />
+            <input
+              ref="logoInput"
+              type="file"
+              accept="image/png,image/jpeg,image/webp,image/gif,.png,.jpg,.jpeg,.webp,.gif"
+              class="hidden"
+              @change="onLogoSelected"
+            />
+          </div>
         </SettingsBody>
       </SettingsPanel>
     </SettingsContent>

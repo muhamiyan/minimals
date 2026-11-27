@@ -13,8 +13,6 @@ const collapsed = defineModel<boolean>('collapsed', { default: false })
 
 <template>
   <Sidebar v-model:collapsed="collapsed" class="border-r">
-    <!-- The header is app-specific (brand, avatar menu), so it arrives through
-         the slot and lands as the first Sidebar child. -->
     <slot name="header" />
 
     <div class="flex-1 overflow-y-auto space-y-0.5 px-2 pb-2">

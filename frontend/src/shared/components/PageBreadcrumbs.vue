@@ -30,9 +30,9 @@ const crumbs = computed<BreadcrumbItem[]>(() => {
       <Button
         variant="ghost"
         icon="lucide-home"
-        :label="t('crumb.dashboard')"
+        :label="t('nav.dashboard')"
         :route="HOME.route"
-        :tooltip="t('crumb.dashboard')"
+        :tooltip="t('nav.dashboard')"
       />
       <span
         v-if="crumbs.length"

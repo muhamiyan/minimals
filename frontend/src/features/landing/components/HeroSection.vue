@@ -1,4 +1,5 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
+import { contentValue } from '@/shared/siteContent'
 import { Button } from 'frappe-ui'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -8,20 +9,37 @@ import { heroSlides, PPDB_URL } from '../content'
 const { t } = useI18n()
 
 const infoCards = [
-  { icon: 'lucide-calendar-days', label: 'landing.hero.periodLabel', value: 'landing.hero.period' },
-  { icon: 'lucide-clock', label: 'landing.hero.hoursLabel', value: 'landing.hero.hours' },
-  { icon: 'lucide-map-pin', label: 'landing.hero.locationLabel', value: 'landing.hero.location' },
+  {
+    icon: 'lucide-calendar-days',
+    label: 'landing.hero.periodLabel',
+    path: 'ppdb.period',
+    fallback: 'landing.ppdb.period',
+  },
+  {
+    icon: 'lucide-clock',
+    label: 'landing.hero.hoursLabel',
+    path: 'ppdb.hours',
+    fallback: 'landing.hero.hours',
+  },
+  {
+    icon: 'lucide-map-pin',
+    label: 'landing.hero.locationLabel',
+    path: 'ppdb.location',
+    fallback: 'landing.hero.location',
+  },
 ]
 
 const current = ref(0)
 const paused = ref(false)
 let timer: ReturnType<typeof setInterval> | null = null
 
-const hasSlides = computed(() => heroSlides.length > 0)
+const slides = computed(() => heroSlides)
+
+const hasSlides = computed(() => slides.value.length > 0)
 
 function goTo(index: number) {
-  if (!heroSlides.length) return
-  current.value = (index + heroSlides.length) % heroSlides.length
+  if (!slides.value.length) return
+  current.value = (index + slides.value.length) % slides.value.length
 }
 
 function restartTimer() {
@@ -59,7 +77,7 @@ function scrollToAbout() {
   >
     <div v-if="hasSlides" aria-hidden="true" class="absolute inset-0">
       <img
-        v-for="(src, i) in heroSlides"
+        v-for="(src, i) in slides"
         :key="src"
         :src="src"
         alt=""
@@ -82,7 +100,7 @@ function scrollToAbout() {
       <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
         <Button
           :label="t('landing.hero.ctaPpdb')"
-          :href="PPDB_URL"
+          :href="contentValue('ppdb.url', PPDB_URL)"
           size="lg"
           variant="solid"
           theme="green"
@@ -110,7 +128,9 @@ function scrollToAbout() {
           <p class="mt-3 text-2xs-medium uppercase tracking-wide text-ink-gray-4">
             {{ t(item.label) }}
           </p>
-          <p class="mt-1 text-base-semibold text-ink-gray-1">{{ t(item.value) }}</p>
+          <p class="mt-1 text-base-semibold text-ink-gray-1">
+            {{ contentValue(item.path, t(item.fallback)) }}
+          </p>
         </div>
       </div>
 
@@ -121,7 +141,7 @@ function scrollToAbout() {
       class="absolute bottom-5 left-1/2 flex -translate-x-1/2 items-center gap-2"
     >
       <button
-        v-for="(src, i) in heroSlides"
+        v-for="(src, i) in slides"
         :key="src"
         type="button"
         class="size-2 rounded-full transition-colors motion-reduce:transition-none"

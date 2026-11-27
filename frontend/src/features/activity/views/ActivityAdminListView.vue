@@ -1,117 +1,161 @@
 <script setup lang="ts">
-import Shimmer from '@/shared/components/Shimmer.vue'
-import ShimmerPage from '@/shared/components/ShimmerPage.vue'
-import { Badge, Button, ErrorMessage } from 'frappe-ui'
-import { List, ListCell, ListHeader, ListHeaderCell, ListRow, ListRows } from 'frappe-ui/list'
 import { computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import { Badge, Button, Spinner } from 'frappe-ui'
+import { List, ListCell, ListHeaderCell, ListRow, ListRows } from 'frappe-ui/list'
 
+import AppPageHeader from '@/shared/shell/AppPageHeader.vue'
+import ListFoot from '@/shared/components/ListFoot.vue'
+import ListHead from '@/shared/components/ListHead.vue'
+import ListState from '@/shared/components/ListState.vue'
+import ListToolbar from '@/shared/components/ListToolbar.vue'
+import { useListControls } from '@/shared/composables/useListControls'
 import { formatDate } from '@/shared/format'
 
-import { useActivityStore } from '../store'
+import { useActivityStore, type ActivitySummary } from '../store'
 
 const { t } = useI18n()
+const router = useRouter()
 const activities = useActivityStore()
 
 const gateReady = computed(() => activities.checked)
-const pageCount = computed(() =>
-  Math.max(1, Math.ceil(activities.total / activities.perPage)),
-)
-const hasPrev = computed(() => activities.page > 1)
-const hasNext = computed(() => activities.page < pageCount.value)
+const empty = computed(() => !activities.loading && activities.activities.length === 0)
 
-onMounted(async () => {
-  if (!activities.checked) await activities.fetchAdminList()
+const columns = {
+  base: ['minmax(0,1fr)', '6rem', '3rem'],
+  md: ['minmax(0,2fr)', '6rem', '6.5rem', '3rem'],
+}
+
+const { search, perPage, reload: refresh, goToPage } = useListControls({
+  initialPerPage: activities.perPage,
+  setPage: (page) => {
+    activities.page = page
+  },
+  fetch: (query) =>
+    activities.fetchAdminList({
+      search: query.search,
+      page: activities.page,
+      perPage: query.perPage,
+    }),
 })
 
-async function goTo(nextPage: number) {
-  await activities.fetchAdminList(nextPage)
-  window.scrollTo({ top: 0 })
+function openActivity(activity: ActivitySummary) {
+  void router.push({ name: 'ActivityAdminEdit', params: { slug: activity.slug } })
 }
+
+onMounted(async () => {
+  await refresh()
+})
 </script>
 
 <template>
-  <ShimmerPage v-if="!gateReady" />
-  <div v-else class="mx-auto w-full max-w-5xl p-6">
-    <header class="mb-6 flex flex-wrap items-center justify-between gap-3">
-      <div>
-        <h1 class="text-2xl-semibold text-ink-gray-9">{{ t('activity.title') }}</h1>
-        <p class="mt-1 text-p-sm text-ink-gray-5">{{ t('activity.admin.subtitle') }}</p>
-      </div>
+  <AppPageHeader>
+    <template #default>
       <Button
-        :label="t('activity.admin.newActivity')"
         variant="solid"
-        theme="green"
+        theme="gray"
         icon-left="lucide-plus"
+        :label="t('activity.admin.newActivity')"
         :route="{ name: 'ActivityAdminCreate' }"
       />
-    </header>
-
-    <ErrorMessage v-if="activities.error" :message="activities.error" />
-
-    <div v-else-if="activities.loading && !activities.activities.length" class="space-y-3">
-      <Shimmer v-for="i in 4" :key="i" class="h-14  rounded-6 bg-surface-elevation-2" />
-    </div>
-
-    <div
-      v-else-if="!activities.activities.length"
-      class="rounded-6 border border-outline-gray-1 bg-surface-elevation-2 p-10 text-center"
-    >
-      <p class="text-p-sm text-ink-gray-5">{{ t('activity.empty') }}</p>
+    </template>
+    <template #suffix>
       <Button
-        class="mt-4"
-        :label="t('activity.admin.createFirst')"
-        variant="subtle"
-        icon-left="lucide-plus"
+        variant="ghost"
+        theme="gray"
+        icon="lucide-plus"
+        :label="t('activity.admin.newActivity')"
         :route="{ name: 'ActivityAdminCreate' }"
       />
-    </div>
+    </template>
+  </AppPageHeader>
 
-    <List v-else :columns="['minmax(0,1fr)', '7rem', '7rem']">
-      <ListHeader>
-        <ListHeaderCell>{{ t('activity.admin.columns.title') }}</ListHeaderCell>
-        <ListHeaderCell>{{ t('activity.admin.columns.status') }}</ListHeaderCell>
-        <ListHeaderCell>{{ t('activity.admin.columns.created') }}</ListHeaderCell>
-      </ListHeader>
-      <ListRows :items="activities.activities" v-slot="{ item }">
-        <ListRow :route="{ name: 'ActivityAdminEdit', params: { slug: item.slug } }">
-          <ListCell>
-            <span class="text-base-medium text-ink-gray-9">{{ item.title }}</span>
-            <p class="truncate text-p-sm text-ink-gray-5">{{ item.excerpt }}</p>
-          </ListCell>
-          <ListCell>
-            <Badge
-              :label="item.status"
-              :theme="item.status === 'published' ? 'green' : 'gray'"
-              variant="subtle"
-            />
-          </ListCell>
-          <ListCell>
-            <span class="text-p-sm text-ink-gray-5">{{ formatDate(item.createdOn) }}</span>
-          </ListCell>
-        </ListRow>
-      </ListRows>
-    </List>
+  <div v-if="!gateReady" class="flex justify-center py-10">
+    <Spinner />
+  </div>
 
-    <div v-if="pageCount > 1" class="mt-4 flex items-center justify-between">
-      <Button
-        :label="t('shared.prevPage')"
-        size="sm"
-        variant="subtle"
-        icon-left="lucide-arrow-left"
-        :disabled="!hasPrev || activities.loading"
-        @click="goTo(activities.page - 1)"
-      />
-      <span class="text-p-sm text-ink-gray-4">
-        {{ t('shared.pageOf', { page: activities.page, total: pageCount }) }}
-      </span>
-      <Button
-        :label="t('shared.nextPage')"
-        size="sm"
-        variant="subtle"
-        icon-right="lucide-arrow-right"
-        :disabled="!hasNext || activities.loading"
-        @click="goTo(activities.page + 1)"
+  <div v-else class="mx-auto w-full max-w-6xl space-y-4 px-5 py-6">
+    <ListToolbar
+      v-model:search="search"
+      v-model:per-page="perPage"
+      :show-per-page="!empty"
+      :placeholder="t('activity.admin.searchPosts')"
+    />
+
+    <div>
+      <ListState
+        :loading="activities.loading"
+        :error="activities.error"
+        :empty="empty"
+        icon="lucide-calendar-days"
+        :empty-message="search ? t('activity.admin.noActivitiesFound') : t('activity.empty')"
+      >
+        <template #action>
+          <Button
+            variant="outline"
+            theme="gray"
+            icon-left="lucide-plus"
+            :label="t('activity.admin.createFirst')"
+            :route="{ name: 'ActivityAdminCreate' }"
+          />
+        </template>
+
+        <List :row-height="32" :columns="columns" class="list-row-px-3">
+          <ListHead>
+            <ListHeaderCell>{{ t('activity.admin.columns.title') }}</ListHeaderCell>
+            <ListHeaderCell>{{ t('activity.admin.columns.status') }}</ListHeaderCell>
+            <ListHeaderCell class="max-md:hidden">
+              {{ t('activity.admin.columns.created') }}
+            </ListHeaderCell>
+            <ListHeaderCell class="sr-only">
+              {{ t('activity.admin.columns.actions') }}
+            </ListHeaderCell>
+          </ListHead>
+
+          <ListRows :items="activities.activities" v-slot="{ item }">
+            <ListRow :value="item.id" @click="openActivity(item)">
+              <ListCell>
+                <span class="block truncate text-base-medium text-ink-gray-8">
+                  {{ item.title }}
+                </span>
+              </ListCell>
+              <ListCell>
+                <Badge
+                  :label="
+                    item.status === 'published'
+                      ? t('activity.admin.form.published')
+                      : t('activity.admin.form.draft')
+                  "
+                  :theme="item.status === 'published' ? 'green' : 'gray'"
+                  variant="subtle"
+                />
+              </ListCell>
+              <ListCell class="max-md:hidden">
+                <span class="truncate text-p-sm text-ink-gray-5">
+                  {{ formatDate(item.createdOn) }}
+                </span>
+              </ListCell>
+              <ListCell>
+                <Button
+                  variant="ghost"
+                  theme="gray"
+                  icon="lucide-pencil"
+                  :label="t('activity.admin.editActivity')"
+                  @click.stop="openActivity(item)"
+                />
+              </ListCell>
+            </ListRow>
+          </ListRows>
+        </List>
+      </ListState>
+
+      <ListFoot
+        v-if="!activities.loading && !activities.error && !empty"
+        :total="activities.total"
+        :page="activities.page"
+        :per-page="activities.perPage"
+        @update:page="goToPage"
       />
     </div>
   </div>

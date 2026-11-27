@@ -1,4 +1,10 @@
-export const PPDB_URL = 'https://forms.gle/b979B8YdGVm1Me2t7'
+﻿export const PPDB_URL = 'https://forms.gle/b979B8YdGVm1Me2t7'
+
+export const MAPS_EMBED_URL =
+  'https://www.google.com/maps?q=-8.636914%2C116.154089&z=16&hl=id&gl=ID&output=embed'
+
+export const MAPS_LINK_URL =
+  'https://www.google.com/maps?ll=-8.636914,116.154089&z=16&t=m&hl=id&gl=ID&mapclient=embed&cid=6457943705581396349'
 
 export const contact = {
   address: 'Jl. TGH Abdul Hafidz, Kediri, Lombok Barat, Nusa Tenggara Barat',

@@ -1,9 +1,23 @@
-"""Blog repositories — database access for blog posts."""
+"""Blog repositories — database access for blog posts and categories."""
 from __future__ import annotations
 
-from app.blog.models import BlogPost
+from sqlalchemy import func
+from sqlalchemy.orm import selectinload
+
+from app.blog.models import BlogCategory, BlogPost
 from framework.base import RepositoryBase
 from framework.extensions import db
+
+
+class BlogCategoryRepository(RepositoryBase[BlogCategory]):
+    """Database access layer for blog categories."""
+
+    model = BlogCategory
+
+    def find_by_name(self, name: str) -> BlogCategory | None:
+        return db.session.query(BlogCategory).filter(
+            func.lower(BlogCategory.name) == name.lower()
+        ).first()
 
 
 class BlogRepository(RepositoryBase[BlogPost]):
@@ -12,7 +26,15 @@ class BlogRepository(RepositoryBase[BlogPost]):
     model = BlogPost
 
     def find_by_slug(self, slug: str) -> BlogPost | None:
-        return self.find_one(slug=slug)
+        return (
+            db.session.query(BlogPost)
+            .options(
+                selectinload(BlogPost.category),
+                selectinload(BlogPost.author_user),
+            )
+            .filter_by(slug=slug)
+            .first()
+        )
 
     def list_published(
         self, *, search: str | None = None, page: int = 1, per_page: int = 20
@@ -35,7 +57,11 @@ class BlogRepository(RepositoryBase[BlogPost]):
             q = q.filter(db.or_(BlogPost.title.ilike(like), BlogPost.body.ilike(like)))
         total = q.count()
         items = (
-            q.order_by(BlogPost.created_on.desc())
+            q.options(
+                selectinload(BlogPost.category),
+                selectinload(BlogPost.author_user),
+            )
+            .order_by(BlogPost.created_on.desc())
             .offset((page - 1) * per_page)
             .limit(per_page)
             .all()
@@ -43,4 +69,4 @@ class BlogRepository(RepositoryBase[BlogPost]):
         return items, total
 
 
-__all__ = ["BlogRepository"]
+__all__ = ["BlogCategoryRepository", "BlogRepository"]

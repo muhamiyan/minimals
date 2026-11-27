@@ -21,7 +21,7 @@ const { t, te } = useI18n()
 const slots = useSlots()
 const isDesktop = useMediaQuery('(min-width: 640px)')
 
-const mobileTitle = computed(() => {
+const resolvedTitle = computed(() => {
   if (props.title) return props.title
   const name = String(route.name ?? '')
   const titleKey = `route.${name}.title`
@@ -35,7 +35,7 @@ const mobileTitle = computed(() => {
 <template>
   <PageHeader v-if="isDesktop">
     <div class="flex min-w-0 items-center gap-2">
-      <PageBreadcrumbs :title="title" />
+      <PageBreadcrumbs :title="title || resolvedTitle" />
       <slot name="leading" />
     </div>
     <div v-if="slots.actions" class="ml-auto flex items-center gap-2">
@@ -44,7 +44,7 @@ const mobileTitle = computed(() => {
     <slot v-else />
   </PageHeader>
 
-  <PageHeaderMobile v-else :title="mobileTitle">
+  <PageHeaderMobile v-else :title="resolvedTitle">
     <template #prefix>
       <Button
         variant="ghost"

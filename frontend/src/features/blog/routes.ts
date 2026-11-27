@@ -17,7 +17,7 @@ export const blogRoutes: RouteRecordRaw[] = [
 
 export const blogAdminRoutes: RouteRecordRaw[] = [
   {
-    path: '',
+    path: 'manage',
     name: 'BlogAdminList',
     component: () => import('./views/BlogAdminListView.vue'),
     meta: { requiresAuth: true, requiresAdmin: true, title: 'Blog' },

@@ -17,7 +17,7 @@ export const programRoutes: RouteRecordRaw[] = [
 
 export const programAdminRoutes: RouteRecordRaw[] = [
   {
-    path: '',
+    path: 'manage',
     name: 'ProgramAdminList',
     component: () => import('./views/ProgramAdminListView.vue'),
     meta: { requiresAuth: true, requiresAdmin: true, title: 'Programs' },

@@ -3,11 +3,12 @@ import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, shallowR
 import { useI18n } from 'vue-i18n'
 import { Button, Slider } from 'frappe-ui'
 
-import { cropWindow, outputSize } from '@/shared/crop'
+import { cropWindow, outputDimensions } from '@/shared/crop'
 
-const props = withDefaults(defineProps<{ file: File; busy?: boolean }>(), {
-  busy: false,
-})
+const props = withDefaults(
+  defineProps<{ file: File; busy?: boolean; aspect?: number; hideTitle?: boolean }>(),
+  { busy: false, aspect: 1, hideTitle: false },
+)
 const emit = defineEmits<{
   cancel: []
   apply: [blob: Blob]
@@ -23,6 +24,7 @@ const stageEl = ref<HTMLElement | null>(null)
 const canvasEl = ref<HTMLCanvasElement | null>(null)
 
 const source = shallowRef<HTMLCanvasElement | HTMLImageElement | null>(null)
+const previewUrl = ref('')
 const srcW = ref(0)
 const srcH = ref(0)
 const status = ref<'loading' | 'ready' | 'loadFailed'>('loading')
@@ -47,7 +49,15 @@ let pointerId: number | null = null
 let dragStart = { x: 0, y: 0, cx: 0.5, cy: 0.5 }
 
 function currentWindow() {
-  return cropWindow(center.x, center.y, srcW.value, srcH.value, stage.value, zoom.value)
+  return cropWindow(
+    center.x,
+    center.y,
+    srcW.value,
+    srcH.value,
+    stage.value,
+    zoom.value,
+    props.aspect,
+  )
 }
 
 function scheduleDraw() {
@@ -63,20 +73,32 @@ function draw() {
   const size = stage.value
   if (!canvas || !size) return
 
-  const pixels = Math.round(size * dpr)
-  if (canvas.width !== pixels || canvas.height !== pixels) {
-    canvas.width = pixels
-    canvas.height = pixels
+  const height = size / props.aspect
+  const widthPx = Math.round(size * dpr)
+  const heightPx = Math.round(height * dpr)
+  if (canvas.width !== widthPx || canvas.height !== heightPx) {
+    canvas.width = widthPx
+    canvas.height = heightPx
   }
   const ctx = canvas.getContext('2d')
   if (!ctx) return
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-  ctx.clearRect(0, 0, size, size)
+  ctx.clearRect(0, 0, size, height)
   if (!source.value || status.value !== 'ready') return
 
   const win = currentWindow()
-  if (!win.sw) return
-  ctx.drawImage(source.value, win.sx, win.sy, win.sw, win.sh, 0, 0, size, size)
+  if (!win.dw) return
+  ctx.drawImage(
+    source.value,
+    0,
+    0,
+    srcW.value,
+    srcH.value,
+    win.dx,
+    win.dy,
+    win.dw,
+    win.dh,
+  )
 }
 
 function measure() {
@@ -94,6 +116,7 @@ function release() {
     URL.revokeObjectURL(objectUrl)
     objectUrl = ''
   }
+  previewUrl.value = ''
 }
 
 function buildSource(image: HTMLImageElement): {
@@ -129,6 +152,7 @@ async function load(file: File) {
   center.y = 0.5
 
   objectUrl = URL.createObjectURL(file)
+  previewUrl.value = objectUrl
   const image = new Image()
   image.decoding = 'async'
   image.src = objectUrl
@@ -157,12 +181,7 @@ async function load(file: File) {
 function onZoom(value: number[] | undefined) {
   const next = value?.[0]
   if (typeof next !== 'number' || !Number.isFinite(next)) return
-  zoom.value = Math.min(MAX_ZOOM, Math.max(1, next))
-  if (zoom.value <= 1) {
-    zoom.value = 1
-    center.x = 0.5
-    center.y = 0.5
-  }
+  zoom.value = Math.min(MAX_ZOOM, Math.max(0.2, next))
   scheduleDraw()
 }
 
@@ -182,8 +201,8 @@ function onPointerMove(event: PointerEvent) {
   const win = currentWindow()
   if (!win.scale) return
 
-  center.x = dragStart.cx - (event.clientX - dragStart.x) / (srcW.value * win.scale)
-  center.y = dragStart.cy - (event.clientY - dragStart.y) / (srcH.value * win.scale)
+  center.x = dragStart.cx - (event.clientX - dragStart.x) / win.dw
+  center.y = dragStart.cy - (event.clientY - dragStart.y) / win.dh
   const clamped = currentWindow()
   center.x = clamped.cx
   center.y = clamped.cy
@@ -202,21 +221,32 @@ async function apply() {
   if (!canApply.value) return
   const src = source.value
   const win = currentWindow()
-  if (!src || !win.sw) return
+  if (!src || !win.dw || !stage.value) return
 
   exporting.value = true
   try {
-    const out = outputSize(win.sw)
+    const out = outputDimensions(stage.value, props.aspect)
     const canvas = document.createElement('canvas')
-    canvas.width = out
-    canvas.height = out
+    canvas.width = out.width
+    canvas.height = out.height
     const ctx = canvas.getContext('2d')
     if (!ctx) {
       emit('error')
       return
     }
+    const factor = out.width / stage.value
     ctx.imageSmoothingQuality = 'high'
-    ctx.drawImage(src, win.sx, win.sy, win.sw, win.sh, 0, 0, out, out)
+    ctx.drawImage(
+      src,
+      0,
+      0,
+      srcW.value,
+      srcH.value,
+      win.dx * factor,
+      win.dy * factor,
+      win.dw * factor,
+      win.dh * factor,
+    )
 
     const blob = await new Promise<Blob | null>((resolve) => {
       canvas.toBlob(resolve, 'image/png')
@@ -256,15 +286,28 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="mt-6">
-    <div class="text-base-medium leading-tighter text-ink-gray-8">
-      {{ t('settings.brand.crop.title') }}
+    <div v-if="!props.hideTitle" class="text-base-medium leading-tighter text-ink-gray-8">
+      {{ t('shared.crop.title') }}
+    </div>
+
+    <p class="mt-2 text-p-sm text-ink-gray-5">
+      {{ t('shared.crop.preview') }}
+    </p>
+    <div class="mt-2 flex max-h-56 items-center justify-center overflow-hidden rounded-6 border border-outline-gray-1 bg-surface-gray-2">
+      <img
+        v-if="previewUrl"
+        :src="previewUrl"
+        :alt="t('shared.crop.preview')"
+        class="max-h-56 w-full object-contain"
+      />
     </div>
 
     <div
       ref="stageEl"
       role="img"
-      :aria-label="t('settings.brand.crop.stage')"
-      class="relative mx-auto mt-4 aspect-square w-full max-w-[280px] touch-none select-none overflow-hidden rounded-6 border border-outline-gray-1 bg-surface-gray-2"
+      :aria-label="t('shared.crop.stage')"
+      class="relative mx-auto mt-4 w-full max-w-[280px] touch-none select-none overflow-hidden rounded-6 border border-outline-gray-1 bg-surface-gray-2"
+      :style="{ aspectRatio: props.aspect }"
       :class="dragging ? 'cursor-grabbing' : 'cursor-grab'"
       @pointerdown="onPointerDown"
       @pointermove="onPointerMove"
@@ -284,26 +327,26 @@ onBeforeUnmount(() => {
         class="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-surface-gray-2 p-4 text-center text-p-sm text-ink-gray-5"
       >
         <span class="lucide-image-off size-5" aria-hidden="true" />
-        {{ t('settings.brand.crop.loadFailed') }}
+        {{ t('shared.crop.loadFailed') }}
       </div>
     </div>
 
     <p class="mt-3 text-p-sm leading-5 text-ink-gray-5">
-      {{ t('settings.brand.crop.hint') }}
+      {{ t('shared.crop.hint') }}
     </p>
 
     <div class="mt-4 flex items-center gap-3">
       <span class="text-p-sm text-ink-gray-6">
-        {{ t('settings.brand.crop.zoom') }}
+        {{ t('shared.crop.zoom') }}
       </span>
       <Slider
         class="flex-1"
         :model-value="sliderValue"
-        :min="1"
+        :min="0.2"
         :max="MAX_ZOOM"
         :step="0.05"
         :disabled="status !== 'ready' || busy"
-        :aria-label="t('settings.brand.crop.zoom')"
+        :aria-label="t('shared.crop.zoom')"
         @update:model-value="onZoom"
       />
       <span class="w-12 text-right text-p-sm tabular-nums text-ink-gray-6">
@@ -316,7 +359,7 @@ onBeforeUnmount(() => {
         variant="solid"
         theme="gray"
         icon-left="lucide-check"
-        :label="t('settings.brand.crop.apply')"
+        :label="t('shared.crop.apply')"
         :loading="busy || exporting"
         :disabled="!canApply"
         @click="apply"
@@ -324,7 +367,7 @@ onBeforeUnmount(() => {
       <Button
         variant="subtle"
         theme="gray"
-        :label="t('settings.brand.crop.cancel')"
+        :label="t('shared.crop.cancel')"
         :disabled="busy || exporting"
         @click="emit('cancel')"
       />

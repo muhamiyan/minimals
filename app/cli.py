@@ -67,7 +67,7 @@ def _prompt_admin() -> AdminCreateIn:
 
 
 def _prompt_brand() -> BrandIn:
-    name = click.prompt("Brand name", default="Minimals")
+    name = click.prompt("Brand name", default="Yayasan Islam Selaparang")
     tagline = click.prompt("Tagline (blank = none)", default="")
     description = click.prompt("Description (blank = none)", default="")
     while True:

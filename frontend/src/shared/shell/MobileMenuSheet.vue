@@ -22,8 +22,6 @@ const router = useRouter()
 const { t } = useI18n()
 const isDesktop = useMediaQuery('(min-width: 640px)')
 
-// An imported ref is not assignable in compiled templates, so the sheet binds
-// through a writable computed instead.
 const open = computed({
   get: () => mobileMenuOpen.value,
   set: (value: boolean) => {
@@ -31,8 +29,6 @@ const open = computed({
   },
 })
 
-// The sheet unmounts above the breakpoint; drop the flag so it does not pop
-// back open when the viewport returns to mobile.
 watch(isDesktop, (desktop) => {
   if (desktop) mobileMenuOpen.value = false
 })

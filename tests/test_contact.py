@@ -52,6 +52,16 @@ def test_admin_list_requires_admin(client, member, admin):
     assert set(response.get_json()) == {"items", "total", "page", "perPage"}
 
 
+def test_admin_list_search(client, admin):
+    client.post("/api/v1/contact/messages", json=PAYLOAD)
+
+    found = admin.get("/api/v1/contact/admin/messages?search=pendaftaran")
+    missing = admin.get("/api/v1/contact/admin/messages?search=nope-nope")
+
+    assert found.get_json()["total"] == 1
+    assert missing.get_json()["total"] == 0
+
+
 def test_admin_can_mark_read_and_delete(client, admin):
     message_id = client.post("/api/v1/contact/messages", json=PAYLOAD).get_json()["id"]
 

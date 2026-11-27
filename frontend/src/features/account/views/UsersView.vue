@@ -1,8 +1,7 @@
 ﻿<script setup lang="ts">
-import ShimmerPage from '@/shared/components/ShimmerPage.vue'
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { Badge, Button } from 'frappe-ui'
+import { Badge, Button, Spinner } from 'frappe-ui'
 import AppPageHeader from '@/shared/shell/AppPageHeader.vue'
 import {
   List,
@@ -93,7 +92,7 @@ onMounted(async () => {
   </AppPageHeader>
 
   <div v-if="!gateReady" class="flex justify-center py-10">
-    <ShimmerPage />
+    <Spinner />
   </div>
 
   <div v-else class="mx-auto w-full max-w-6xl space-y-4 px-5 py-6">

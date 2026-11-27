@@ -1,115 +1,161 @@
-<script setup lang="ts">
-import Shimmer from '@/shared/components/Shimmer.vue'
-import ShimmerPage from '@/shared/components/ShimmerPage.vue'
-import { Badge, Button, ErrorMessage } from 'frappe-ui'
-import { List, ListCell, ListHeader, ListHeaderCell, ListRow, ListRows } from 'frappe-ui/list'
+﻿<script setup lang="ts">
 import { computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import { Badge, Button, Spinner } from 'frappe-ui'
+import { List, ListCell, ListHeaderCell, ListRow, ListRows } from 'frappe-ui/list'
 
+import AppPageHeader from '@/shared/shell/AppPageHeader.vue'
+import ListFoot from '@/shared/components/ListFoot.vue'
+import ListHead from '@/shared/components/ListHead.vue'
+import ListState from '@/shared/components/ListState.vue'
+import ListToolbar from '@/shared/components/ListToolbar.vue'
+import { useListControls } from '@/shared/composables/useListControls'
 import { formatDate } from '@/shared/format'
 
-import { useBlogStore } from '../store'
+import { useBlogStore, type BlogSummary } from '../store'
 
 const { t } = useI18n()
+const router = useRouter()
 const blog = useBlogStore()
 
 const gateReady = computed(() => blog.checked)
-const pageCount = computed(() => Math.max(1, Math.ceil(blog.total / blog.perPage)))
-const hasPrev = computed(() => blog.page > 1)
-const hasNext = computed(() => blog.page < pageCount.value)
+const empty = computed(() => !blog.loading && blog.posts.length === 0)
 
-onMounted(async () => {
-  if (!blog.checked) await blog.fetchAdminList()
+const columns = {
+  base: ['minmax(0,1fr)', '6rem', '3rem'],
+  md: ['minmax(0,2fr)', '6rem', '6.5rem', '3rem'],
+}
+
+const { search, perPage, reload: refresh, goToPage } = useListControls({
+  initialPerPage: blog.perPage,
+  setPage: (page) => {
+    blog.page = page
+  },
+  fetch: (query) =>
+    blog.fetchAdminList({
+      search: query.search,
+      page: blog.page,
+      perPage: query.perPage,
+    }),
 })
 
-async function goTo(nextPage: number) {
-  await blog.fetchAdminList(nextPage)
-  window.scrollTo({ top: 0 })
+function openPost(post: BlogSummary) {
+  void router.push({ name: 'BlogAdminEdit', params: { slug: post.slug } })
 }
+
+onMounted(async () => {
+  await refresh()
+})
 </script>
 
 <template>
-  <ShimmerPage v-if="!gateReady" />
-  <div v-else class="mx-auto w-full max-w-5xl p-6">
-    <header class="mb-6 flex flex-wrap items-center justify-between gap-3">
-      <div>
-        <h1 class="text-2xl-semibold text-ink-gray-9">{{ t('blog.title') }}</h1>
-        <p class="mt-1 text-p-sm text-ink-gray-5">{{ t('blog.admin.subtitle') }}</p>
-      </div>
+  <AppPageHeader>
+    <template #default>
       <Button
-        :label="t('blog.admin.newPost')"
         variant="solid"
-        theme="green"
+        theme="gray"
         icon-left="lucide-plus"
+        :label="t('blog.admin.newPost')"
         :route="{ name: 'BlogAdminCreate' }"
       />
-    </header>
-
-    <ErrorMessage v-if="blog.error" :message="blog.error" />
-
-    <div v-else-if="blog.loading && !blog.posts.length" class="space-y-3">
-      <Shimmer v-for="i in 4" :key="i" class="h-14  rounded-6 bg-surface-elevation-2" />
-    </div>
-
-    <div
-      v-else-if="!blog.posts.length"
-      class="rounded-6 border border-outline-gray-1 bg-surface-elevation-2 p-10 text-center"
-    >
-      <p class="text-p-sm text-ink-gray-5">{{ t('blog.empty') }}</p>
+    </template>
+    <template #suffix>
       <Button
-        class="mt-4"
-        :label="t('blog.admin.createFirst')"
-        variant="subtle"
-        icon-left="lucide-plus"
+        variant="ghost"
+        theme="gray"
+        icon="lucide-plus"
+        :label="t('blog.admin.newPost')"
         :route="{ name: 'BlogAdminCreate' }"
       />
-    </div>
+    </template>
+  </AppPageHeader>
 
-    <List v-else :columns="['minmax(0,1fr)', '7rem', '7rem']">
-      <ListHeader>
-        <ListHeaderCell>{{ t('blog.admin.columns.title') }}</ListHeaderCell>
-        <ListHeaderCell>{{ t('blog.admin.columns.status') }}</ListHeaderCell>
-        <ListHeaderCell>{{ t('blog.admin.columns.created') }}</ListHeaderCell>
-      </ListHeader>
-      <ListRows :items="blog.posts" v-slot="{ item }">
-        <ListRow :route="{ name: 'BlogAdminEdit', params: { slug: item.slug } }">
-          <ListCell>
-            <span class="text-base-medium text-ink-gray-9">{{ item.title }}</span>
-            <p class="truncate text-p-sm text-ink-gray-5">{{ item.excerpt }}</p>
-          </ListCell>
-          <ListCell>
-            <Badge
-              :label="item.status"
-              :theme="item.status === 'published' ? 'green' : 'gray'"
-              variant="subtle"
-            />
-          </ListCell>
-          <ListCell>
-            <span class="text-p-sm text-ink-gray-5">{{ formatDate(item.createdOn) }}</span>
-          </ListCell>
-        </ListRow>
-      </ListRows>
-    </List>
+  <div v-if="!gateReady" class="flex justify-center py-10">
+    <Spinner />
+  </div>
 
-    <div v-if="pageCount > 1" class="mt-4 flex items-center justify-between">
-      <Button
-        :label="t('shared.prevPage')"
-        size="sm"
-        variant="subtle"
-        icon-left="lucide-arrow-left"
-        :disabled="!hasPrev || blog.loading"
-        @click="goTo(blog.page - 1)"
-      />
-      <span class="text-p-sm text-ink-gray-4">
-        {{ t('shared.pageOf', { page: blog.page, total: pageCount }) }}
-      </span>
-      <Button
-        :label="t('shared.nextPage')"
-        size="sm"
-        variant="subtle"
-        icon-right="lucide-arrow-right"
-        :disabled="!hasNext || blog.loading"
-        @click="goTo(blog.page + 1)"
+  <div v-else class="mx-auto w-full max-w-6xl space-y-4 px-5 py-6">
+    <ListToolbar
+      v-model:search="search"
+      v-model:per-page="perPage"
+      :show-per-page="!empty"
+      :placeholder="t('blog.admin.searchPosts')"
+    />
+
+    <div>
+      <ListState
+        :loading="blog.loading"
+        :error="blog.error"
+        :empty="empty"
+        icon="lucide-newspaper"
+        :empty-message="search ? t('blog.admin.noPostsFound') : t('blog.empty')"
+      >
+        <template #action>
+          <Button
+            variant="outline"
+            theme="gray"
+            icon-left="lucide-plus"
+            :label="t('blog.admin.createFirst')"
+            :route="{ name: 'BlogAdminCreate' }"
+          />
+        </template>
+
+        <List :row-height="32" :columns="columns" class="list-row-px-3">
+          <ListHead>
+            <ListHeaderCell>{{ t('blog.admin.columns.title') }}</ListHeaderCell>
+            <ListHeaderCell>{{ t('blog.admin.columns.status') }}</ListHeaderCell>
+            <ListHeaderCell class="max-md:hidden">
+              {{ t('blog.admin.columns.created') }}
+            </ListHeaderCell>
+            <ListHeaderCell class="sr-only">
+              {{ t('blog.admin.columns.actions') }}
+            </ListHeaderCell>
+          </ListHead>
+
+          <ListRows :items="blog.posts" v-slot="{ item }">
+            <ListRow :value="item.id" @click="openPost(item)">
+              <ListCell>
+                <span class="block truncate text-base-medium text-ink-gray-8">
+                  {{ item.title }}
+                </span>
+              </ListCell>
+              <ListCell>
+                <Badge
+                  :label="
+                    item.status === 'published'
+                      ? t('blog.admin.form.published')
+                      : t('blog.admin.form.draft')
+                  "
+                  :theme="item.status === 'published' ? 'green' : 'gray'"
+                  variant="subtle"
+                />
+              </ListCell>
+              <ListCell class="max-md:hidden">
+                <span class="truncate text-p-sm text-ink-gray-5">
+                  {{ formatDate(item.createdOn) }}
+                </span>
+              </ListCell>
+              <ListCell>
+                <Button
+                  variant="ghost"
+                  theme="gray"
+                  icon="lucide-pencil"
+                  :label="t('blog.admin.editPost')"
+                  @click.stop="openPost(item)"
+                />
+              </ListCell>
+            </ListRow>
+          </ListRows>
+        </List>
+      </ListState>
+
+      <ListFoot
+        v-if="!blog.loading && !blog.error && !empty"
+        :total="blog.total"
+        :page="blog.page"
+        :per-page="blog.perPage"
+        @update:page="goToPage"
       />
     </div>
   </div>

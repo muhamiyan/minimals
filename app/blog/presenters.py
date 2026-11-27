@@ -5,6 +5,15 @@ from app.blog.models import BlogPost
 from framework.base import PresenterBase
 from framework.infra.html import make_excerpt
 
+EXCERPT_LENGTH = 160
+
+
+class BlogCategoryOut(PresenterBase):
+    """Blog category — picker and management responses."""
+
+    id: str
+    name: str
+
 
 class BlogPostSummaryOut(PresenterBase):
     """Blog post summary — list responses, without the body."""
@@ -12,6 +21,9 @@ class BlogPostSummaryOut(PresenterBase):
     id: str
     title: str
     slug: str
+    author: str | None = PresenterBase.field(None)
+    category: str | None = PresenterBase.field(None)
+    read_time: int = PresenterBase.field(1, alias="readTime")
     excerpt: str = PresenterBase.field("", alias="excerpt")
     cover_image: str | None = PresenterBase.field(None, alias="coverImage")
     status: str
@@ -21,12 +33,15 @@ class BlogPostSummaryOut(PresenterBase):
 
     @classmethod
     def from_post(cls, post: BlogPost) -> BlogPostSummaryOut:
-        author = post.author
+        author_user = post.author_user
         return cls.from_model(
             post,
             excerpt=make_excerpt(post.body),
+            category=post.category.name if post.category is not None else None,
             author_name=(
-                author.full_name or author.username if author is not None else None
+                author_user.full_name or author_user.username
+                if author_user is not None
+                else None
             ),
         )
 
@@ -37,4 +52,4 @@ class BlogPostOut(BlogPostSummaryOut):
     body: str
 
 
-__all__ = ["BlogPostOut", "BlogPostSummaryOut", "make_excerpt"]
+__all__ = ["BlogCategoryOut", "BlogPostOut", "BlogPostSummaryOut", "make_excerpt"]

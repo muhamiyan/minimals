@@ -42,9 +42,10 @@ def list_all_messages():
     if denied := require_role("admin"):
         return denied
 
+    search = request.args.get("search") or None
     page = PageIn.validate(request.args)
     messages, total = ContactService().list_all(
-        page=page.page, per_page=page.per_page
+        search=search, page=page.page, per_page=page.per_page
     )
     return paginated_response(
         paginate(

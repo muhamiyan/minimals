@@ -281,6 +281,15 @@ def test_create_user_rejects_duplicate_username(admin):
     assert response.get_json() == {"message": "username_taken"}
 
 
+def test_create_user_rejects_username_with_spaces(admin):
+    response = admin.post(
+        "/api/v1/account/users",
+        json=create_user_payload(username="fresh user"),
+    )
+    assert response.status_code == 400
+    assert response.get_json() == {"message": "username_invalid_username"}
+
+
 def test_create_user_rejects_weak_password(admin):
     response = admin.post(
         "/api/v1/account/users", json=create_user_payload(password="password")

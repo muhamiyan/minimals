@@ -1,83 +1,161 @@
 <script setup lang="ts">
-import ShimmerPage from '@/shared/components/ShimmerPage.vue'
-import { Badge, Button, ErrorMessage } from 'frappe-ui'
-import { List, ListCell, ListHeader, ListHeaderCell, ListRow, ListRows } from 'frappe-ui/list'
 import { computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import { Badge, Button, Spinner } from 'frappe-ui'
+import { List, ListCell, ListHeaderCell, ListRow, ListRows } from 'frappe-ui/list'
 
-import { useProgramStore } from '../store'
+import AppPageHeader from '@/shared/shell/AppPageHeader.vue'
+import ListFoot from '@/shared/components/ListFoot.vue'
+import ListHead from '@/shared/components/ListHead.vue'
+import ListState from '@/shared/components/ListState.vue'
+import ListToolbar from '@/shared/components/ListToolbar.vue'
+import { useListControls } from '@/shared/composables/useListControls'
+
+import { useProgramStore, type ProgramSummary } from '../store'
 
 const { t } = useI18n()
+const router = useRouter()
 const programs = useProgramStore()
 
 const gateReady = computed(() => programs.checked)
+const empty = computed(() => !programs.loading && programs.programs.length === 0)
+
+const columns = {
+  base: ['minmax(0,1fr)', '5rem', '5rem', '4rem', '3rem'],
+  md: ['minmax(0,2fr)', '6rem', '6rem', '4rem', '3rem'],
+}
+
+const { search, perPage, reload: refresh, goToPage } = useListControls({
+  initialPerPage: programs.perPage,
+  setPage: (page) => {
+    programs.page = page
+  },
+  fetch: (query) =>
+    programs.fetchAdminList({
+      search: query.search,
+      page: programs.page,
+      perPage: query.perPage,
+    }),
+})
+
+function openProgram(program: ProgramSummary) {
+  void router.push({ name: 'ProgramAdminEdit', params: { slug: program.slug } })
+}
 
 onMounted(async () => {
-  if (!programs.checked) await programs.fetchAdminList()
+  await refresh()
 })
 </script>
 
 <template>
-  <ShimmerPage v-if="!gateReady" />
-  <div v-else class="mx-auto w-full max-w-5xl p-6">
-    <header class="mb-6 flex flex-wrap items-center justify-between gap-3">
-      <div>
-        <h1 class="text-2xl-semibold text-ink-gray-9">{{ t('program.title') }}</h1>
-        <p class="mt-1 text-p-sm text-ink-gray-5">{{ t('program.admin.subtitle') }}</p>
-      </div>
+  <AppPageHeader>
+    <template #default>
       <Button
-        :label="t('program.admin.newProgram')"
         variant="solid"
-        theme="green"
+        theme="gray"
         icon-left="lucide-plus"
+        :label="t('program.admin.newProgram')"
         :route="{ name: 'ProgramAdminCreate' }"
       />
-    </header>
-
-    <ErrorMessage v-if="programs.error" :message="programs.error" />
-
-    <div
-      v-else-if="!programs.programs.length"
-      class="rounded-6 border border-outline-gray-1 bg-surface-elevation-2 p-10 text-center"
-    >
-      <p class="text-p-sm text-ink-gray-5">{{ t('program.empty') }}</p>
+    </template>
+    <template #suffix>
       <Button
-        class="mt-4"
-        :label="t('program.admin.createFirst')"
-        variant="subtle"
-        icon-left="lucide-plus"
+        variant="ghost"
+        theme="gray"
+        icon="lucide-plus"
+        :label="t('program.admin.newProgram')"
         :route="{ name: 'ProgramAdminCreate' }"
+      />
+    </template>
+  </AppPageHeader>
+
+  <div v-if="!gateReady" class="flex justify-center py-10">
+    <Spinner />
+  </div>
+
+  <div v-else class="mx-auto w-full max-w-6xl space-y-4 px-5 py-6">
+    <ListToolbar
+      v-model:search="search"
+      v-model:per-page="perPage"
+      :show-per-page="!empty"
+      :placeholder="t('program.admin.searchPrograms')"
+    />
+
+    <div>
+      <ListState
+        :loading="programs.loading"
+        :error="programs.error"
+        :empty="empty"
+        icon="lucide-graduation-cap"
+        :empty-message="search ? t('program.admin.noProgramsFound') : t('program.empty')"
+      >
+        <template #action>
+          <Button
+            variant="outline"
+            theme="gray"
+            icon-left="lucide-plus"
+            :label="t('program.admin.createFirst')"
+            :route="{ name: 'ProgramAdminCreate' }"
+          />
+        </template>
+
+        <List :row-height="32" :columns="columns" class="list-row-px-3">
+          <ListHead>
+            <ListHeaderCell>{{ t('program.admin.columns.title') }}</ListHeaderCell>
+            <ListHeaderCell>{{ t('program.admin.columns.level') }}</ListHeaderCell>
+            <ListHeaderCell>{{ t('program.admin.columns.status') }}</ListHeaderCell>
+            <ListHeaderCell>{{ t('program.admin.columns.order') }}</ListHeaderCell>
+            <ListHeaderCell class="sr-only">
+              {{ t('program.admin.columns.actions') }}
+            </ListHeaderCell>
+          </ListHead>
+
+          <ListRows :items="programs.programs" v-slot="{ item }">
+            <ListRow :value="item.id" @click="openProgram(item)">
+              <ListCell>
+                <span class="block truncate text-base-medium text-ink-gray-8">
+                  {{ item.title }}
+                </span>
+              </ListCell>
+              <ListCell>
+                <span class="truncate text-p-sm text-ink-gray-5">{{ item.level }}</span>
+              </ListCell>
+              <ListCell>
+                <Badge
+                  :label="
+                    item.status === 'published'
+                      ? t('program.admin.form.published')
+                      : t('program.admin.form.draft')
+                  "
+                  :theme="item.status === 'published' ? 'green' : 'gray'"
+                  variant="subtle"
+                />
+              </ListCell>
+              <ListCell>
+                <span class="truncate text-p-sm text-ink-gray-5">{{ item.order }}</span>
+              </ListCell>
+              <ListCell>
+                <Button
+                  variant="ghost"
+                  theme="gray"
+                  icon="lucide-pencil"
+                  :label="t('program.admin.editProgram')"
+                  @click.stop="openProgram(item)"
+                />
+              </ListCell>
+            </ListRow>
+          </ListRows>
+        </List>
+      </ListState>
+
+      <ListFoot
+        v-if="!programs.loading && !programs.error && !empty"
+        :total="programs.total"
+        :page="programs.page"
+        :per-page="programs.perPage"
+        @update:page="goToPage"
       />
     </div>
-
-    <List v-else :columns="['minmax(0,1fr)', '8rem', '7rem', '5rem']">
-      <ListHeader>
-        <ListHeaderCell>{{ t('program.admin.columns.title') }}</ListHeaderCell>
-        <ListHeaderCell>{{ t('program.admin.columns.level') }}</ListHeaderCell>
-        <ListHeaderCell>{{ t('program.admin.columns.status') }}</ListHeaderCell>
-        <ListHeaderCell>{{ t('program.admin.columns.order') }}</ListHeaderCell>
-      </ListHeader>
-      <ListRows :items="programs.programs" v-slot="{ item }">
-        <ListRow :route="{ name: 'ProgramAdminEdit', params: { slug: item.slug } }">
-          <ListCell>
-            <span class="text-base-medium text-ink-gray-9">{{ item.title }}</span>
-            <p class="truncate text-p-sm text-ink-gray-5">{{ item.excerpt }}</p>
-          </ListCell>
-          <ListCell>
-            <span class="text-p-sm text-ink-gray-6">{{ item.level }}</span>
-          </ListCell>
-          <ListCell>
-            <Badge
-              :label="item.status"
-              :theme="item.status === 'published' ? 'green' : 'gray'"
-              variant="subtle"
-            />
-          </ListCell>
-          <ListCell>
-            <span class="text-p-sm text-ink-gray-5">{{ item.order }}</span>
-          </ListCell>
-        </ListRow>
-      </ListRows>
-    </List>
   </div>
 </template>

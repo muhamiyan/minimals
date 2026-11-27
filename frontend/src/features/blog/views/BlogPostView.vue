@@ -1,6 +1,4 @@
-<script setup lang="ts">
-import Shimmer from '@/shared/components/Shimmer.vue'
-import ShimmerPage from '@/shared/components/ShimmerPage.vue'
+﻿<script setup lang="ts">
 import { ErrorMessage } from 'frappe-ui'
 import { computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
@@ -9,8 +7,9 @@ import { useI18n } from 'vue-i18n'
 import LandingFooter from '@/features/landing/components/LandingFooter.vue'
 import LandingNav from '@/features/landing/components/LandingNav.vue'
 import { brand } from '@/shared/brand'
-import { formatDate } from '@/shared/format'
 
+import BlogPostSkeleton from '../components/BlogPostSkeleton.vue'
+import PostMeta from '../components/PostMeta.vue'
 import { useBlogStore } from '../store'
 
 const route = useRoute()
@@ -40,9 +39,9 @@ watch(locale, applyTitle)
 </script>
 
 <template>
-  <div id="top" class="min-h-screen bg-surface-base text-ink-gray-8">
+  <div id="top" class="flex min-h-screen flex-col bg-surface-base text-ink-gray-8">
     <LandingNav />
-    <ShimmerPage v-if="!gateReady" />
+    <BlogPostSkeleton v-if="!gateReady" />
     <main v-else class="mx-auto w-full max-w-3xl px-5 py-12">
       <router-link
         :to="{ name: 'BlogList' }"
@@ -52,21 +51,21 @@ watch(locale, applyTitle)
         {{ t('blog.post.back') }}
       </router-link>
 
-      <div v-if="blog.loadingPost" class="space-y-4">
-        <Shimmer class="h-10 w-3/4  rounded-4 bg-surface-elevation-2" />
-        <Shimmer class="h-6 w-1/3  rounded-4 bg-surface-elevation-2" />
-        <Shimmer class="h-72  rounded-6 bg-surface-elevation-2" />
-      </div>
+      <BlogPostSkeleton v-if="blog.loadingPost" />
 
       <ErrorMessage v-else-if="blog.error" :message="blog.error" />
 
       <article v-else-if="blog.post">
         <header class="border-l-4 border-outline-green-4 pl-4">
           <h1 class="text-4xl-bold text-ink-gray-9">{{ blog.post.title }}</h1>
-          <div class="mt-3 flex flex-wrap items-center gap-2 text-p-sm text-ink-gray-5">
-            <span v-if="blog.post.publishedOn">{{ formatDate(blog.post.publishedOn) }}</span>
-            <span v-if="blog.post.authorName">· {{ blog.post.authorName }}</span>
-          </div>
+          <PostMeta
+            class="mt-3"
+            :published-on="blog.post.publishedOn"
+            :author="blog.post.author"
+            :author-name="blog.post.authorName"
+            :category="blog.post.category"
+            :read-time="blog.post.readTime"
+          />
         </header>
 
         <img
@@ -79,7 +78,7 @@ watch(locale, applyTitle)
         <div class="post-body mt-8 text-p-sm leading-relaxed text-ink-gray-7" v-html="blog.post.body" />
       </article>
     </main>
-    <LandingFooter />
+    <LandingFooter class="mt-auto" />
   </div>
 </template>
 

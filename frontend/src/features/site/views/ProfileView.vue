@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { contentValue } from '@/shared/siteContent'
 import { useI18n } from 'vue-i18n'
 
 import LandingFooter from '@/features/landing/components/LandingFooter.vue'
@@ -9,7 +10,7 @@ const { t } = useI18n()
 </script>
 
 <template>
-  <div id="top" class="min-h-screen bg-surface-base text-ink-gray-8">
+  <div id="top" class="flex min-h-screen flex-col bg-surface-base text-ink-gray-8">
     <LandingNav />
     <main class="mx-auto w-full max-w-4xl px-5 py-12">
       <header class="mb-10 rounded-6 border border-outline-green-2 bg-surface-green-1 px-6 py-6">
@@ -30,7 +31,7 @@ const { t } = useI18n()
             {{ t('landing.about.visionLabel') }}
           </h2>
           <p class="mt-3 text-p-sm leading-relaxed text-ink-gray-6">
-            {{ t('landing.about.vision') }}
+            <span v-html="t('landing.about.vision')" />
           </p>
         </section>
         <section class="rounded-6 border border-outline-green-2 bg-surface-base p-6">
@@ -39,16 +40,18 @@ const { t } = useI18n()
             {{ t('landing.about.missionLabel') }}
           </h2>
           <p class="mt-3 text-p-sm leading-relaxed text-ink-gray-6">
-            {{ t('landing.about.mission') }}
+            <span v-html="t('landing.about.mission')" />
           </p>
         </section>
       </div>
 
       <section class="mt-8 rounded-6 border border-outline-green-2 bg-surface-base p-6">
         <h2 class="text-xl-semibold text-ink-gray-9">{{ t('profile.locationTitle') }}</h2>
-        <p class="mt-3 text-p-sm text-ink-gray-6">{{ contact.address }}</p>
+        <p class="mt-3 text-p-sm text-ink-gray-6">
+          {{ contentValue('contact.address', contact.address) }}
+        </p>
       </section>
     </main>
-    <LandingFooter />
+    <LandingFooter class="mt-auto" />
   </div>
 </template>

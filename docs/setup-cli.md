@@ -51,7 +51,7 @@ lalu keluar dengan status 0 — aman dijalankan berulang.
 | Admin username | dari email | Kosongkan untuk memakai bagian lokal email |
 | Full name | — | |
 | Admin password | — | Diminta dua kali, tidak ditampilkan |
-| Brand name | `Minimals` | |
+| Brand name | `Yayasan Islam Selaparang` | |
 | Tagline | kosong | |
 | Description | kosong | |
 | Site URL | kosong | Harus URL absolut `http(s)://` |
@@ -111,7 +111,7 @@ with app.app_context():
             "password": os.environ["ADMIN_PASS"],
             "fullName": os.environ["ADMIN_NAME"],
         },
-        "brand": {"name": "Minimals", "siteUrl": "https://app.example.com"},
+        "brand": {"name": "Yayasan Islam Selaparang", "siteUrl": "https://app.example.com"},
         "lang": "id",
     })))
 PY

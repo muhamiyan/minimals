@@ -10,7 +10,11 @@ const blog = useBlogStore()
 </script>
 
 <template>
-  <section id="posts" class="border-t border-outline-green-2 bg-surface-green-1">
+  <section
+    v-if="blog.posts.length"
+    id="posts"
+    class="border-t border-outline-green-2 bg-surface-green-1"
+  >
     <div class="mx-auto w-full max-w-6xl px-5 py-20">
       <div class="flex flex-wrap items-end justify-between gap-4">
         <div class="max-w-2xl">
@@ -27,11 +31,7 @@ const blog = useBlogStore()
         </router-link>
       </div>
 
-      <div v-if="!blog.posts.length" class="mt-12 rounded-6 border border-outline-green-2 bg-surface-base p-10 text-center">
-        <p class="text-p-sm text-ink-gray-5">{{ blog.error || t('blog.empty') }}</p>
-      </div>
-
-      <div v-else class="mt-12 grid gap-4 md:grid-cols-3">
+      <div class="mt-12 grid gap-4 md:grid-cols-3">
         <router-link
           v-for="post in blog.posts.slice(0, 3)"
           :key="post.id"

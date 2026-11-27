@@ -20,3 +20,7 @@ export function isPasswordValid(password: string): boolean {
   const checks = checkPassword(password)
   return Object.values(checks).every(Boolean)
 }
+
+export function isUsernameValid(username: string): boolean {
+  return !/\s/.test(username.trim())
+}

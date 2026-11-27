@@ -1,178 +1,50 @@
-# Minimals
+# Yayasan Islam Selaparang
 
-Untuk tim kecil dengan cPanel/VPS seadanya: satu service, satu database, satu
-container di belakang Caddy. Tanpa gateway, tanpa microservice, tanpa platform
-tambahan — clone, isi `SECRET_KEY`, jalankan wizard, selesai. "Minimals"
-hanyalah default; di production, brand-nya milikmu.
+Portal resmi Yayasan Islam Selaparang Kediri — pondok pesantren tradisional di Lombok Barat yang memadukan pendidikan agama dan kurikulum formal, dari MI dan MTs hingga MA, Ma'had, dan STIS Syariah.
 
-**Status: open alpha** — dipakai sungguhan, tapi skema & kontrak masih bisa
-berubah; kompatibilitas antar versi belum dijanjikan.
+**Berakar pada ilmu dan akhlak.** Visi yayasan: membentuk generasi berakhlak mulia, berilmu luas, dan mampu menghidupkan nilai Islam dalam kehidupan modern.
 
-| | |
-|---|---|
-| **Backend** | Flask 3 · SQLAlchemy 2 · Pydantic 2 · Flask-Login · Alembic · waitress |
-| **Frontend** | Vue 3 · Vite · Pinia · frappe-ui · Tailwind (TS strict) |
-| **Database** | SQLite · MariaDB/MySQL · PostgreSQL |
-| **Deploy** | Docker (non-root) + Caddy (TLS) · cPanel/Passenger |
+## Yang ada di situs
 
-## Highlights
+- **Beranda & Profil** — visi, misi, prinsip, dan sejarah yayasan.
+- **Jenjang Pendidikan** — tujuh lembaga dari madrasah dasar hingga kajian Islam tingkat tinggi.
+- **Artikel & Kegiatan** — kabar, pengajian, dan program masyarakat.
+- **Struktur, Fasilitas & Galeri** — pengurus, perpustakaan, asrama putra/putri, dan dokumentasi kegiatan.
+- **PPDB Online** — pendaftaran santri baru, 1 April – 10 Juli 2026 · 08.00–18.00 WITA.
+- **Kontak** — pesan ke sekretariat lewat formulir situs.
 
-- **White-label & SEO** — brand (nama, tagline, deskripsi, site URL, bahasa)
-  diatur sekali di wizard; logo diganti admin dari Pengaturan. Semuanya
-  di-inject server-side ke `<title>`/meta/robots/Open Graph, plus label SPA &
-  judul/meta description per halaman. Default seluruh stack "Minimals".
-- **Auth lengkap** — session + API key, role admin/member, dan **registration
-  gate**: admin bisa menutup/membuka pendaftaran lewat API, efektif tanpa
-  restart, untuk deployment invite-only.
-- **First-run wizard** — pilih database (SQLite/MySQL/PostgreSQL), tes
-  koneksi, brand, lalu buat administrator. Hanya menerima klien loopback.
-- **Keamanan aktif by default** — CSRF, rate limit, CSP/HSTS, audit log,
-  password scrypt.
-- **SPA Vue 3 di-serve Flask** — tanpa web server terpisah untuk frontend;
-  Docker image non-root.
+Formulir pendaftaran: https://forms.gle/b979B8YdGVm1Me2t7
 
-## Quick Start
+## Kontak
+
+- Alamat: Jl. TGH Abdul Hafidz, Kediri, Lombok Barat, Nusa Tenggara Barat
+- Email: siimad.ponpesselaparang@gmail.com
+- WhatsApp: https://wa.me/087864706565 · Facebook: https://www.facebook.com/manw.selaparangkediri
+
+## Pengelolaan konten
+
+Admin mengelola artikel, kegiatan, jenjang pendidikan, galeri, dan pesan masuk lewat halaman `/admin`. Registrasi pengguna bisa ditutup untuk menjaga akses. Brand situs (nama, tagline, logo, bahasa, site URL) diatur di **Pengaturan → Aplikasi → Brand**; default sudah **Yayasan Islam Selaparang**.
+
+Angka di beranda (`7+` program, `3+` siswa, `100+` pengajar, `0` beasiswa) diambil dari situs sumber dan **perlu dikonfirmasi** sebelum dipakai publik.
+
+## Dijalankan dengan
+
+Aplikasi satu service: Flask + Vue 3 (frappe-ui), SQLite/MySQL/PostgreSQL, dengan konten awal tersimpan di `app/*/seed/*.json`. Detail teknis ada di `CLAUDE.md`.
 
 ```bash
-uv sync
-cp .env.example .env
-python -c "import secrets; print(secrets.token_hex(32))"   # → SECRET_KEY
+uv sync && cp .env.example .env
+python -c "import secrets; print(secrets.token_hex(32))"  # → SECRET_KEY
+MIGRATE_ON_BOOT=true uv run python -m app.run  # :8000, set FORCE_HTTPS=false untuk HTTP lokal
 ```
 
-`SECRET_KEY` wajib ≥32 karakter; placeholder ditolak dan app refuse boot.
-SQLite default ada di `data/app.db` (git-ignored).
+Wizard first-run di `/setup` (hanya dari localhost / SSH tunnel) menyiapkan database dan akun admin. Konten awal diimpor dengan `uv run python -m app.cli seed-articles`, `seed-activities`, `seed-programs` (idempotent).
 
-```bash
-uv run python -m app.run                        # waitress di :8000
-MIGRATE_ON_BOOT=true uv run python -m app.run    # migration dulu
-```
+## Deploy & keamanan
 
-Dev lokal via HTTP biasa: set `FORCE_HTTPS=false` — default `.env.example`
-`true`, dan tanpa TLS proxy akan loop redirect.
+Docker Compose (`docker compose up --build`) atau cPanel + Caddy; panduan: `docs/deploy-cpanel.md`. Pastikan Caddy mengarah ke `localhost:8000`.
 
-## First-run Setup
+File unggahan di `/uploads/*` dapat diakses publik — jangan simpan berkas sensitif. Beri `app_role=admin` hanya kepada pengelola tepercaya. Pemeriksaan: `uv run pytest`, `uv run ruff check .`.
 
-Sampai setup selesai, SPA mengarahkan semua navigasi ke `/setup`. Wizard
-(loopback-only — buka dari server atau SSH tunnel
-`ssh -L 8000:localhost:8000 server` → `http://127.0.0.1:8000/setup`) menulis
-`DATABASE_URL` ke `.env`, memigrasi target, membuat admin, dan menyimpan brand
-+ bahasa. Kalau database target beda dari engine aktif, respons meminta
-restart.
+## Status
 
-Untuk deployment Yayasan Islam Selaparang, isi wizard dengan brand:
-**Yayasan Islam Selaparang**, tagline *"Pendidikan Islam berakar pada akhlak dan
-ilmu"*, `siteUrl` sesuai domain produksi, bahasa `id`.
-
-## Content seeding
-
-Konten publik disimpan version-controlled di `app/*/seed/*.json` dan diimpor
-lewat CLI. Jalankan setelah setup selesai dan pastikan sudah ada user
-`app_role=admin`:
-
-```bash
-uv run python -m app.cli seed-articles     # 12 artikel
-uv run python -m app.cli seed-activities   # 9 kegiatan
-uv run python -m app.cli seed-programs     # 7 jenjang pendidikan
-```
-
-Tiap perintah idempotent: slug yang sudah ada dilewati. Tanggal terbit asli
-dipertahankan; gambar sampul di-download dari situs sumber ke `app/static/uploads/`
-(di-git-ignore) dengan nama UUIDv7. Satu kegiatan bersampul video dilewati
-karena uploader hanya menerima gambar. Form kontak tersimpan di tabel
-`contact_messages` dan dibaca admin lewat halaman `/admin/contact`.
-
-Angka statistik di landing (`3+` siswa, `0` beasiswa) diambil apa adanya dari
-situs sumber dan perlu dikonfirmasi sebelum dipakai publik.
-
-## White-label & SEO
-
-Brand disimpan di tabel `settings` dan di-inject server-side tiap request
-`index.html` — crawler tidak perlu menjalankan JS. `robots.txt` dan
-`sitemap.xml` mengikuti brand; canonical/`og:url` hanya muncul setelah **Site
-URL** diisi (tidak pernah dari header `Host`).
-
-- Env: `SEO_INDEXABLE=false` → `noindex` + robots disallow; `APP_LANG` →
-  fallback bahasa (`en` default). Preferensi pengunjung di cookie
-  `minimals-lang`.
-- Logo (admin saja) diunggah dari **Pengaturan → Aplikasi → Brand**; dipakai
-  di sidebar, halaman masuk, favicon, dan `og:image` (saat Site URL diisi).
-  Sebelum diunggah, logo dipotong persegi di klien (geser + zoom, output PNG
-  ≤512px). Hanya URL `/uploads/*` hasil upload aplikasi yang diterima, dan file
-  lama dihapus saat logo diganti atau dikosongkan.
-- DB lama yang dibuat **sebelum** fitur ini tidak otomatis punya tabel
-  `settings` — recreate DB, atau buat manual
-  (`id CHAR(36) PK, key VARCHAR(64) UNIQUE, value TEXT DEFAULT ''`).
-
-## Development
-
-```bash
-uv run pytest
-uv run ruff check .
-
-cd frontend && yarn install
-yarn dev                     # Vite :5173, proxy /api → :8000
-yarn build                   # → app/static/frontend/
-yarn typecheck
-```
-
-## Production (cPanel/VPS + Caddy)
-
-1. `cd frontend && yarn install && yarn build`
-2. `.env` dengan `SECRET_KEY` asli + `DATABASE_URL`
-3. Arahkan Caddy (`Caddyfile`) ke `localhost:8000`
-4. `TRUSTED_PROXY=true` (hanya di belakang proxy) — `FORCE_HTTPS=true`
-   (default) asalkan Caddy kirim `X-Forwarded-Proto`
-5. `uv run python -m app.run`
-
-Shared hosting cPanel (Passenger, tanpa container) punya jalur sendiri — lihat
-[`docs/deploy-cpanel.md`](docs/deploy-cpanel.md).
-
-## Docker
-
-```bash
-docker compose up --build
-```
-
-Bind `127.0.0.1:8000` (Caddy di depan), `MIGRATE_ON_BOOT=true` sudah
-diset. Kalau SQLite dipakai dan host volume `./data` tak writable oleh
-container, jalankan `sudo chown -R 10001:10001 data` (uid `appuser`).
-Database dari dalam container tidak persist — set `DATABASE_URL` di `.env`.
-
-## Architecture
-
-Satu service dengan domain berlapis (`api → dto → services → repositories →
-models → presenters`); commit hanya di service; response camelCase, error
-`{"message": "<snake_case_key>"}`. Detail & konvensi lengkap:
-[`CLAUDE.md`](CLAUDE.md), [`framework/README.md`](framework/README.md).
-
-## Security notes
-
-Baca sebelum eksposur internet:
-
-- `/uploads/*` diserve **tanpa autentikasi** — jangan simpan file sensitif di
-  `app/static/uploads/`
-- `POST /api/v1/auth/register` terbuka (mode default `open`) dan langsung
-  login. Tutup via `PUT /api/v1/auth/registration` (admin) untuk deployment
-  invite-only
-- `/api/v1/setup/status` dan `/health` publik. Status setup hanya mengekspos
-  `setupRequired` + `reason` (bocoran terbatas: instance belum dikonfigurasi);
-  detail engine/URL database ter-mask hanya untuk klien loopback. `/health`
-  mengekspos metrik agregat
-- API key hanya mengautentikasi request read; mutasi tetap butuh CSRF session
-- Rate limit per IP efektif, hanya route API; set `RATE_LIMIT_STORAGE_URL`
-  (mis. `redis://…`) untuk multi-worker
-- `TRUSTED_PROXY=true` hanya di belakang proxy: rewrite `X-Forwarded-*` cuma
-  dipercaya dari peer private/loopback
-- Body blog disanitasi saat ditulis (allowlist tag/attribut via `nh3`), tapi
-  surface admin-terpercaya sengaja dipertahankan: atribut `style`/`class` di
-  semua tag dan embed `iframe` https. Admin tetap bisa memasukkan HTML yang
-  tampil ke semua pembaca — jangan beri `app_role=admin` sembarangan
-
-## Contributing
-
-Selama open alpha, kontribusi hanya untuk **perbaikan bug** — issue maupun PR
-fix diterima. Fitur baru tidak diterima.
-
-## License
-
-[MIT](LICENSE) — © 2026 Apriliansyah Idris.
+Open alpha — skema & kontrak masih bisa berubah; kontribusi berupa perbaikan bug. MIT © 2026 Apriliansyah Idris.
