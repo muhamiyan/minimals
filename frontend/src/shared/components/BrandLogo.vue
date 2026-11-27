@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useBrandLogo } from '@/shared/brand'
+import { logoBackdropClass, useBrandLogo } from '@/shared/brand'
 
 withDefaults(
   defineProps<{
@@ -15,16 +15,19 @@ const sizeClass = {
   fill: 'h-full w-full',
 } as const
 
-const { logoSrc, onLogoError } = useBrandLogo()
+const { logoSrc, logoTone, onLogoError } = useBrandLogo()
 </script>
 
 <template>
-  <div class="overflow-hidden bg-surface-gray-2" :class="sizeClass[size]">
+  <div
+    class="overflow-hidden"
+    :class="[sizeClass[size], logoBackdropClass(logoTone)]"
+  >
     <img
       v-if="logoSrc"
       :src="logoSrc"
       :alt="alt"
-      class="h-full w-full object-cover"
+        class="h-full w-full object-contain"
       @error="onLogoError"
     />
     <slot v-else />

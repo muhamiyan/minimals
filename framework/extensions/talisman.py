@@ -5,7 +5,9 @@ from flask import Flask
 
 DEFAULT_CSP = (
     "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; "
-    "img-src 'self' data:; font-src 'self'; base-uri 'self'; object-src 'none'"
+    "img-src 'self' data: blob:; font-src 'self'; base-uri 'self'; object-src 'none'; "
+    "frame-src https://www.google.com https://maps.google.com; "
+    "child-src https://www.google.com https://maps.google.com"
 )
 
 
