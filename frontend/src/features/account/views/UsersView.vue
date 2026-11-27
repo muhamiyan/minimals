@@ -13,6 +13,7 @@ import {
 
 import ListFoot from '@/shared/components/ListFoot.vue'
 import ListHead from '@/shared/components/ListHead.vue'
+import ListIndexCell from '@/shared/components/ListIndexCell.vue'
 import ListState from '@/shared/components/ListState.vue'
 import ListToolbar from '@/shared/components/ListToolbar.vue'
 import { useListControls } from '@/shared/composables/useListControls'
@@ -34,8 +35,8 @@ const empty = computed(
 )
 
 const columns = {
-  base: ['minmax(0,1fr)', '6rem', '6.5rem', '3rem'],
-  md: ['minmax(0,2fr)', '6rem', 'minmax(0,1.5fr)', '6.5rem', '3rem'],
+  base: ['2.5rem', 'minmax(0,1fr)', '5rem', '5rem', '2.5rem'],
+  md: ['3rem', 'minmax(0,2fr)', '6rem', 'minmax(0,1.5fr)', '6.5rem', '3rem'],
 }
 
 const { search, perPage, reload: refresh, goToPage } = useListControls({
@@ -117,6 +118,7 @@ onMounted(async () => {
       >
         <List :row-height="32" :columns="columns" class="list-row-px-3">
           <ListHead>
+            <ListHeaderCell>{{ t('account.columns.no') }}</ListHeaderCell>
             <ListHeaderCell>{{ t('account.columns.user') }}</ListHeaderCell>
             <ListHeaderCell>{{ t('account.columns.appRole') }}</ListHeaderCell>
             <ListHeaderCell class="max-md:hidden">
@@ -128,8 +130,13 @@ onMounted(async () => {
             </ListHeaderCell>
           </ListHead>
 
-          <ListRows :items="store.items" v-slot="{ item }">
+          <ListRows :items="store.items" v-slot="{ item, index }">
             <ListRow :value="item.id" @click="openEdit(item)">
+              <ListIndexCell
+                :page="store.page"
+                :per-page="store.perPage"
+                :index="index"
+              />
               <ListCell>
                 <div class="flex min-w-0 items-center gap-2">
                   <span class="truncate text-base-medium text-ink-gray-8">

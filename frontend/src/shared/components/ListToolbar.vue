@@ -23,6 +23,8 @@ const defaultPerPageOptions = computed(() => [
   { label: t('shared.perPage', { n: 10 }), value: 10 },
   { label: t('shared.perPage', { n: 20 }), value: 20 },
   { label: t('shared.perPage', { n: 50 }), value: 50 },
+  { label: t('shared.perPage', { n: 100 }), value: 100 },
+  { label: t('shared.perPage', { n: 200 }), value: 200 },
 ])
 
 function onPerPage(value: SelectOptionValue | null | undefined) {

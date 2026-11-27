@@ -147,6 +147,7 @@
     "noUsers": "Belum ada pengguna.",
     "noUsersFound": "Tidak ada pengguna yang cocok.",
     "columns": {
+      "no": "No",
       "user": "Pengguna",
       "appRole": "Peran app",
       "roles": "Grup",

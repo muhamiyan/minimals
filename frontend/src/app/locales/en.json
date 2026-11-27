@@ -147,6 +147,7 @@
     "noUsers": "No users yet.",
     "noUsersFound": "No users match your search.",
     "columns": {
+      "no": "No",
       "user": "User",
       "appRole": "App role",
       "roles": "Groups",
